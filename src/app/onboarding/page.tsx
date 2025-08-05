@@ -1311,7 +1311,7 @@ export default function VenueOnboardingPage() {
         </div>
 
         {/* Progress Indicator */}
-        <div className="w-full lg:w-2/3 bg-gray-100 overflow-y-auto p-6" ref={rightRef}>
+        <div className="w-full lg:w-2/3 bg-gray-100 overflow-y-auto p-2 sm:p-6" ref={rightRef}>
           <div className="mb-12">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
   {steps.map((step, index) => (
@@ -1377,7 +1377,7 @@ export default function VenueOnboardingPage() {
                 </div>
 
                 {/* Step Content */}
-                <div className="p-8 min-h-[400px]">
+                <div className="p-4 sm:p-8 min-h-[400px]">
                     {renderStepContent()}
                 </div>
 
