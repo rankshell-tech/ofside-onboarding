@@ -16,9 +16,12 @@ export default function VenueOnboardingPage() {
     sportsOffered: [] as string[],
     description: '',
     venueLogo: null as File | null,
+    is24HoursOpen: false,
 
     // Address & Contact
-    fullAddress: '',
+    shopNo: '',
+    floorTower: '',
+    areaSectorLocality: '',
     city: '',
     state: '',
     pincode: '',
@@ -44,6 +47,15 @@ export default function VenueOnboardingPage() {
     courtSize: '',
     isIndoor: false,
     hasLighting: false,
+    courtImages: [] as File[],
+    courtSlotDuration: '',
+    courtMaxPeople: '',
+    courtPricePerSlot: '',
+    courtPeakEnabled: false,
+    courtPeakDays: [] as string[],
+    courtPeakStart: '',
+    courtPeakEnd: '',
+    courtPeakPricePerSlot: '',
 
     // Pricing & Availability
     slotDuration: '',
@@ -57,7 +69,6 @@ export default function VenueOnboardingPage() {
     { title: 'Basic Details', icon: Building, color: 'from-[#ffe100] to-[#ffed4e]' },
     { title: 'Address & Contact', icon: MapPin, color: 'from-blue-500 to-blue-600' },
     { title: 'Amenities', icon: Plus, color: 'from-green-500 to-green-600' },
-    // { title: 'Venue Gallery', icon: Camera, color: 'from-purple-500 to-purple-600' },
     { title: 'Court Details', icon: Building, color: 'from-orange-500 to-orange-600' },
     { title: 'Declaration', icon: Check, color: 'from-red-500 to-red-600' }
   ];
@@ -263,52 +274,6 @@ export default function VenueOnboardingPage() {
             </p>
           </div>
             </div>
-
-       
-          {/* <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Venue Type *
-            </label>
-            <select
-              value={formData.venueType}
-              onChange={(e) => setFormData({...formData, venueType: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-700"
-              required
-            >
-              <option value="">Select venue type</option>
-              {venueTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div> */}
-       
-
-         
-
-     
-
-          {/* <div className="lg:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Venue Logo
-          </label>
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#ffe100] transition-all">
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">Upload your venue logo</p>
-            <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileUpload('venueLogo', e.target.files)}
-            className="hidden"
-            id="logo-upload"
-            />
-            <label htmlFor="logo-upload" className="btn-primary cursor-pointer text-gray-700">
-            Choose File
-            </label>
-            {formData.venueLogo && (
-            <p className="text-sm text-green-600 mt-2">✓ {formData.venueLogo.name}</p>
-            )}
-          </div>
-          </div> */}
         </div>
         </div>
       );
@@ -592,47 +557,6 @@ export default function VenueOnboardingPage() {
         </div>
       );
 
-      // case 3: // Gallery
-      // return (
-      //   <div className="space-y-8">
-      //   <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-purple-500 transition-all mb-6">
-      //     <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-      //     <p className="text-gray-600 mb-2">Upload multiple images of your venue</p>
-      //     <input
-      //     type="file"
-      //     accept="image/*"
-      //     multiple
-      //     onChange={(e) => handleFileUpload('galleryImages', e.target.files)}
-      //     className="hidden"
-      //     id="gallery-upload"
-      //     />
-      //     <label htmlFor="gallery-upload" className="btn-primary cursor-pointer text-gray-700">
-      //     Choose Images
-      //     </label>
-      //   </div>
-
-      //   {formData.galleryImages.length > 0 && (
-      //     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      //     {formData.galleryImages.map((file, index) => (
-      //       <div key={index} className="relative group">
-      //       <img
-      //         src={URL.createObjectURL(file)}
-      //         alt={`Gallery ${index + 1}`}
-      //         className="w-full h-32 object-cover rounded-xl"
-      //       />
-      //       <button
-      //         type="button"
-      //         onClick={() => removeGalleryImage(index)}
-      //         className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-      //       >
-      //         <X className="w-4 h-4" />
-      //       </button>
-      //       </div>
-      //     ))}
-      //     </div>
-      //   )}
-      //   </div>
-      // );
 
       case 3: // Court Details
       return (
@@ -1167,7 +1091,7 @@ export default function VenueOnboardingPage() {
               {/* Help Text */}
               <div className="text-center mt-8">
                 <p className="text-gray-600">
-                  Your venue will be reviewed within 24-48 hours and you'll be notified via email.
+                  Your venue will be reviewed within 24-48 hours and you will be notified via email.
                 </p>
               </div>
           </div>
