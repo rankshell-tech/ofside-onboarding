@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, X, Plus, MapPin, Phone, Mail, User, Building, Camera, Clock, DollarSign, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useRef } from 'react';
 
@@ -8,6 +8,10 @@ import { useRef } from 'react';
 export default function VenueOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const rightRef = useRef<HTMLDivElement>(null);
+
+
+
+
 
   const [formData, setFormData] = useState({
     // Basic Details
@@ -33,38 +37,39 @@ export default function VenueOnboardingPage() {
     ownerName: '',
     ownerPhone: '',
     ownerEmail: '',
-
+    startTime: '06:00',
+    endTime: '23:59',
     // Amenities
     amenities: [] as string[],
 
-    // Gallery
-    galleryImages: [] as File[],
 
-    // Court Details
-    courtName: '',
-    courtSportType: '',
-    surfaceType: '',
-    courtSize: '',
-    isIndoor: false,
-    hasLighting: false,
-    courtImages: [] as File[],
-    courtSlotDuration: '',
-    courtMaxPeople: '',
-    courtPricePerSlot: '',
-    courtPeakEnabled: false,
-    courtPeakDays: [] as string[],
-    courtPeakStart: '',
-    courtPeakEnd: '',
-    courtPeakPricePerSlot: '',
 
-    // Pricing & Availability
-    slotDuration: '',
-    pricePerSlot: '',
-    startTime: '',
-    endTime: '',
     availableDays: [] as string[],
     declarationAgreed: false,
+
+    // Courts Array for multiple courts support
+    courts: [
+      {
+        courtName: '',
+        surfaceType: '',
+        courtSportType: '',
+        courtSlotDuration: '1',
+        courtMaxPeople: '1',
+        courtPricePerSlot: '',
+        courtImages: [] as File[],
+        courtPeakEnabled: false,
+        courtPeakDays: [] as string[],
+        courtPeakStart: '',
+        courtPeakEnd: '',
+        courtPeakPricePerSlot: '',
+      },
+    ],
   });
+
+
+        // Add courts state and setCourts function
+        const [courts, setCourts] = useState(formData.courts);
+
 
 
 //  const [formData, setFormData] = useState(
@@ -116,6 +121,20 @@ export default function VenueOnboardingPage() {
 
 //  )
 
+
+
+
+
+        // Sync courts with formData
+    useEffect(() => {
+          setFormData(prev => ({
+        ...prev,
+        courts: formData.courts,
+          }));
+        }, [formData.courts]);
+
+
+
   const requiredFields = [
     'venueName',
     'description',
@@ -132,6 +151,14 @@ export default function VenueOnboardingPage() {
     'ownerName',
     'ownerPhone',
     'ownerEmail',
+    // Remove single court fields, handle via courts array
+    'slotDuration',
+    'pricePerSlot',
+    'declarationAgreed'
+  ];
+
+  // For multiple courts, track touched for each court by index
+  const courtFields = [
     'courtName',
     'surfaceType',
     'courtSportType',
@@ -139,17 +166,55 @@ export default function VenueOnboardingPage() {
     'courtMaxPeople',
     'courtPricePerSlot',
     'courtImages',
-    'slotDuration',
-    'pricePerSlot',
-    'declarationAgreed'
+    'courtPeakEnabled',
+    'courtPeakDays',
+    'courtPeakStart',
+    'courtPeakEnd',
+    'courtPeakPricePerSlot',
   ];
 
+  // touched for main form fields
   const [touched, setTouched] = useState<Record<string, boolean>>(
     Object.fromEntries(requiredFields.map(field => [field, false]))
   );
 
+  // touched for each court (array of objects)
+  const [courtsTouched, setCourtsTouched] = useState<Record<string, boolean>[]>(
+    formData.courts.map(() =>
+      Object.fromEntries(courtFields.map(field => [field, false]))
+    )
+  );
+
+  // Update courtsTouched when courts array changes (add/remove courts)
+  useEffect(() => {
+    setCourtsTouched(prev => {
+      // If courts length increased, add new touched object
+      if (formData.courts.length > prev.length) {
+        return [
+          ...prev,
+          Object.fromEntries(courtFields.map(field => [field, false]))
+        ];
+      }
+      // If courts length decreased, remove touched object
+      if (formData.courts.length < prev.length) {
+        return prev.slice(0, formData.courts.length);
+      }
+      return prev;
+    });
+  }, [formData.courts.length]);
+
+  // For main fields
   const handleTouched = (field: string) => {
     setTouched(prev => ({ ...prev, [field]: true }));
+  };
+
+  // For court fields
+  const handleCourtTouched = (courtIdx: number, field: string) => {
+    setCourtsTouched(prev =>
+      prev.map((obj, idx) =>
+        idx === courtIdx ? { ...obj, [field]: true } : obj
+      )
+    );
   };
 
   const handleGoToHome = () => {
@@ -194,25 +259,7 @@ export default function VenueOnboardingPage() {
     });
   };
 
-  const handleFileUpload = (field: string, files: FileList | null) => {
-    if (!files) return;
-
-    if (field === 'venueLogo') {
-      setFormData(prev => ({ ...prev, venueLogo: files[0] }));
-    } else if (field === 'galleryImages') {
-      setFormData(prev => ({
-        ...prev,
-        galleryImages: [...prev.galleryImages, ...Array.from(files)]
-      }));
-    }
-  };
-
-  const removeGalleryImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      galleryImages: prev.galleryImages.filter((_, i) => i !== index)
-    }));
-  };
+ 
 
   const nextStep = () => {
     rightRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -228,11 +275,63 @@ export default function VenueOnboardingPage() {
   };
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Helper to upload a single image and get its URL
+  const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        return data.url;
+      }
+      return null;
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      return null;
+    }
+  };
+
+  // Submit handler: upload all court images, replace File[] with string[] (URLs), then send to backend
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate submit, show popup
+
+    // Upload images for each court and replace with URLs
+    const courtsWithUrls = await Promise.all(
+      formData.courts.map(async (court) => {
+        // Upload each image and get its URL
+        const imageUrls: string[] = [];
+        for (const file of court.courtImages) {
+          const url = await uploadImageAndGetUrl(file);
+          if (url) imageUrls.push(url);
+        }
+        return {
+          ...court,
+          courtImages: imageUrls, // Replace File[] with string[] (URLs)
+        };
+      })
+    );
+
+    // Prepare final form data with courts containing image URLs
+    const finalFormData = {
+      ...formData,
+      courts: courtsWithUrls,
+    };
+
+    // TODO: Send finalFormData to your backend API here
+    // Example:
+    await fetch('/api/venue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(finalFormData),
+    });
+
     setShowSuccessPopup(true);
-    console.log('Form submitted:', formData);
+    console.log('Form submitted:', finalFormData);
   };
 
   const isStepValid = (stepIndex: number) => {
@@ -245,9 +344,25 @@ export default function VenueOnboardingPage() {
         return true; // Optional step
      
       case 3: // Court Details
-        return formData.courtName && formData.courtSportType;
+        return formData.courts.every(
+          (court) =>
+            court.courtName &&
+            court.surfaceType &&
+            court.courtSportType &&
+            court.courtSlotDuration &&
+            court.courtMaxPeople &&
+            court.courtPricePerSlot &&
+            court.courtImages &&
+            court.courtImages.length >= 2 &&
+            (!court.courtPeakEnabled ||
+              (court.courtPeakDays &&
+                court.courtPeakDays.length > 0 &&
+                court.courtPeakStart &&
+                court.courtPeakEnd &&
+                court.courtPeakPricePerSlot))
+        );
       case 4: // Pricing & Availability
-        return formData.slotDuration && formData.pricePerSlot && formData.startTime && formData.endTime && formData.availableDays.length > 0;
+        return formData.declarationAgreed &&  formData.startTime && formData.endTime && formData.availableDays.length > 0;
       default:
         return false;
     }
@@ -846,364 +961,457 @@ export default function VenueOnboardingPage() {
         );
 
       case 3: // Court Details
-        // Validation logic
-        const courtErrors: Record<string, string> = {};
-        if (!formData.courtName.trim() && touched.courtName) courtErrors.courtName = "Court name is required.";
-        if (!formData.surfaceType.trim() && touched.surfaceType) courtErrors.surfaceType = "Surface type is required.";
-        if (!formData.courtSportType.trim() && touched.courtSportType) courtErrors.courtSportType = "Sport type is required.";
-        if (!formData.courtSlotDuration && touched.courtSlotDuration) courtErrors.courtSlotDuration = "Slot duration is required.";
-        if (!formData.courtMaxPeople && touched.courtMaxPeople) courtErrors.courtMaxPeople = "Max booking per slot is required.";
-        if ((!formData.courtPricePerSlot || Number(formData.courtPricePerSlot) <= 0) && touched.courtPricePerSlot) courtErrors.courtPricePerSlot = "Enter a valid price per slot.";
-        if ((!formData.courtImages || formData.courtImages.length < 2) && touched.courtImages) courtErrors.courtImages = "At least 2 images are required.";
-        if (formData.courtPeakEnabled) {
-          if ((!formData.courtPeakDays || formData.courtPeakDays.length === 0) && touched.courtPeakDays) courtErrors.courtPeakDays = "Select at least one peak day.";
-          if (!formData.courtPeakStart && touched.courtPeakStart) courtErrors.courtPeakStart = "Peak start time is required.";
-          if (!formData.courtPeakEnd && touched.courtPeakEnd) courtErrors.courtPeakEnd = "Peak end time is required.";
-          if ((!formData.courtPeakPricePerSlot || Number(formData.courtPeakPricePerSlot) <= 0) && touched.courtPeakPricePerSlot) courtErrors.courtPeakPricePerSlot = "Enter a valid peak price per slot.";
-        }
+        // Multiple courts support
+     
+
+        // Validation logic for each court
+        const courtsErrors: Record<number, Record<string, string>> = {};
+        formData.courts.forEach((court, idx) => {
+          const errors: Record<string, string> = {};
+          if (!court.courtName.trim() && courtsTouched[idx]?.courtName) errors.courtName = "Court name is required.";
+          if (!court.surfaceType.trim() && courtsTouched[idx]?.surfaceType) errors.surfaceType = "Surface type is required.";
+          if (!court.courtSportType.trim() && courtsTouched[idx]?.courtSportType) errors.courtSportType = "Sport type is required.";
+          if (!court.courtSlotDuration && courtsTouched[idx]?.courtSlotDuration) errors.courtSlotDuration = "Slot duration is required.";
+          if (!court.courtMaxPeople && courtsTouched[idx]?.courtMaxPeople) errors.courtMaxPeople = "Max booking per slot is required.";
+          if ((!court.courtPricePerSlot || Number(court.courtPricePerSlot) <= 0) && courtsTouched[idx]?.courtPricePerSlot) errors.courtPricePerSlot = "Enter a valid price per slot.";
+          if ((!court.courtImages || court.courtImages.length < 2) && courtsTouched[idx]?.courtImages) errors.courtImages = "At least 2 images are required.";
+          if (court.courtPeakEnabled) {
+            if ((!court.courtPeakDays || court.courtPeakDays.length === 0) && courtsTouched[idx]?.courtPeakDays) errors.courtPeakDays = "Select at least one peak day.";
+            if (!court.courtPeakStart && courtsTouched[idx]?.courtPeakStart) errors.courtPeakStart = "Peak start time is required.";
+            if (!court.courtPeakEnd && courtsTouched[idx]?.courtPeakEnd) errors.courtPeakEnd = "Peak end time is required.";
+            if ((!court.courtPeakPricePerSlot || Number(court.courtPeakPricePerSlot) <= 0) && courtsTouched[idx]?.courtPeakPricePerSlot) errors.courtPeakPricePerSlot = "Enter a valid peak price per slot.";
+          }
+          courtsErrors[idx] = errors;
+        });
+
+
+        const handleCourtChange = (idx: number, field: string, value: string | boolean) => {
+          setCourts((prev: typeof formData.courts) => {
+            const updatedCourts = prev.map((court: typeof formData.courts[number], i: number) =>
+              i === idx ? { ...court, [field]: value } : court
+            );
+            setFormData(prevFormData => ({ ...prevFormData, courts: updatedCourts }));
+            return updatedCourts;
+          });
+        };
+
+        const handleCourtFileChange = (idx: number, files: FileList | null) => {
+          if (!files) return;
+          setCourts(prev => {
+            const updatedCourts = prev.map((court, i) =>
+              i === idx
+                ? { ...court, courtImages: Array.from(files).slice(0, 5) }
+                : court
+            );
+            setFormData(prevFormData => ({ ...prevFormData, courts: updatedCourts }));
+            return updatedCourts;
+          });
+        };
+
+        const handleRemoveCourtImage = (idx: number, imgIdx: number) => {
+          setCourts(prev =>
+        prev.map((court: typeof formData.courts[number], i: number) =>
+          i === idx
+            ? {
+            ...court,
+            courtImages: court.courtImages.filter((_: File, j: number) => j !== imgIdx),
+          }
+            : court
+        )
+          );
+        };
+
+        type CourtArrayField = 'courtPeakDays';
+        const handleCourtMultiSelect = (idx: number, field: CourtArrayField, value: string) => {
+          setCourts(prev =>
+            prev.map((court, i) =>
+              i === idx
+                ? {
+                    ...court,
+                    [field]: court[field].includes(value)
+                      ? court[field].filter((item) => item !== value)
+                      : [...court[field], value],
+                  }
+                : court
+            )
+          );
+        };
+
+        const addCourt = () => {
+          setCourts(prev => [
+        ...prev,
+        {
+          courtName: '',
+          surfaceType: '',
+          courtSportType: '',
+          courtSlotDuration: '',
+          courtMaxPeople: '',
+          courtPricePerSlot: '',
+          courtImages: [] as File[],
+          courtPeakEnabled: false,
+          courtPeakDays: [] as string[],
+          courtPeakStart: '',
+          courtPeakEnd: '',
+          courtPeakPricePerSlot: '',
+        },
+          ]);
+        };
+
+        const removeCourt = (idx: number) => {
+          setCourts(prev => prev.filter((_, i) => i !== idx));
+        };
 
         return (
-          <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-          {/* Court Name */}
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Court Name *
-        </label>
-        <input
-          type="text"
-          value={formData.courtName}
-          onChange={(e) => {
-        setFormData({ ...formData, courtName: e.target.value });
-        handleTouched('courtName');
-          }}
-          onBlur={() => handleTouched('courtName')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtName ? "border-red-500" : "border-gray-300"
-          }`}
-          placeholder="e.g., Court A, Main Ground"
-          required
-        />
-        {courtErrors.courtName && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtName}</span>
-        )}
-          </div>
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Surface Type *
-        </label>
-        <select
-          value={formData.surfaceType}
-          onChange={(e) => {
-        setFormData({ ...formData, surfaceType: e.target.value });
-        handleTouched('surfaceType');
-          }}
-          onBlur={() => handleTouched('surfaceType')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.surfaceType ? "border-red-500" : "border-gray-300"
-          }`}
-          required
-        >
-          <option value="">Select surface type</option>
-          {surfaceTypes.map(type => (
-        <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
-        {courtErrors.surfaceType && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.surfaceType}</span>
-        )}
-          </div>
+            <div className="space-y-8">
+            {courts.map((court, idx) => (
+            <div key={idx} className="border rounded-2xl p-6 mb-8 bg-white shadow relative">
+            {courts.length > 1 && (
+            <button
+            type="button"
+            className="absolute top-4 right-4 bg-red-100 text-red-600 rounded-full p-2 hover:bg-red-200 transition"
+            onClick={() => removeCourt(idx)}
+            title="Remove this court"
+            >
+            <X className="w-5 h-5" />
+            </button>
+            )}
+            <div className="mb-4">
+            <span className="inline-block bg-orange-100 text-orange-700 font-semibold px-4 py-1 rounded-xl">
+            Court {idx + 1}
+            </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {/* Court Name */}
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Court Name *
+            </label>
+            <input
+              type="text"
+              value={court.courtName}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtName', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtName')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.courtName ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="e.g., Court A, Main Ground"
+              required
+            />
+            {courtsErrors[idx]?.courtName && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtName}</span>
+            )}
+            </div>
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Surface Type *
+            </label>
+            <select
+              value={court.surfaceType}
+              onChange={(e) => {
+              handleCourtChange(idx, 'surfaceType', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'surfaceType')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.surfaceType ? "border-red-500" : "border-gray-300"
+              }`}
+              required
+            >
+              <option value="">Select surface type</option>
+              {surfaceTypes.map(type => (
+            <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            {courtsErrors[idx]?.surfaceType && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].surfaceType}</span>
+            )}
+            </div>
 
-          {/* Court Images Upload Section */}
-          <div className="sm:col-span-2">
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Court Images (Minimum 2 Images required, first is cover) *
-        </label>
-        <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${
-          courtErrors.courtImages ? "border-red-500" : "border-gray-300 hover:border-orange-500"
-        }`}>
-          <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 mb-2">
-        Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
-          </p>
-          <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={(e) => {
-          const files = e.target.files ? Array.from(e.target.files).slice(0, 5) : [];
-          setFormData(prev => ({
-        ...prev,
-        courtImages: files
-          }));
-          handleTouched('courtImages');
-        }}
-        onBlur={() => handleTouched('courtImages')}
-        className="hidden"
-        id="court-images-upload"
-          />
-          <label htmlFor="court-images-upload" className="btn-primary cursor-pointer text-gray-700">
-        Select Images
-          </label>
-        </div>
-        {formData.courtImages && formData.courtImages.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {formData.courtImages.map((file: File, index: number) => (
-          <div key={index} className="relative group">
-        <img
-          src={URL.createObjectURL(file)}
-          alt={`Court ${index + 1}`}
-          className={`w-full h-32 object-cover rounded-xl ${index === 0 ? 'border-4 border-orange-400' : ''}`}
-        />
-        <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-          {index === 0 ? 'Cover Photo' : `Image ${index + 1}`}
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            setFormData(prev => ({
-          ...prev,
-          courtImages: prev.courtImages.filter((_, i) => i !== index)
-            }));
-            handleTouched('courtImages');
-          }}
-          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <X className="w-4 h-4" />
-        </button>
-          </div>
-        ))}
-          </div>
-        )}
-        {courtErrors.courtImages && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtImages}</span>
-        )}
-        <p className="text-sm text-gray-700 mb-6">
-          <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
-        </p>
-          </div>
-
-          {/* Sport Type */}
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Sport Type *
-        </label>
-        <select
-          value={formData.courtSportType}
-          onChange={(e) => {
-        setFormData({ ...formData, courtSportType: e.target.value });
-        handleTouched('courtSportType');
-          }}
-          onBlur={() => handleTouched('courtSportType')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtSportType ? "border-red-500" : "border-gray-300"
-          }`}
-          required
-        >
-          <option value="">Select sport type</option>
-          {sportsOptions.map(sport => (
-        <option key={sport} value={sport}>{sport}</option>
-          ))}
-        </select>
-        {courtErrors.courtSportType && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtSportType}</span>
-        )}
-          </div>
-
-          {/* Slot Duration (hours) */}
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Slot Duration (hours) *
-        </label>
-        <select
-          value={formData.courtSlotDuration || '1'}
-          onChange={(e) => {
-        setFormData({ ...formData, courtSlotDuration: e.target.value });
-        handleTouched('courtSlotDuration');
-          }}
-          onBlur={() => handleTouched('courtSlotDuration')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtSlotDuration ? "border-red-500" : "border-gray-300"
-          }`}
-          required
-        >
-          {[1, 2, 3, 4, 5].map(hour => (
-        <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
-          ))}
-        </select>
-        {courtErrors.courtSlotDuration && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtSlotDuration}</span>
-        )}
-          </div>
-
-          {/* How many in 1 slot */}
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Max Booking Per Slot *
-        </label>
-        <select
-          value={formData.courtMaxPeople || '10'}
-          onChange={(e) => {
-        setFormData({ ...formData, courtMaxPeople: e.target.value });
-        handleTouched('courtMaxPeople');
-          }}
-          onBlur={() => handleTouched('courtMaxPeople')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtMaxPeople ? "border-red-500" : "border-gray-300"
-          }`}
-          required
-        >
-          {[...Array(20)].map((_, i) => (
-        <option key={i + 1} value={i + 1}>{i + 1}</option>
-          ))}
-        </select>
-        {courtErrors.courtMaxPeople && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtMaxPeople}</span>
-        )}
-          </div>
-
-          {/* Pricing Per Slot */}
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Price Per Slot (₹) *
-        </label>
-        <input
-          type="number"
-          min={0}
-          value={formData.courtPricePerSlot || '500'}
-          onChange={(e) => {
-        setFormData({ ...formData, courtPricePerSlot: e.target.value });
-        handleTouched('courtPricePerSlot');
-          }}
-          onBlur={() => handleTouched('courtPricePerSlot')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtPricePerSlot ? "border-red-500" : "border-gray-300"
-          }`}
-          placeholder="e.g., 500"
-          required
-        />
-        {courtErrors.courtPricePerSlot && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPricePerSlot}</span>
-        )}
-          </div>
-
-          {/* Peak Hours Toggle */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-        type="checkbox"
-        checked={!!formData.courtPeakEnabled}
-        onChange={(e) => setFormData({ ...formData, courtPeakEnabled: e.target.checked })}
-        className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-        </label>
-          </div>
-
-          {/* Peak Hours Details */}
-          {formData.courtPeakEnabled && (
-        <>
-          <div className="sm:col-span-2">
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Peak Days
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          {daysOfWeek.map(day => (
-        <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
-          <input
-            type="checkbox"
-            checked={formData.courtPeakDays?.includes(day) || false}
-            onChange={() => {
-          setFormData(prev => {
-            const arr = prev.courtPeakDays || [];
-            return {
-          ...prev,
-          courtPeakDays: arr.includes(day)
-            ? arr.filter((d: string) => d !== day)
-            : [...arr, day]
-            };
-          });
-          handleTouched('courtPeakDays');
+            {/* Court Images Upload Section */}
+            <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Court Images (Minimum 2 Images required, first is cover) *
+            </label>
+            <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${
+              courtsErrors[idx]?.courtImages ? "border-red-500" : "border-gray-300 hover:border-orange-500"
+            }`}>
+              <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">
+            Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
+              </p>
+              <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              handleCourtFileChange(idx, e.target.files);
             }}
-            onBlur={() => handleTouched('courtPeakDays')}
-            className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
-          />
-          <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
-        </label>
-          ))}
-        </div>
-        {courtErrors.courtPeakDays && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakDays}</span>
-        )}
-          </div>
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Peak Hours (Select Range)
-        </label>
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <input
-        type="time"
-        value={formData.courtPeakStart || ''}
-        onChange={(e) =>
-          setFormData({ ...formData, courtPeakStart: e.target.value })
-        }
-        onBlur={() => handleTouched('courtPeakStart')}
-        className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-          courtErrors.courtPeakStart ? "border-red-500" : "border-gray-300"
-        }`}
-        placeholder="Start"
-          />
-          <span className="mx-2 text-gray-500">to</span>
-          <input
-        type="time"
-        value={formData.courtPeakEnd || ''}
-        onChange={(e) =>
-          setFormData({ ...formData, courtPeakEnd: e.target.value })
-        }
-        onBlur={() => handleTouched('courtPeakEnd')}
-        className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-          courtErrors.courtPeakEnd ? "border-red-500" : "border-gray-300"
-        }`}
-        placeholder="End"
-          />
-        </div>
-        {courtErrors.courtPeakStart && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakStart}</span>
-        )}
-        {courtErrors.courtPeakEnd && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakEnd}</span>
-        )}
-        <p className="text-xs text-gray-500 mt-2">
-          Example: 18:00 to 21:00 (24-hour format)
-        </p>
-          </div>
-          <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Peak Hours Price Per Slot (₹)
-        </label>
-        <input
-          type="number"
-          min={0}
-          value={formData.courtPeakPricePerSlot || ''}
-          onChange={(e) => {
-            setFormData({ ...formData, courtPeakPricePerSlot: e.target.value });
-            handleTouched('courtPeakPricePerSlot');
-          }}
-          onBlur={() => handleTouched('courtPeakPricePerSlot')}
-          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-        courtErrors.courtPeakPricePerSlot ? "border-red-500" : "border-gray-300"
-          }`}
-          placeholder="e.g., 700"
-        />
-        {courtErrors.courtPeakPricePerSlot && (
-          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakPricePerSlot}</span>
-        )}
-          </div>
-        </>
-          )}
-        </div>
-          </div>
+            onBlur={() => handleCourtTouched(idx, 'courtImages')}
+            className="hidden"
+            id={`court-images-upload-${idx}`}
+              />
+              <label htmlFor={`court-images-upload-${idx}`} className="btn-primary cursor-pointer text-gray-700">
+            Select Images
+              </label>
+            </div>
+            {court.courtImages && court.courtImages.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {court.courtImages.map((file: File, imgIdx: number) => (
+              <div key={imgIdx} className="relative group">
+              <img
+              src={URL.createObjectURL(file)}
+              alt={`Court ${imgIdx + 1}`}
+              className={`w-full h-32 object-cover rounded-xl ${imgIdx === 0 ? 'border-4 border-orange-400' : ''}`}
+              />
+              <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+              {imgIdx === 0 ? 'Cover Photo' : `Image ${imgIdx + 1}`}
+              </span>
+              <button
+              type="button"
+              onClick={() => {
+              handleRemoveCourtImage(idx, imgIdx);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtImages')}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+              <X className="w-4 h-4" />
+              </button>
+              </div>
+            ))}
+              </div>
+            )}
+            {courtsErrors[idx]?.courtImages && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtImages}</span>
+            )}
+            <p className="text-sm text-gray-700 mb-6">
+              <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
+            </p>
+            </div>
+
+            {/* Sport Type */}
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Sport Type *
+            </label>
+            <select
+              value={court.courtSportType}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtSportType', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtSportType')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.courtSportType ? "border-red-500" : "border-gray-300"
+              }`}
+              required
+            >
+              <option value="">Select sport type</option>
+              {sportsOptions.map(sport => (
+            <option key={sport} value={sport}>{sport}</option>
+              ))}
+            </select>
+            {courtsErrors[idx]?.courtSportType && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtSportType}</span>
+            )}
+            </div>
+
+            {/* Slot Duration (hours) */}
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Slot Duration (hours) *
+            </label>
+            <select
+              value={court.courtSlotDuration}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtSlotDuration', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtSlotDuration')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.courtSlotDuration ? "border-red-500" : "border-gray-300"
+              }`}
+              required
+            >
+              {[1, 2, 3, 4, 5].map(hour => (
+            <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
+              ))}
+            </select>
+            {courtsErrors[idx]?.courtSlotDuration && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtSlotDuration}</span>
+            )}
+            </div>
+
+            {/* How many in 1 slot */}
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Max Booking Per Slot *
+            </label>
+            <select
+              value={court.courtMaxPeople}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtMaxPeople', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtMaxPeople')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.courtMaxPeople ? "border-red-500" : "border-gray-300"
+              }`}
+              required
+            >
+              {[...Array(20)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>{i + 1}</option>
+              ))}
+            </select>
+            {courtsErrors[idx]?.courtMaxPeople && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtMaxPeople}</span>
+            )}
+            </div>
+
+            {/* Pricing Per Slot */}
+            <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Price Per Slot (₹) *
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={court.courtPricePerSlot}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtPricePerSlot', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtPricePerSlot')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtsErrors[idx]?.courtPricePerSlot ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="e.g., 500"
+              required
+            />
+            {courtsErrors[idx]?.courtPricePerSlot && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPricePerSlot}</span>
+            )}
+            </div>
+
+            {/* Peak Hours Toggle */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+            type="checkbox"
+            checked={!!court.courtPeakEnabled}
+            onChange={(e) => {
+              handleCourtChange(idx, 'courtPeakEnabled', e.target.checked);
+            }}
+            onBlur={() => handleCourtTouched(idx, 'courtPeakEnabled')}
+            className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            </label>
+            </div>
+
+            {/* Peak Hours Details */}
+            {court.courtPeakEnabled && (
+            <>
+              <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Days
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {daysOfWeek.map(day => (
+              <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
+              <input
+              type="checkbox"
+              checked={court.courtPeakDays?.includes(day) || false}
+              onChange={() => {
+              handleCourtMultiSelect(idx, 'courtPeakDays', day);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtPeakDays')}
+              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
+              />
+              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+              </label>
+              ))}
+            </div>
+            {courtsErrors[idx]?.courtPeakDays && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakDays}</span>
+            )}
+              </div>
+               
+              <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Hours (Select Range)
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <input
+              type="time"
+              value={court.courtPeakStart || ''}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtPeakStart', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtPeakStart')}
+              className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+              courtsErrors[idx]?.courtPeakStart ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Start"
+              />
+              <span className="mx-2 text-gray-500">to</span>
+              <input
+              type="time"
+              value={court.courtPeakEnd || ''}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtPeakEnd', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtPeakEnd')}
+              className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+              courtsErrors[idx]?.courtPeakEnd ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="End"
+              />
+            </div>
+            {courtsErrors[idx]?.courtPeakStart && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakStart}</span>
+            )}
+            {courtsErrors[idx]?.courtPeakEnd && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakEnd}</span>
+            )}
+            <p className="text-xs text-gray-500 mt-2">
+              Example: 18:00 to 21:00 (24-hour format)
+            </p>
+              </div>
+              <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Hours Price Per Slot (₹)
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={court.courtPeakPricePerSlot || ''}
+              onChange={(e) => {
+              handleCourtChange(idx, 'courtPeakPricePerSlot', e.target.value);
+              }}
+              onBlur={() => handleCourtTouched(idx, 'courtPeakPricePerSlot')}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+              courtsErrors[idx]?.courtPeakPricePerSlot ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="e.g., 700"
+            />
+            {courtsErrors[idx]?.courtPeakPricePerSlot && (
+              <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakPricePerSlot}</span>
+            )}
+              </div>
+            </>
+            )}
+            </div>
+            </div>
+            ))}
+            <div className="flex justify-center">
+            <button
+            type="button"
+            className="bg-gradient-to-r from-orange-400 to-orange-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 hover:shadow-lg transition-all"
+            onClick={addCourt}
+            >
+            <Plus className="inline-block w-5 h-5 mr-2" />
+            Add More Courts
+            </button>
+            </div>
+            </div>
         );
 
       case 4: // Declaration
