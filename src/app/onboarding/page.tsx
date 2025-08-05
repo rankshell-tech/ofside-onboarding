@@ -166,770 +166,645 @@ export default function VenueOnboardingPage() {
 
     switch (currentStep) {
       case 0: // Basic Details
-      return (
-        <div className="space-y-8">
-        <div className="grid grid-cols-1  gap-8">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Venue Name *
-            </label>
-            <input
-              type="text"
-              value={formData.venueName}
-              onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-  [#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700"
-              placeholder="Enter your venue name"
-              required
-            />
-          </div>
-                
-          <div className="lg:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Description *
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
-            rows={4}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700"
-            placeholder="Describe your venue, facilities, and what makes it special..."
-            required
-          />
-          </div>   
-             <div className="lg:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Select the operational days *
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {daysOfWeek.map(day => (
-            <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
-              <input
-              type="checkbox"
-              checked={formData.availableDays.includes(day)}
-              onChange={() => handleMultiSelect('availableDays', day)}
-              className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-              />
-              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
-            </label>
-            ))}
-          </div>
-          <div className="flex items-center gap-4 mt-4">
-            <span className="text-sm font-semibold text-gray-700">Venue is open 24 hours?</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={!!formData.is24HoursOpen}
-                onChange={e => {
-                  setFormData(prev => ({
-                    ...prev,
-                    is24HoursOpen: e.target.checked,
-                    startTime: e.target.checked ? '00:00' : prev.startTime,
-                    endTime: e.target.checked ? '23:59' : prev.endTime,
-                  }));
-                }}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
-            </label>
-          </div>
-          </div>   
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Start Time *
-              </label>
-              <div className="relative">
-              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="time"
-                value={formData.startTime || '06:00'}
-                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
-                required
-              />
+        return (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 gap-8">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Venue Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.venueName}
+                  onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700"
+                  placeholder="Enter your venue name"
+                  required
+                />
               </div>
-              <p className="text-xs text-gray-500 mt-2">Venue opening time (e.g., 06:00)</p>
-            </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-              End Time *
-              </label>
-              <div className="relative">
-              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="time"
-                value={formData.endTime || '22:00'}
-                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
-                required
-              />
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Description *
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700"
+                  placeholder="Describe your venue, facilities, and what makes it special..."
+                  required
+                />
               </div>
-              <p className="text-xs text-gray-500 mt-2">Venue closing time (e.g., 22:00)</p>
-            </div>
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Select the operational days *
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {daysOfWeek.map(day => (
+                    <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
+                      <input
+                        type="checkbox"
+                        checked={formData.availableDays.includes(day)}
+                        onChange={() => handleMultiSelect('availableDays', day)}
+                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+                      />
+                      <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
+                  <span className="text-sm font-semibold text-gray-700">Venue is open 24 hours?</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!formData.is24HoursOpen}
+                      onChange={e => {
+                        setFormData(prev => ({
+                          ...prev,
+                          is24HoursOpen: e.target.checked,
+                          startTime: e.target.checked ? '00:00' : prev.startTime,
+                          endTime: e.target.checked ? '23:59' : prev.endTime,
+                        }));
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+                  </label>
+                </div>
+              </div>
+                <div className="flex flex-col gap-6">
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <div className="flex-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Start Time *
+                  </label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                    type="time"
+                    value={formData.startTime || '06:00'}
+                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
+                    required
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Venue opening time (e.g., 06:00)</p>
+                  </div>
 
-                <div className="col-span-2">
-            <p className="text-sm text-gray-700 mb-6">
-              <span className="font-bold">Note:</span> Your Venue profile details will help attract users to your Venue. Please fill correct details of your venue/turf/ground.
-            </p>
-          </div>
-            </div>
-        </div>
-        </div>
-      );
-
-      case 1: // Address & Contact
-      return (
-        <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Shop no./ Building no. *
-          </label>
-          <input
-            type="text"
-            value={formData.shopNo}
-            onChange={(e) => setFormData({...formData, shopNo: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter shop no./ building no."
-            required
-          />
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Floor/Tower (Optional)
-          </label>
-          <input
-            type="text"
-            value={formData.floorTower}
-            onChange={(e) => setFormData({...formData, floorTower: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter floor/tower"
-          />
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Area / Sector / Locality *
-          </label>
-          <input
-            type="text"
-            value={formData.areaSectorLocality}
-            onChange={(e) => setFormData({...formData, areaSectorLocality: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter area/sector/locality"
-          />
-          </div>
-
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            City *
-          </label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => setFormData({...formData, city: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter city"
-            required
-          />
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Any landmark area (Optional)
-          </label>
-          <input
-            type="text"
-            value={formData.state}
-            onChange={(e) => setFormData({...formData, state: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter state"
-            required
-          />
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Area pincode *
-          </label>
-          <input
-            type="text"
-            value={formData.pincode}
-            onChange={(e) => setFormData({...formData, pincode: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter pincode"
-            required
-          />
-          </div>
-
-      
-                <div className="col-span-2">
+                  <div className="flex-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    End Time *
+                  </label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                    type="time"
+                    value={formData.endTime || '22:00'}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
+                    required
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Venue closing time (e.g., 22:00)</p>
+                  </div>
+                </div>
+                <div>
                   <p className="text-sm text-gray-700 mb-6">
-                    <span className="font-bold">Please note Users will see this address on Ofside</span>
+                  <span className="font-bold">Note:</span> Your Venue profile details will help attract users to your Venue. Please fill correct details of your venue/turf/ground.
                   </p>
                 </div>
+                </div>
+            </div>
+          </div>
+        );
 
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Contact Person Name *
-          </label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      case 1: // Address & Contact
+        return (
+          <div className="space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Shop no./ Building no. *
+            </label>
             <input
+          type="text"
+          value={formData.shopNo}
+          onChange={(e) => setFormData({ ...formData, shopNo: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter shop no./ building no."
+          required
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Floor/Tower (Optional)
+            </label>
+            <input
+          type="text"
+          value={formData.floorTower}
+          onChange={(e) => setFormData({ ...formData, floorTower: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter floor/tower"
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Area / Sector / Locality *
+            </label>
+            <input
+          type="text"
+          value={formData.areaSectorLocality}
+          onChange={(e) => setFormData({ ...formData, areaSectorLocality: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter area/sector/locality"
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          City *
+            </label>
+            <input
+          type="text"
+          value={formData.city}
+          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter city"
+          required
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Any landmark area (Optional)
+            </label>
+            <input
+          type="text"
+          value={formData.state}
+          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter state"
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Area pincode *
+            </label>
+            <input
+          type="text"
+          value={formData.pincode}
+          onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          placeholder="Enter pincode"
+          required
+            />
+          </div>
+
+          <div className="col-span-1 sm:col-span-2">
+            <p className="text-sm text-gray-700 mb-4 sm:mb-6">
+          <span className="font-bold">Please note Users will see this address on Ofside</span>
+            </p>
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Contact Person Name *
+            </label>
+            <div className="relative">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
             type="text"
             value={formData.contactPersonName}
-            onChange={(e) => setFormData({...formData, contactPersonName: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, contactPersonName: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             placeholder="Enter contact person name"
             required
-            />
-          </div>
+          />
+            </div>
           </div>
 
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Contact Person Phone Number *
-          </label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Contact Person Phone Number *
+            </label>
+            <div className="relative">
+          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
             type="tel"
             value={formData.contactPhone}
-            onChange={(e) => setFormData({...formData, contactPhone: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             placeholder="Enter phone number"
             required
-            />
-          </div>
+          />
+            </div>
           </div>
 
-          <div >
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Contact Person Email Address *
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Contact Person Email Address *
+            </label>
+            <div className="relative">
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
             type="email"
             value={formData.contactEmail}
-            onChange={(e) => setFormData({...formData, contactEmail: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             placeholder="Enter email address"
             required
-            />
-          </div>
-          </div>
-    
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Owner Name *
-          </label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-            type="text"
-            value={formData.ownerName}
-            onChange={(e) => setFormData({...formData, ownerName: e.target.value})}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="Enter contact person name"
-            required
-            />
-          </div>
+          />
+            </div>
           </div>
 
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Owner Phone Number *
-          </label>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Owner Name *
+            </label>
+            <div className="relative">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            value={formData.ownerName}
+            onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            placeholder="Enter owner name"
+            required
+          />
+            </div>
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Owner Phone Number *
+            </label>
+            <div className="relative">
+          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
             type="tel"
             value={formData.ownerPhone}
-            onChange={(e) => setFormData({...formData, ownerPhone: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             placeholder="Enter phone number"
             required
-            />
-          </div>
+          />
+            </div>
           </div>
 
-          <div >
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Owner Email Address *
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+          Owner Email Address *
+            </label>
+            <div className="relative">
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
             type="email"
             value={formData.ownerEmail}
-            onChange={(e) => setFormData({...formData, ownerEmail: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
             placeholder="Enter email address"
             required
-            />
-          </div>
+          />
+            </div>
           </div>
         </div>
-        </div>
-      );
+          </div>
+        );
 
       case 2: // Amenities
-      return (
-        <div className="space-y-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {amenitiesOptions.map(amenity => {
-            // Map amenity names to Lucide icons (add more as needed)
-            const amenityIcons: Record<string, React.ElementType> = {
-              'WiFi': Upload,
-              'Flood lights': Camera,
-              'Washroom / Restroom': User,
-              'Changing Room': User,
-              'Drinking Water': Mail,
-              'Artificial Grass': Building,
-              'Natural Grass': Building,
-              'Bike/Car Parking': MapPin,
-              'Mobile Charging': Phone,
-              'Showers/Steam': Camera,
-              'Match.refree': Check,
-              'Warm-up track': Clock,
-              'Rental Equipment': Plus,
-              'First Aid': X,
-              'Locker Room': User,
-              'Seating Area': ChevronRight,
-              'Cafeteria': DollarSign,
-              'Coaching': ChevronLeft,
-              // More icons for variety
-              'Scoreboard': Check,
-              'PA System': Upload,
-              'Medical Room': X,
-              'Water Fountain': Mail,
-              'Spectator Stand': ChevronRight,
-              'VIP Lounge': DollarSign,
-              'Kids Play Area': Plus,
-              'Disabled Access': Check,
-              'Security': X,
-              'Trophy Cabinet': Camera,
-              'Team Dugout': Building,
-              'Refreshments': DollarSign,
-              'Parking Attendant': MapPin,
-              'Rest Area': Clock,
-              'Shuttle Service': Phone,
-              'Lost & Found': Mail,
-              'Event Hosting': Plus,
-              'Scorekeeper': Check,
-              'Coach Room': User,
-              'Practice Nets': Camera,
-              'Ball Machine': Plus,
-              'CCTV': Camera,
-              'Fire Safety': X,
-              'Sanitization': Check,
-              'WiFi Zone': Upload,
-              'Charging Station': Phone,
-            };
-            const Icon = amenityIcons[amenity] || Plus;
-            const checked = formData.amenities.includes(amenity);
+        return (
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {amenitiesOptions.map(amenity => {
+                const amenityIcons: Record<string, React.ElementType> = {
+                  'WiFi': Upload,
+                  'Flood lights': Camera,
+                  'Washroom / Restroom': User,
+                  'Changing Room': User,
+                  'Drinking Water': Mail,
+                  'Artificial Grass': Building,
+                  'Natural Grass': Building,
+                  'Bike/Car Parking': MapPin,
+                  'Mobile Charging': Phone,
+                  'Showers/Steam': Camera,
+                  'Match.refree': Check,
+                  'Warm-up track': Clock,
+                  'Rental Equipment': Plus,
+                  'First Aid': X,
+                  'Locker Room': User,
+                  'Seating Area': ChevronRight,
+                  'Cafeteria': DollarSign,
+                  'Coaching': ChevronLeft,
+                };
+                const Icon = amenityIcons[amenity] || Plus;
+                const checked = formData.amenities.includes(amenity);
 
-            return (
-              <label
-                key={amenity}
-                className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
-                  ${checked ? 'bg-green-50 border-green-400 shadow' : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-300'}
-                `}
-                style={{ minHeight: 110 }}
-              >
-                <Icon className={`w-7 h-7 ${checked ? 'text-green-600' : 'text-gray-400'}`} />
-                <span className="text-xs font-medium text-center text-gray-700">{amenity}</span>
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => handleMultiSelect('amenities', amenity)}
-                  className="mt-1 accent-green-500"
-                  style={{ width: 18, height: 18 }}
-                />
-              </label>
-            );
-          })}
-        </div>
-        </div>
-      );
-
+                return (
+                  <label
+                    key={amenity}
+                    className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
+                      ${checked ? 'bg-green-50 border-green-400 shadow' : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-300'}
+                    `}
+                    style={{ minHeight: 110 }}
+                  >
+                    <Icon className={`w-7 h-7 ${checked ? 'text-green-600' : 'text-gray-400'}`} />
+                    <span className="text-xs font-medium text-center text-gray-700">{amenity}</span>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => handleMultiSelect('amenities', amenity)}
+                      className="mt-1 accent-green-500"
+                      style={{ width: 18, height: 18 }}
+                    />
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        );
 
       case 3: // Court Details
-      return (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Court Name */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Court Name *
-          </label>
-          <input
-            type="text"
-            value={formData.courtName}
-            onChange={(e) => setFormData({ ...formData, courtName: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="e.g., Court A, Main Ground"
-            required
-          />
-        </div>
-
-        {/* Court Images Upload Section */}
-        <div className="lg:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Court Images (Minimum 2 Images required, first is cover) *
-          </label>
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-500 transition-all mb-4">
-            <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2">
-              Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
-            </p>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-          // Only keep up to 5 images
-          const files = e.target.files ? Array.from(e.target.files).slice(0, 5) : [];
-          setFormData(prev => ({
-            ...prev,
-            courtImages: files
-          }));
-              }}
-              className="hidden"
-              id="court-images-upload"
-            />
-            <label htmlFor="court-images-upload" className="btn-primary cursor-pointer text-gray-700">
-              Select Images
-            </label>
-          </div>
-          {formData.courtImages && formData.courtImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {formData.courtImages.map((file: File, index: number) => (
-          <div key={index} className="relative group">
-            <img
-              src={URL.createObjectURL(file)}
-              alt={`Court ${index + 1}`}
-              className={`w-full h-32 object-cover rounded-xl ${index === 0 ? 'border-4 border-orange-400' : ''}`}
-            />
-            <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-              {index === 0 ? 'Cover Photo' : `Image ${index + 1}`}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-            ...prev,
-            courtImages: prev.courtImages.filter((_, i) => i !== index)
-                }));
-              }}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-              ))}
-            </div>
-          )}
-          <p className="text-sm text-gray-700 mb-6">
-            <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
-          </p>
-        </div>
-
-        {/* Sport Type */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Sport Type *
-          </label>
-          <select
-            value={formData.courtSportType}
-            onChange={(e) => setFormData({ ...formData, courtSportType: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            required
-          >
-            <option value="">Select sport type</option>
-            {sportsOptions.map(sport => (
-          <option key={sport} value={sport}>{sport}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Slot Duration (hours) */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Slot Duration (hours) *
-          </label>
-          <select
-            value={formData.courtSlotDuration || '1'}
-            onChange={(e) => setFormData({ ...formData, courtSlotDuration: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            required
-          >
-            {[1, 2, 3, 4, 5].map(hour => (
-          <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* How many in 1 slot */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Max Booking Per Slot *
-          </label>
-          <select
-            value={formData.courtMaxPeople || '10'}
-            onChange={(e) => setFormData({ ...formData, courtMaxPeople: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            required
-          >
-            {[...Array(20)].map((_, i) => (
-          <option key={i + 1} value={i + 1}>{i + 1}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Pricing Per Slot */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Price Per Slot (₹) *
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={formData.courtPricePerSlot || '500'}
-            onChange={(e) => setFormData({ ...formData, courtPricePerSlot: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="e.g., 500"
-            required
-          />
-        </div>
-
-        {/* Peak Hours Toggle */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-          type="checkbox"
-          checked={!!formData.courtPeakEnabled}
-          onChange={(e) => setFormData({ ...formData, courtPeakEnabled: e.target.checked })}
-          className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-          </label>
-        </div>
-
-        {/* Peak Hours Details */}
-        {formData.courtPeakEnabled && (
-          <>
-            <div className='md:col-span-2'>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Peak Days
-          </label>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {daysOfWeek.map(day => (
-              <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
-            <input
-              type="checkbox"
-              checked={formData.courtPeakDays?.includes(day) || false}
-              onChange={() => {
-                setFormData(prev => {
-              const arr = prev.courtPeakDays || [];
-              return {
-                ...prev,
-                courtPeakDays: arr.includes(day)
-                  ? arr.filter((d: string) => d !== day)
-                  : [...arr, day]
-              };
-                });
-              }}
-              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
-            />
-            <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
-              </label>
-            ))}
-          </div>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Peak Hours (Select Range)
-              </label>
-              <div className="flex gap-4 items-center">
-              <input
-                type="time"
-                value={formData.courtPeakStart || ''}
-                onChange={(e) =>
-                setFormData({ ...formData, courtPeakStart: e.target.value })
-                }
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-                placeholder="Start"
-              />
-              <span className="mx-2 text-gray-500">to</span>
-              <input
-                type="time"
-                value={formData.courtPeakEnd || ''}
-                onChange={(e) =>
-                setFormData({ ...formData, courtPeakEnd: e.target.value })
-                }
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-                placeholder="End"
-              />
+        return (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {/* Court Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Court Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.courtName}
+                  onChange={(e) => setFormData({ ...formData, courtName: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  placeholder="e.g., Court A, Main Ground"
+                  required
+                />
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-              Example: 18:00 to 21:00 (24-hour format)
-              </p>
+
+              {/* Court Images Upload Section */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Court Images (Minimum 2 Images required, first is cover) *
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-orange-500 transition-all mb-4">
+                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-2">
+                    Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      const files = e.target.files ? Array.from(e.target.files).slice(0, 5) : [];
+                      setFormData(prev => ({
+                        ...prev,
+                        courtImages: files
+                      }));
+                    }}
+                    className="hidden"
+                    id="court-images-upload"
+                  />
+                  <label htmlFor="court-images-upload" className="btn-primary cursor-pointer text-gray-700">
+                    Select Images
+                  </label>
+                </div>
+                {formData.courtImages && formData.courtImages.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    {formData.courtImages.map((file: File, index: number) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Court ${index + 1}`}
+                          className={`w-full h-32 object-cover rounded-xl ${index === 0 ? 'border-4 border-orange-400' : ''}`}
+                        />
+                        <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                          {index === 0 ? 'Cover Photo' : `Image ${index + 1}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              courtImages: prev.courtImages.filter((_, i) => i !== index)
+                            }));
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-sm text-gray-700 mb-6">
+                  <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
+                </p>
+              </div>
+
+              {/* Sport Type */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Sport Type *
+                </label>
+                <select
+                  value={formData.courtSportType}
+                  onChange={(e) => setFormData({ ...formData, courtSportType: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  required
+                >
+                  <option value="">Select sport type</option>
+                  {sportsOptions.map(sport => (
+                    <option key={sport} value={sport}>{sport}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Slot Duration (hours) */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Slot Duration (hours) *
+                </label>
+                <select
+                  value={formData.courtSlotDuration || '1'}
+                  onChange={(e) => setFormData({ ...formData, courtSlotDuration: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  required
+                >
+                  {[1, 2, 3, 4, 5].map(hour => (
+                    <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* How many in 1 slot */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Max Booking Per Slot *
+                </label>
+                <select
+                  value={formData.courtMaxPeople || '10'}
+                  onChange={(e) => setFormData({ ...formData, courtMaxPeople: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  required
+                >
+                  {[...Array(20)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Pricing Per Slot */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Price Per Slot (₹) *
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.courtPricePerSlot || '500'}
+                  onChange={(e) => setFormData({ ...formData, courtPricePerSlot: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  placeholder="e.g., 500"
+                  required
+                />
+              </div>
+
+              {/* Peak Hours Toggle */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!formData.courtPeakEnabled}
+                    onChange={(e) => setFormData({ ...formData, courtPeakEnabled: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                </label>
+              </div>
+
+              {/* Peak Hours Details */}
+              {formData.courtPeakEnabled && (
+                <>
+                  <div className="sm:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Peak Days
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                      {daysOfWeek.map(day => (
+                        <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
+                          <input
+                            type="checkbox"
+                            checked={formData.courtPeakDays?.includes(day) || false}
+                            onChange={() => {
+                              setFormData(prev => {
+                                const arr = prev.courtPeakDays || [];
+                                return {
+                                  ...prev,
+                                  courtPeakDays: arr.includes(day)
+                                    ? arr.filter((d: string) => d !== day)
+                                    : [...arr, day]
+                                };
+                              });
+                            }}
+                            className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
+                          />
+                          <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Peak Hours (Select Range)
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                      <input
+                        type="time"
+                        value={formData.courtPeakStart || ''}
+                        onChange={(e) =>
+                          setFormData({ ...formData, courtPeakStart: e.target.value })
+                        }
+                        className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                        placeholder="Start"
+                      />
+                      <span className="mx-2 text-gray-500">to</span>
+                      <input
+                        type="time"
+                        value={formData.courtPeakEnd || ''}
+                        onChange={(e) =>
+                          setFormData({ ...formData, courtPeakEnd: e.target.value })
+                        }
+                        className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                        placeholder="End"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Example: 18:00 to 21:00 (24-hour format)
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Peak Hours Price Per Slot (₹)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={formData.courtPeakPricePerSlot || ''}
+                      onChange={(e) => setFormData({ ...formData, courtPeakPricePerSlot: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                      placeholder="e.g., 700"
+                    />
+                  </div>
+                </>
+              )}
             </div>
-            <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Peak Hours Price Per Slot (₹)
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={formData.courtPeakPricePerSlot || ''}
-            onChange={(e) => setFormData({ ...formData, courtPeakPricePerSlot: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="e.g., 700"
-          />
+          </div>
+        );
+
+      case 4: // Pricing & Availability (Declaration)
+        return (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="col-span-2">
+                <h3 className="text-xl font-bold text-gray-700 text-center mb-4">Declaration</h3>
+                <div className="mb-4">
+                  <strong className="font-semibold text-gray-700">Accuracy of Information:</strong>
+                  <span className="ml-2 text-gray-800">
+                    I hereby declare that all the information provided above regarding my sports venue is true and accurate to the best of my knowledge. I understand that providing false or misleading information may result in the rejection or removal of my venue listing from Ofside.
+                  </span>
+                </div>
+                <div className="mb-4">
+                  <strong className="font-semibold text-gray-700">Ownership & Authorization:</strong>
+                  <span className="ml-2 text-gray-800">
+                    I confirm that I am the owner or have the necessary authorization to list this venue on Ofside. I agree to abide by all applicable laws and regulations related to venue operations and bookings.
+                  </span>
+                </div>
+                <div className="mb-4">
+                  <strong className="font-semibold text-gray-700">Terms & Conditions:</strong>
+                  <span className="ml-2 text-gray-800">
+                    I have read and agree to Ofside’s <a href="/terms" className="underline text-blue-700">Terms & Conditions</a> and <a href="/privacy" className="underline text-blue-700">Privacy Policy</a>. I understand that my venue will be reviewed before being published and that Ofside reserves the right to approve or reject listings at its discretion.
+                  </span>
+                </div>
+                <div className="flex items-center mt-6">
+                  <input type="checkbox" id="declaration" className="w-5 h-5 accent-black mr-2" />
+                  <label htmlFor="declaration" className="font-semibold text-gray-900">
+                    I acknowledge and accept the above declaration.
+                  </label>
+                </div>
+              </div>
             </div>
-          </>
-        )}
           </div>
-        </div>
-      );
-      return (
-        <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Court Name *
-          </label>
-          <input
-            type="text"
-            value={formData.courtName}
-            onChange={(e) => setFormData({...formData, courtName: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="e.g., Court A, Main Ground"
-            required
-          />
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Sport Type *
-          </label>
-          <select
-            value={formData.courtSportType}
-            onChange={(e) => setFormData({...formData, courtSportType: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            required
-          >
-            <option value="">Select sport type</option>
-            {sportsOptions.map(sport => (
-            <option key={sport} value={sport}>{sport}</option>
-            ))}
-          </select>
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Surface Type *
-          </label>
-          <select
-            value={formData.surfaceType}
-            onChange={(e) => setFormData({...formData, surfaceType: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            required
-          >
-            <option value="">Select surface type</option>
-            {surfaceTypes.map(surface => (
-            <option key={surface} value={surface}>{surface}</option>
-            ))}
-          </select>
-          </div>
-
-          <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
-            Court Size
-          </label>
-          <input
-            type="text"
-            value={formData.courtSize}
-            onChange={(e) => setFormData({...formData, courtSize: e.target.value})}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
-            placeholder="e.g., 100x60 feet, Standard size"
-          />
-          </div>
-
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-          <span className="text-sm font-semibold text-gray-700">Indoor Venue</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-            type="checkbox"
-            checked={formData.isIndoor}
-            onChange={(e) => setFormData({...formData, isIndoor: e.target.checked})}
-            className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-          </label>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-          <span className="text-sm font-semibold text-gray-700">Lighting Available</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-            type="checkbox"
-            checked={formData.hasLighting}
-            onChange={(e) => setFormData({...formData, hasLighting: e.target.checked})}
-            className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-          </label>
-          </div>
-        </div>
-        </div>
-        
-      );
-
-      case 4: // Pricing & Availability
-      return (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="col-span-2">
-          <h3 className="text-xl font-bold text-gray-700 text-center mb-4">Declaration</h3>
-          <div className="mb-4">
-            <strong className="font-semibold text-gray-700">Accuracy of Information:</strong>
-            <span className="ml-2 text-gray-800">
-          I hereby declare that all the information provided above regarding my sports venue is true and accurate to the best of my knowledge. I understand that providing false or misleading information may result in the rejection or removal of my venue listing from Ofside.
-            </span>
-          </div>
-          <div className="mb-4">
-            <strong className="font-semibold text-gray-700">Ownership & Authorization:</strong>
-            <span className="ml-2 text-gray-800">
-          I confirm that I am the owner or have the necessary authorization to list this venue on Ofside. I agree to abide by all applicable laws and regulations related to venue operations and bookings.
-            </span>
-          </div>
-          <div className="mb-4">
-            <strong className="font-semibold text-gray-700">Terms & Conditions:</strong>
-            <span className="ml-2 text-gray-800">
-          I have read and agree to Ofside’s <a href="/terms" className="underline text-blue-700">Terms & Conditions</a> and <a href="/privacy" className="underline text-blue-700">Privacy Policy</a>. I understand that my venue will be reviewed before being published and that Ofside reserves the right to approve or reject listings at its discretion.
-            </span>
-          </div>
-          <div className="flex items-center mt-6">
-            <input type="checkbox" id="declaration" className="w-5 h-5 accent-black mr-2" />
-            <label htmlFor="declaration" className="font-semibold text-gray-900">
-          I acknowledge and accept the above declaration.
-            </label>
-          </div>
-        </div>
-          </div>
-        </div>
-      );
+        );
 
       default:
-      return null;
+        return null;
     }
   };
 
@@ -1042,48 +917,48 @@ export default function VenueOnboardingPage() {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="px-6 py-6 bg-gray-50 border-t border-gray-100 flex flex-row items-center justify-between space-y-0 gap-2">
+                <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-2 space-y-0">
                   <button
-                  type="button"
-                  onClick={prevStep}
-                  disabled={currentStep === 0}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                    currentStep === 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                  }`}
+                    type="button"
+                    onClick={prevStep}
+                    disabled={currentStep === 0}
+                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto ${
+                      currentStep === 0
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Back</span>
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back</span>
                   </button>
 
-                  <div className="text-sm text-gray-500 flex-shrink-0">
-                  Step {currentStep + 1} of {steps.length}
+                  <div className="text-sm text-gray-500 flex-shrink-0 w-full text-center sm:w-auto sm:text-left">
+                    Step {currentStep + 1} of {steps.length}
                   </div>
 
                   {currentStep === steps.length - 1 ? (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] hover:from-[#e6cb00] hover:to-[#e6d43f] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
-                  >
-                    <span>Submit for Review</span>
-                    <Check className="w-4 h-4" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] hover:from-[#e6cb00] hover:to-[#e6d43f] text-black font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 w-full sm:w-auto justify-center"
+                    >
+                      <span>Submit for Review</span>
+                      <Check className="w-4 h-4" />
+                    </button>
                   ) : (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    disabled={!isStepValid(currentStep)}
-                    className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                    isStepValid(currentStep)
-                      ? `bg-gradient-to-r ${steps[currentStep].color} text-white hover:shadow-lg transform hover:scale-105`
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <span>Next</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      disabled={!isStepValid(currentStep)}
+                      className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${
+                        isStepValid(currentStep)
+                          ? `bg-gradient-to-r ${steps[currentStep].color} text-white hover:shadow-lg transform hover:scale-105`
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   )}
                 </div>
               </div>
