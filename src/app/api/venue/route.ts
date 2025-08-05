@@ -1,9 +1,12 @@
 import { NextRequest } from 'next/server';
 import Venue from '@/models/Venue';
 import userModel from '@/models/User';
+import { connectToDB } from '@/lib/mongo';
 
 export async function POST(req: NextRequest) {
   try {
+
+    await connectToDB(); 
     const body = await req.json();
 
     // Extract fields from body

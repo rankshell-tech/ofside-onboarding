@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, models } from 'mongoose';
 
 // Court Schema (Nested inside Sports Facility)
 const courtSchema = new mongoose.Schema(
@@ -91,4 +91,4 @@ const venueSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.model("Venue", venueSchema);
+export default models.Venue || mongoose.model('Venue', venueSchema);

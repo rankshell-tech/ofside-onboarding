@@ -10,7 +10,7 @@ export default function VenueOnboardingPage() {
   const rightRef = useRef<HTMLDivElement>(null);
 
 
-
+   const [loading, setLoading] = useState(false);
 
 
   const [formData, setFormData] = useState({
@@ -298,6 +298,7 @@ export default function VenueOnboardingPage() {
 
   // Submit handler: upload all court images, replace File[] with string[] (URLs), then send to backend
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoading(true);
     e.preventDefault();
 
     // Upload images for each court and replace with URLs
@@ -329,7 +330,7 @@ export default function VenueOnboardingPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(finalFormData),
     });
-
+    setLoading(false);
     setShowSuccessPopup(true);
     console.log('Form submitted:', finalFormData);
   };
@@ -397,6 +398,21 @@ export default function VenueOnboardingPage() {
       </div>
     );
   }
+
+ if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
+        <div className="flex flex-col items-center">
+          <svg className="animate-spin h-16 w-16 text-yellow-400 mb-6" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          </svg>
+          <span className="text-lg font-semibold text-yellow-700">Submitting your venue...</span>
+        </div>
+      </div>
+    );
+  }
+  
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
     const IconComponent = currentStepData.icon;
@@ -699,7 +715,7 @@ export default function VenueOnboardingPage() {
           value={formData.state}
           onChange={(e) => setFormData({ ...formData, state: e.target.value })}
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-          placeholder="Enter state"
+          placeholder="Add landmark area"
             />
           </div>
 
