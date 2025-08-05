@@ -855,53 +855,60 @@ export default function VenueOnboardingPage() {
         {/* Progress Indicator */}
         <div className="w-full lg:w-2/3 bg-gray-100 overflow-y-auto p-6" ref={rightRef}>
           <div className="mb-12">
-              <div className="flex flex-wrap lg:flex-nowrap gap-4 items-center justify-between mb-8">
-                {steps.map((step, index) => (
-                  <React.Fragment key={index}>
-                    <div className="flex flex-col items-center min-w-[70px]">
-                      <div
-                        className={`flex items-center justify-center w-10 h-10 rounded-full border-2 shadow transition-all duration-300
-                          ${
-                            index < currentStep
-                              ? 'bg-green-500 border-green-500 text-white'
-                              : index === currentStep
-                              ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
-                              : 'bg-white border-gray-300 text-gray-400'
-                          }
-                        `}
-                      >
-                        {index < currentStep ? (
-                          <Check className="w-5 h-5" />
-                        ) : (
-                          React.createElement(step.icon, { className: "w-5 h-5" })
-                        )}
-                      </div>
-                      <span
-                        className={`mt-2 text-xs font-medium text-center transition-all duration-200 ${
-                          index === currentStep
-                            ? 'text-black'
-                            : index < currentStep
-                            ? 'text-green-600'
-                            : 'text-gray-400'
-                        }`}
-                      >
-                        {step.title}
-                      </span>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`flex-1 h-1 rounded transition-all duration-300 ${
-                          index < currentStep
-                            ? 'bg-green-500'
-                            : index === currentStep
-                            ? 'bg-gradient-to-r from-yellow-300 to-yellow-400'
-                            : 'bg-gray-300'
-                        }`}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+  {steps.map((step, index) => (
+    <React.Fragment key={index}>
+      <div className="flex flex-col items-center min-w-[40px] sm:min-w-[70px]">
+        <div
+          className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 shadow transition-all duration-300
+            ${
+              index < currentStep
+                ? 'bg-green-500 border-green-500 text-white'
+                : index === currentStep
+                ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
+                : 'bg-white border-gray-300 text-gray-400'
+            }
+          `}
+        >
+          {index < currentStep ? (
+            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          ) : (
+            React.createElement(step.icon, {
+              className: 'w-4 h-4 sm:w-5 sm:h-5',
+            })
+          )}
+        </div>
+
+        {/* Step name only visible on sm and above */}
+        <span
+          className={`hidden sm:block mt-2 text-xs font-medium text-center transition-all duration-200 ${
+            index === currentStep
+              ? 'text-black'
+              : index < currentStep
+              ? 'text-green-600'
+              : 'text-gray-400'
+          }`}
+        >
+          {step.title}
+        </span>
+      </div>
+
+      {/* Progress bar between steps */}
+      {index < steps.length - 1 && (
+        <div
+          className={`flex-1 h-1 rounded transition-all duration-300 ${
+            index < currentStep
+              ? 'bg-green-500'
+              : index === currentStep
+              ? 'bg-gradient-to-r from-yellow-300 to-yellow-400'
+              : 'bg-gray-300'
+          }`}
+        />
+      )}
+    </React.Fragment>
+  ))}
+</div>
+
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {/* Step Header */}
                 <div className={`bg-gradient-to-r ${steps[currentStep].color} px-8 py-6`}>
