@@ -917,22 +917,27 @@ export default function VenueOnboardingPage() {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-2 space-y-0">
-                  <button
+                <div
+                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
+                  currentStep === 4 ? 'flex-col' : 'flex-row'
+                  } items-center justify-center gap-2`}
+                >
+                    <button
                     type="button"
                     onClick={prevStep}
                     disabled={currentStep === 0}
-                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto ${
+                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
                       currentStep === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    } ${currentStep === 4 ? 'w-full' : 'w-full sm:w-auto'}`}
+                    style={currentStep === 4 ? { width: '100%' } : { maxWidth: 160 }}
+                    >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Back</span>
-                  </button>
+                    </button>
 
-                  <div className="text-sm text-gray-500 flex-shrink-0 w-full text-center sm:w-auto sm:text-left">
+                  <div className="text-sm text-gray-500 flex-shrink-0 text-center" style={{ minWidth: 110 }}>
                     Step {currentStep + 1} of {steps.length}
                   </div>
 
@@ -940,7 +945,7 @@ export default function VenueOnboardingPage() {
                     <button
                       type="button"
                       onClick={handleSubmit}
-                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] hover:from-[#e6cb00] hover:to-[#e6d43f] text-black font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 w-full sm:w-auto justify-center"
+                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] hover:from-[#e6cb00] hover:to-[#e6d43f] text-black font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 w-full justify-center"
                     >
                       <span>Submit for Review</span>
                       <Check className="w-4 h-4" />
@@ -955,6 +960,7 @@ export default function VenueOnboardingPage() {
                           ? `bg-gradient-to-r ${steps[currentStep].color} text-white hover:shadow-lg transform hover:scale-105`
                           : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       }`}
+                      style={{ maxWidth: 160 }}
                     >
                       <span>Next</span>
                       <ChevronRight className="w-4 h-4" />
