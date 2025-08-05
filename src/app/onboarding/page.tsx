@@ -62,7 +62,8 @@ export default function VenueOnboardingPage() {
     pricePerSlot: '',
     startTime: '',
     endTime: '',
-    availableDays: [] as string[]
+    availableDays: [] as string[],
+    declarationAgreed: false,
   });
 
   const steps = [
@@ -135,11 +136,13 @@ export default function VenueOnboardingPage() {
       setCurrentStep(currentStep - 1);
     }
   };
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Simulate submit, show popup
+    setShowSuccessPopup(true);
     console.log('Form submitted:', formData);
-    // Handle form submission
   };
 
   const isStepValid = (stepIndex: number) => {
@@ -160,126 +163,221 @@ export default function VenueOnboardingPage() {
     }
   };
 
+
+
+  // Success Popup
+  if (showSuccessPopup) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100 via-white to-yellow-200 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-yellow-200 relative animate__animated animate__fadeInDown">
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
+        <div className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] rounded-full p-4 shadow-lg border-2 border-yellow-300">
+          <Check className="w-12 h-12 text-green-600" />
+        </div>
+        </div>
+        <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">Venue Submitted!</h2>
+        <p className="text-lg text-gray-700 mb-8 font-medium">
+        Your venue details have been submitted for review.<br />
+        <span className="text-yellow-700 font-semibold">
+          Our executive will connect with you within the next 24-48 hours.
+        </span>
+        </p>
+        <button
+        className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 text-lg"
+        onClick={() => setShowSuccessPopup(false)}
+        >
+        Close
+        </button>
+      </div>
+      </div>
+    );
+  }
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
     const IconComponent = currentStepData.icon;
 
     switch (currentStep) {
       case 0: // Basic Details
+        // Validation logic
+        const errors: Record<string, string> = {};
+        if (!formData.venueName.trim()) errors.venueName = "Venue name is required.";
+        if (!formData.description.trim()) errors.description = "Description is required.";
+        if (formData.availableDays.length === 0) errors.availableDays = "Select at least one operational day.";
+        if (!formData.is24HoursOpen) {
+          if (!formData.startTime) errors.startTime = "Start time is required.";
+          if (!formData.endTime) errors.endTime = "End time is required.";
+        }
+
         return (
           <div className="space-y-8">
-            <div className="grid grid-cols-1 gap-8">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Venue Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.venueName}
-                  onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700"
-                  placeholder="Enter your venue name"
-                  required
-                />
-              </div>
+        <div className="grid grid-cols-1 gap-8">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Venue Name *
+            </label>
+            <input
+          type="text"
+          value={formData.venueName}
+          onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700 ${
+            errors.venueName ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Enter your venue name"
+          required
+            />
+            {errors.venueName && (
+          <span className="text-xs text-red-600 mt-1 block">{errors.venueName}</span>
+            )}
+          </div>
 
-              <div className="lg:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Description *
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700"
-                  placeholder="Describe your venue, facilities, and what makes it special..."
-                  required
-                />
-              </div>
-              <div className="lg:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Select the operational days *
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                  {daysOfWeek.map(day => (
-                    <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.availableDays.includes(day)}
-                        onChange={() => handleMultiSelect('availableDays', day)}
-                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-                      />
-                      <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
-                    </label>
-                  ))}
-                </div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
-                  <span className="text-sm font-semibold text-gray-700">Venue is open 24 hours?</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={!!formData.is24HoursOpen}
-                      onChange={e => {
-                        setFormData(prev => ({
-                          ...prev,
-                          is24HoursOpen: e.target.checked,
-                          startTime: e.target.checked ? '00:00' : prev.startTime,
-                          endTime: e.target.checked ? '23:59' : prev.endTime,
-                        }));
-                      }}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
-                  </label>
-                </div>
-              </div>
-                <div className="flex flex-col gap-6">
-                <div className="flex flex-col sm:flex-row gap-6">
-                  <div className="flex-1">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Start Time *
-                  </label>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                    type="time"
-                    value={formData.startTime || '06:00'}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
-                    required
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">Venue opening time (e.g., 06:00)</p>
-                  </div>
-
-                  <div className="flex-1">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    End Time *
-                  </label>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                    type="time"
-                    value={formData.endTime || '22:00'}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700"
-                    required
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">Venue closing time (e.g., 22:00)</p>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-700 mb-6">
-                  <span className="font-bold">Note:</span> Your Venue profile details will help attract users to your Venue. Please fill correct details of your venue/turf/ground.
-                  </p>
-                </div>
-                </div>
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Description *
+            </label>
+            <textarea
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={4}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700 ${
+            errors.description ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Describe your venue, facilities, and what makes it special..."
+          required
+            />
+            {errors.description && (
+          <span className="text-xs text-red-600 mt-1 block">{errors.description}</span>
+            )}
+          </div>
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Select the operational days *
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          {daysOfWeek.map(day => (
+            <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
+              <input
+            type="checkbox"
+            checked={formData.availableDays.includes(day)}
+            onChange={() => handleMultiSelect('availableDays', day)}
+            className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+              />
+              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+            </label>
+          ))}
+            </div>
+            {errors.availableDays && (
+          <span className="text-xs text-red-600 mt-1 block">{errors.availableDays}</span>
+            )}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
+          <span className="text-sm font-semibold text-gray-700">Venue is open 24 hours?</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!!formData.is24HoursOpen}
+              onChange={e => {
+            setFormData(prev => ({
+              ...prev,
+              is24HoursOpen: e.target.checked,
+              startTime: e.target.checked ? '00:00' : prev.startTime,
+              endTime: e.target.checked ? '23:59' : prev.endTime,
+            }));
+              }}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-400"></div>
+          </label>
             </div>
           </div>
-        );
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row gap-6">
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Start Time *
+            </label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+            type="time"
+            value={formData.startTime || '06:00'}
+            onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
+              errors.startTime ? "border-red-500" : "border-gray-300"
+            }`}
+            required
+            disabled={formData.is24HoursOpen}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Venue opening time (e.g., 06:00)</p>
+            {errors.startTime && (
+              <span className="text-xs text-red-600 mt-1 block">{errors.startTime}</span>
+            )}
+          </div>
 
+          <div className="flex-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              End Time *
+            </label>
+            <div className="relative">
+              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+            type="time"
+            value={formData.endTime || '22:00'}
+            onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
+              errors.endTime ? "border-red-500" : "border-gray-300"
+            }`}
+            required
+            disabled={formData.is24HoursOpen}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Venue closing time (e.g., 22:00)</p>
+            {errors.endTime && (
+              <span className="text-xs text-red-600 mt-1 block">{errors.endTime}</span>
+            )}
+          </div>
+            </div>
+            <div>
+          <p className="text-sm text-gray-700 mb-6">
+            <span className="font-bold">Note:</span> Your Venue profile details will help attract users to your Venue. Please fill correct details of your venue/turf/ground.
+          </p>
+            </div>
+          </div>
+        </div>
+          </div>
+        );
+      
+      
       case 1: // Address & Contact
+        // Validation logic
+        const addressErrors: Record<string, string> = {};
+        if (!formData.shopNo.trim()) addressErrors.shopNo = "Shop/Building no. is required.";
+        if (!formData.areaSectorLocality.trim()) addressErrors.areaSectorLocality = "Area/Sector/Locality is required.";
+        if (!formData.city.trim()) addressErrors.city = "City is required.";
+        if (!formData.pincode.trim()) addressErrors.pincode = "Pincode is required.";
+        if (!formData.contactPersonName.trim()) addressErrors.contactPersonName = "Contact person name is required.";
+        if (!formData.contactPhone.trim()) addressErrors.contactPhone = "Contact phone is required.";
+        if (!formData.contactEmail.trim()) addressErrors.contactEmail = "Contact email is required.";
+        if (!formData.ownerName.trim()) addressErrors.ownerName = "Owner name is required.";
+        if (!formData.ownerPhone.trim()) addressErrors.ownerPhone = "Owner phone is required.";
+        if (!formData.ownerEmail.trim()) addressErrors.ownerEmail = "Owner email is required.";
+
+        // Simple email and phone validation (can be improved)
+        if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+          addressErrors.contactEmail = "Enter a valid email address.";
+        }
+        if (formData.ownerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.ownerEmail)) {
+          addressErrors.ownerEmail = "Enter a valid email address.";
+        }
+        if (formData.contactPhone && !/^\d{10}$/.test(formData.contactPhone)) {
+          addressErrors.contactPhone = "Enter a valid 10-digit phone number.";
+        }
+        if (formData.ownerPhone && !/^\d{10}$/.test(formData.ownerPhone)) {
+          addressErrors.ownerPhone = "Enter a valid 10-digit phone number.";
+        }
+        if (formData.pincode && !/^\d{6}$/.test(formData.pincode)) {
+          addressErrors.pincode = "Enter a valid 6-digit pincode.";
+        }
+
         return (
           <div className="space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
@@ -291,10 +389,15 @@ export default function VenueOnboardingPage() {
           type="text"
           value={formData.shopNo}
           onChange={(e) => setFormData({ ...formData, shopNo: e.target.value })}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+            addressErrors.shopNo ? "border-red-500" : "border-gray-300"
+          }`}
           placeholder="Enter shop no./ building no."
           required
             />
+            {addressErrors.shopNo && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.shopNo}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -318,9 +421,15 @@ export default function VenueOnboardingPage() {
           type="text"
           value={formData.areaSectorLocality}
           onChange={(e) => setFormData({ ...formData, areaSectorLocality: e.target.value })}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+            addressErrors.areaSectorLocality ? "border-red-500" : "border-gray-300"
+          }`}
           placeholder="Enter area/sector/locality"
+          required
             />
+            {addressErrors.areaSectorLocality && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.areaSectorLocality}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -331,10 +440,15 @@ export default function VenueOnboardingPage() {
           type="text"
           value={formData.city}
           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+            addressErrors.city ? "border-red-500" : "border-gray-300"
+          }`}
           placeholder="Enter city"
           required
             />
+            {addressErrors.city && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.city}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -358,10 +472,15 @@ export default function VenueOnboardingPage() {
           type="text"
           value={formData.pincode}
           onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+            addressErrors.pincode ? "border-red-500" : "border-gray-300"
+          }`}
           placeholder="Enter pincode"
           required
             />
+            {addressErrors.pincode && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.pincode}</span>
+            )}
           </div>
 
           <div className="col-span-1 sm:col-span-2">
@@ -380,11 +499,16 @@ export default function VenueOnboardingPage() {
             type="text"
             value={formData.contactPersonName}
             onChange={(e) => setFormData({ ...formData, contactPersonName: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.contactPersonName ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter contact person name"
             required
           />
             </div>
+            {addressErrors.contactPersonName && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactPersonName}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -397,11 +521,16 @@ export default function VenueOnboardingPage() {
             type="tel"
             value={formData.contactPhone}
             onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.contactPhone ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter phone number"
             required
           />
             </div>
+            {addressErrors.contactPhone && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactPhone}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -414,10 +543,20 @@ export default function VenueOnboardingPage() {
             type="email"
             value={formData.contactEmail}
             onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.contactEmail ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter email address"
             required
           />
+            </div>
+            {addressErrors.contactEmail && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactEmail}</span>
+            )}
+            <div className="mt-2">
+          <span className="inline-block bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded">
+            Booking confirmation emails will be sent to this address
+          </span>
             </div>
           </div>
 
@@ -431,11 +570,16 @@ export default function VenueOnboardingPage() {
             type="text"
             value={formData.ownerName}
             onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.ownerName ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter owner name"
             required
           />
             </div>
+            {addressErrors.ownerName && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerName}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -448,11 +592,16 @@ export default function VenueOnboardingPage() {
             type="tel"
             value={formData.ownerPhone}
             onChange={(e) => setFormData({ ...formData, ownerPhone: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.ownerPhone ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter phone number"
             required
           />
             </div>
+            {addressErrors.ownerPhone && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerPhone}</span>
+            )}
           </div>
 
           <div className="w-full">
@@ -465,69 +614,407 @@ export default function VenueOnboardingPage() {
             type="email"
             value={formData.ownerEmail}
             onChange={(e) => setFormData({ ...formData, ownerEmail: e.target.value })}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.ownerEmail ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter email address"
             required
           />
             </div>
+            {addressErrors.ownerEmail && (
+          <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerEmail}</span>
+            )}
           </div>
         </div>
           </div>
         );
 
       case 2: // Amenities
+        // Validation logic
+        const amenitiesErrors: Record<string, string> = {};
+        if (formData.amenities.length === 0) {
+          amenitiesErrors.amenities = "Select at least one amenity.";
+        }
+
         return (
           <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {amenitiesOptions.map(amenity => {
-                const amenityIcons: Record<string, React.ElementType> = {
-                  'WiFi': Upload,
-                  'Flood lights': Camera,
-                  'Washroom / Restroom': User,
-                  'Changing Room': User,
-                  'Drinking Water': Mail,
-                  'Artificial Grass': Building,
-                  'Natural Grass': Building,
-                  'Bike/Car Parking': MapPin,
-                  'Mobile Charging': Phone,
-                  'Showers/Steam': Camera,
-                  'Match.refree': Check,
-                  'Warm-up track': Clock,
-                  'Rental Equipment': Plus,
-                  'First Aid': X,
-                  'Locker Room': User,
-                  'Seating Area': ChevronRight,
-                  'Cafeteria': DollarSign,
-                  'Coaching': ChevronLeft,
-                };
-                const Icon = amenityIcons[amenity] || Plus;
-                const checked = formData.amenities.includes(amenity);
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {amenitiesOptions.map(amenity => {
+            const amenityIcons: Record<string, React.ElementType> = {
+          'WiFi': Upload,
+          'Flood lights': Camera,
+          'Washroom / Restroom': User,
+          'Changing Room': User,
+          'Drinking Water': Mail,
+          'Artificial Grass': Building,
+          'Natural Grass': Building,
+          'Bike/Car Parking': MapPin,
+          'Mobile Charging': Phone,
+          'Showers/Steam': Camera,
+          'Match.refree': Check,
+          'Warm-up track': Clock,
+          'Rental Equipment': Plus,
+          'First Aid': X,
+          'Locker Room': User,
+          'Seating Area': ChevronRight,
+          'Cafeteria': DollarSign,
+          'Coaching': ChevronLeft,
+            };
+            const Icon = amenityIcons[amenity] || Plus;
+            const checked = formData.amenities.includes(amenity);
 
-                return (
-                  <label
-                    key={amenity}
-                    className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
-                      ${checked ? 'bg-green-50 border-green-400 shadow' : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-300'}
-                    `}
-                    style={{ minHeight: 110 }}
-                  >
-                    <Icon className={`w-7 h-7 ${checked ? 'text-green-600' : 'text-gray-400'}`} />
-                    <span className="text-xs font-medium text-center text-gray-700">{amenity}</span>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => handleMultiSelect('amenities', amenity)}
-                      className="mt-1 accent-green-500"
-                      style={{ width: 18, height: 18 }}
-                    />
-                  </label>
-                );
-              })}
-            </div>
+            return (
+          <label
+            key={amenity}
+            className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
+              ${checked ? 'bg-green-50 border-green-400 shadow' : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-300'}
+            `}
+            style={{ minHeight: 110 }}
+          >
+            <Icon className={`w-7 h-7 ${checked ? 'text-green-600' : 'text-gray-400'}`} />
+            <span className="text-xs font-medium text-center text-gray-700">{amenity}</span>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => handleMultiSelect('amenities', amenity)}
+              className="mt-1 accent-green-500"
+              style={{ width: 18, height: 18 }}
+            />
+          </label>
+            );
+          })}
+        </div>
+        {amenitiesErrors.amenities && (
+          <span className="text-xs text-red-600 mt-2 block text-center">{amenitiesErrors.amenities}</span>
+        )}
           </div>
         );
 
       case 3: // Court Details
+        // Validation logic
+        const courtErrors: Record<string, string> = {};
+        if (!formData.courtName.trim()) courtErrors.courtName = "Court name is required.";
+        if (!formData.surfaceType.trim()) courtErrors.surfaceType = "Surface type is required.";
+        if (!formData.courtSportType.trim()) courtErrors.courtSportType = "Sport type is required.";
+        if (!formData.courtSlotDuration) courtErrors.courtSlotDuration = "Slot duration is required.";
+        if (!formData.courtMaxPeople) courtErrors.courtMaxPeople = "Max booking per slot is required.";
+        if (!formData.courtPricePerSlot || Number(formData.courtPricePerSlot) <= 0) courtErrors.courtPricePerSlot = "Enter a valid price per slot.";
+        if (!formData.courtImages || formData.courtImages.length < 2) courtErrors.courtImages = "At least 2 images are required.";
+        if (formData.courtPeakEnabled) {
+          if (!formData.courtPeakDays || formData.courtPeakDays.length === 0) courtErrors.courtPeakDays = "Select at least one peak day.";
+          if (!formData.courtPeakStart) courtErrors.courtPeakStart = "Peak start time is required.";
+          if (!formData.courtPeakEnd) courtErrors.courtPeakEnd = "Peak end time is required.";
+          if (!formData.courtPeakPricePerSlot || Number(formData.courtPeakPricePerSlot) <= 0) courtErrors.courtPeakPricePerSlot = "Enter a valid peak price per slot.";
+        }
+
+        return (
+          <div className="space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {/* Court Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Court Name *
+            </label>
+            <input
+          type="text"
+          value={formData.courtName}
+          onChange={(e) => setFormData({ ...formData, courtName: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtName ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="e.g., Court A, Main Ground"
+          required
+            />
+            {courtErrors.courtName && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtName}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Surface Type *
+            </label>
+            <select
+          value={formData.surfaceType}
+          onChange={(e) => setFormData({ ...formData, surfaceType: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.surfaceType ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            >
+          <option value="">Select surface type</option>
+          {surfaceTypes.map(type => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+            </select>
+            {courtErrors.surfaceType && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.surfaceType}</span>
+            )}
+          </div>
+
+          {/* Court Images Upload Section */}
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Court Images (Minimum 2 Images required, first is cover) *
+            </label>
+            <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${
+          courtErrors.courtImages ? "border-red-500" : "border-gray-300 hover:border-orange-500"
+            }`}>
+          <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600 mb-2">
+            Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
+          </p>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => {
+              const files = e.target.files ? Array.from(e.target.files).slice(0, 5) : [];
+              setFormData(prev => ({
+            ...prev,
+            courtImages: files
+              }));
+            }}
+            className="hidden"
+            id="court-images-upload"
+          />
+          <label htmlFor="court-images-upload" className="btn-primary cursor-pointer text-gray-700">
+            Select Images
+          </label>
+            </div>
+            {formData.courtImages && formData.courtImages.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {formData.courtImages.map((file: File, index: number) => (
+              <div key={index} className="relative group">
+            <img
+              src={URL.createObjectURL(file)}
+              alt={`Court ${index + 1}`}
+              className={`w-full h-32 object-cover rounded-xl ${index === 0 ? 'border-4 border-orange-400' : ''}`}
+            />
+            <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+              {index === 0 ? 'Cover Photo' : `Image ${index + 1}`}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+              ...prev,
+              courtImages: prev.courtImages.filter((_, i) => i !== index)
+                }));
+              }}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-4 h-4" />
+            </button>
+              </div>
+            ))}
+          </div>
+            )}
+            {courtErrors.courtImages && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtImages}</span>
+            )}
+            <p className="text-sm text-gray-700 mb-6">
+          <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
+            </p>
+          </div>
+
+          {/* Sport Type */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Sport Type *
+            </label>
+            <select
+          value={formData.courtSportType}
+          onChange={(e) => setFormData({ ...formData, courtSportType: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtSportType ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            >
+          <option value="">Select sport type</option>
+          {sportsOptions.map(sport => (
+            <option key={sport} value={sport}>{sport}</option>
+          ))}
+            </select>
+            {courtErrors.courtSportType && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtSportType}</span>
+            )}
+          </div>
+
+          {/* Slot Duration (hours) */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Slot Duration (hours) *
+            </label>
+            <select
+          value={formData.courtSlotDuration || '1'}
+          onChange={(e) => setFormData({ ...formData, courtSlotDuration: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtSlotDuration ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            >
+          {[1, 2, 3, 4, 5].map(hour => (
+            <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
+          ))}
+            </select>
+            {courtErrors.courtSlotDuration && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtSlotDuration}</span>
+            )}
+          </div>
+
+          {/* How many in 1 slot */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Max Booking Per Slot *
+            </label>
+            <select
+          value={formData.courtMaxPeople || '10'}
+          onChange={(e) => setFormData({ ...formData, courtMaxPeople: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtMaxPeople ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            >
+          {[...Array(20)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>{i + 1}</option>
+          ))}
+            </select>
+            {courtErrors.courtMaxPeople && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtMaxPeople}</span>
+            )}
+          </div>
+
+          {/* Pricing Per Slot */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Price Per Slot (₹) *
+            </label>
+            <input
+          type="number"
+          min={0}
+          value={formData.courtPricePerSlot || '500'}
+          onChange={(e) => setFormData({ ...formData, courtPricePerSlot: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtPricePerSlot ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="e.g., 500"
+          required
+            />
+            {courtErrors.courtPricePerSlot && (
+          <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPricePerSlot}</span>
+            )}
+          </div>
+
+          {/* Peak Hours Toggle */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!formData.courtPeakEnabled}
+            onChange={(e) => setFormData({ ...formData, courtPeakEnabled: e.target.checked })}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            </label>
+          </div>
+
+          {/* Peak Hours Details */}
+          {formData.courtPeakEnabled && (
+            <>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Days
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {daysOfWeek.map(day => (
+            <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
+              <input
+                type="checkbox"
+                checked={formData.courtPeakDays?.includes(day) || false}
+                onChange={() => {
+              setFormData(prev => {
+                const arr = prev.courtPeakDays || [];
+                return {
+                  ...prev,
+                  courtPeakDays: arr.includes(day)
+                ? arr.filter((d: string) => d !== day)
+                : [...arr, day]
+                };
+              });
+                }}
+                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
+              />
+              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+            </label>
+              ))}
+            </div>
+            {courtErrors.courtPeakDays && (
+              <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakDays}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Hours (Select Range)
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <input
+            type="time"
+            value={formData.courtPeakStart || ''}
+            onChange={(e) =>
+              setFormData({ ...formData, courtPeakStart: e.target.value })
+            }
+            className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+              courtErrors.courtPeakStart ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Start"
+              />
+              <span className="mx-2 text-gray-500">to</span>
+              <input
+            type="time"
+            value={formData.courtPeakEnd || ''}
+            onChange={(e) =>
+              setFormData({ ...formData, courtPeakEnd: e.target.value })
+            }
+            className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+              courtErrors.courtPeakEnd ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="End"
+              />
+            </div>
+            {courtErrors.courtPeakStart && (
+              <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakStart}</span>
+            )}
+            {courtErrors.courtPeakEnd && (
+              <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakEnd}</span>
+            )}
+            <p className="text-xs text-gray-500 mt-2">
+              Example: 18:00 to 21:00 (24-hour format)
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Peak Hours Price Per Slot (₹)
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={formData.courtPeakPricePerSlot || ''}
+              onChange={(e) => setFormData({ ...formData, courtPeakPricePerSlot: e.target.value })}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+            courtErrors.courtPeakPricePerSlot ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="e.g., 700"
+            />
+            {courtErrors.courtPeakPricePerSlot && (
+              <span className="text-xs text-red-600 mt-1 block">{courtErrors.courtPeakPricePerSlot}</span>
+            )}
+          </div>
+            </>
+          )}
+        </div>
+          </div>
+        );
         return (
           <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -544,6 +1031,22 @@ export default function VenueOnboardingPage() {
                   placeholder="e.g., Court A, Main Ground"
                   required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Surface Type *
+                </label>
+                <select
+                  value={formData.surfaceType}
+                  onChange={(e) => setFormData({ ...formData, surfaceType: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                  required
+                >
+                  <option value="">Select surface type</option>
+                  {surfaceTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Court Images Upload Section */}
@@ -769,37 +1272,158 @@ export default function VenueOnboardingPage() {
         );
 
       case 4: // Pricing & Availability (Declaration)
+        // Validation logic
+        const declarationErrors: Record<string, string> = {};
+        if (!formData.slotDuration) declarationErrors.slotDuration = "Slot duration is required.";
+        if (!formData.pricePerSlot || Number(formData.pricePerSlot) <= 0) declarationErrors.pricePerSlot = "Enter a valid price per slot.";
+        if (!formData.startTime) declarationErrors.startTime = "Start time is required.";
+        if (!formData.endTime) declarationErrors.endTime = "End time is required.";
+        if (formData.availableDays.length === 0) declarationErrors.availableDays = "Select at least one operational day.";
+        if (!formData.declarationAgreed) declarationErrors.declarationAgreed = "You must agree to the declaration before submitting.";
+
         return (
           <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <div className="col-span-2">
-                <h3 className="text-xl font-bold text-gray-700 text-center mb-4">Declaration</h3>
-                <div className="mb-4">
-                  <strong className="font-semibold text-gray-700">Accuracy of Information:</strong>
-                  <span className="ml-2 text-gray-800">
-                    I hereby declare that all the information provided above regarding my sports venue is true and accurate to the best of my knowledge. I understand that providing false or misleading information may result in the rejection or removal of my venue listing from Ofside.
-                  </span>
-                </div>
-                <div className="mb-4">
-                  <strong className="font-semibold text-gray-700">Ownership & Authorization:</strong>
-                  <span className="ml-2 text-gray-800">
-                    I confirm that I am the owner or have the necessary authorization to list this venue on Ofside. I agree to abide by all applicable laws and regulations related to venue operations and bookings.
-                  </span>
-                </div>
-                <div className="mb-4">
-                  <strong className="font-semibold text-gray-700">Terms & Conditions:</strong>
-                  <span className="ml-2 text-gray-800">
-                    I have read and agree to Ofside’s <a href="/terms" className="underline text-blue-700">Terms & Conditions</a> and <a href="/privacy" className="underline text-blue-700">Privacy Policy</a>. I understand that my venue will be reviewed before being published and that Ofside reserves the right to approve or reject listings at its discretion.
-                  </span>
-                </div>
-                <div className="flex items-center mt-6">
-                  <input type="checkbox" id="declaration" className="w-5 h-5 accent-black mr-2" />
-                  <label htmlFor="declaration" className="font-semibold text-gray-900">
-                    I acknowledge and accept the above declaration.
-                  </label>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Slot Duration (hours) *
+            </label>
+            <select
+          value={formData.slotDuration || '1'}
+          onChange={(e) => setFormData({ ...formData, slotDuration: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-gray-700 ${
+            declarationErrors.slotDuration ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            >
+          {[1, 2, 3, 4, 5].map(hour => (
+            <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
+          ))}
+            </select>
+            {declarationErrors.slotDuration && (
+          <span className="text-xs text-red-600 mt-1 block">{declarationErrors.slotDuration}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Price Per Slot (₹) *
+            </label>
+            <input
+          type="number"
+          min={0}
+          value={formData.pricePerSlot || ''}
+          onChange={(e) => setFormData({ ...formData, pricePerSlot: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-gray-700 ${
+            declarationErrors.pricePerSlot ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="e.g., 500"
+          required
+            />
+            {declarationErrors.pricePerSlot && (
+          <span className="text-xs text-red-600 mt-1 block">{declarationErrors.pricePerSlot}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Start Time *
+            </label>
+            <input
+          type="time"
+          value={formData.startTime || ''}
+          onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-gray-700 ${
+            declarationErrors.startTime ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            />
+            {declarationErrors.startTime && (
+          <span className="text-xs text-red-600 mt-1 block">{declarationErrors.startTime}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          End Time *
+            </label>
+            <input
+          type="time"
+          value={formData.endTime || ''}
+          onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all text-gray-700 ${
+            declarationErrors.endTime ? "border-red-500" : "border-gray-300"
+          }`}
+          required
+            />
+            {declarationErrors.endTime && (
+          <span className="text-xs text-red-600 mt-1 block">{declarationErrors.endTime}</span>
+            )}
+          </div>
+          <div className="col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Select the operational days *
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          {daysOfWeek.map(day => (
+            <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-yellow-50 hover:border-yellow-300 cursor-pointer transition-all">
+              <input
+            type="checkbox"
+            checked={formData.availableDays.includes(day)}
+            onChange={() => handleMultiSelect('availableDays', day)}
+            className="w-4 h-4 text-yellow-500 border-gray-300 rounded focus:ring-yellow-500 text-gray-700"
+              />
+              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+            </label>
+          ))}
             </div>
+            {declarationErrors.availableDays && (
+          <span className="text-xs text-red-600 mt-1 block">{declarationErrors.availableDays}</span>
+            )}
+          </div>
+          <div className="col-span-2">
+            <h3 className="text-xl font-bold text-gray-700 text-center mb-4">Declaration & Consent</h3>
+            <div className="mb-4">
+          <span className="text-gray-800">
+            I hereby certify that I am an authorized representative of <span className="font-semibold">{formData.venueName || '[Venue Name]'}</span>, and that all information provided in the Ofside onboarding form is true, complete, and accurate to the best of my knowledge. I understand that Ofside (powered by Rankshell – India’s ultimate sports ecosystem) will rely on these details to list and promote my venue.
+          </span>
+            </div>
+            <div className="mb-4">
+          <strong className="font-semibold text-gray-700">Details Provided:</strong>
+          <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
+            <li>Brand / Venue Name, Contact Number &amp; Email</li>
+            <li>Owner’s Name &amp; Contact Details</li>
+            <li>Venue Location &amp; Full Address</li>
+            <li>Amenities Available</li>
+            <li>Operational Days &amp; Timings</li>
+            <li>Sports Offered</li>
+            <li>Facility Images for Each Sport</li>
+          </ul>
+            </div>
+            <div className="mb-4">
+          <span className="text-gray-800">
+            I understand that this declaration constitutes my formal consent and will be used to activate and manage my venue listing on the Ofside platform. I acknowledge that any false or misleading information may result in removal from the platform or other remedial action by Ofside.
+          </span>
+            </div>
+            <div className="flex items-center mt-6">
+          <input
+            type="checkbox"
+            id="declaration"
+            className={`w-5 h-5 accent-black mr-2 ${declarationErrors.declarationAgreed ? "border-red-500" : ""}`}
+            checked={formData.declarationAgreed}
+            onChange={e =>
+              setFormData(prev => ({
+            ...prev,
+            declarationAgreed: e.target.checked,
+              }))
+            }
+          />
+          <label htmlFor="declaration" className="font-semibold text-gray-900">
+            I agree and confirm the accuracy of the above information.
+          </label>
+            </div>
+            {declarationErrors.declarationAgreed && (
+          <span className="text-xs text-red-600 mt-2 block">{declarationErrors.declarationAgreed}</span>
+            )}
+          </div>
+        </div>
           </div>
         );
 
@@ -952,10 +1576,22 @@ export default function VenueOnboardingPage() {
                     <button
                       type="button"
                       onClick={handleSubmit}
-                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] hover:from-[#e6cb00] hover:to-[#e6d43f] text-black font-bold py-2 px-4 sm:py-3 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 w-full justify-center"
+                      disabled={!formData.declarationAgreed}
+                      className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg flex items-center space-x-3 w-full justify-center transition-all duration-200
+                        ${formData.declarationAgreed
+                          ? 'hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105'
+                          : 'opacity-60 cursor-not-allowed'
+                        }
+                      `}
+                      style={{
+                        fontSize: '1.15rem',
+                        letterSpacing: '0.02em',
+                        boxShadow: '0 4px 16px 0 rgba(255,225,0,0.10)',
+                        border: '2px solid #ffe100',
+                      }}
                     >
+                      <Check className="w-5 h-5 mr-2" />
                       <span>Submit for Review</span>
-                      <Check className="w-4 h-4" />
                     </button>
                   ) : (
                     <button
