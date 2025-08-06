@@ -1287,6 +1287,7 @@ export default function VenueOnboardingPage() {
                         }`}
                       required
                     >
+                         <option value="">Select duration here</option>
                       {[1, 2, 3, 4, 5].map(hour => (
                         <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
                       ))}
@@ -1311,6 +1312,7 @@ export default function VenueOnboardingPage() {
                         }`}
                       required
                     >
+                        <option value="">Select max booking here</option>
                       {[...Array(20)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>{i + 1}</option>
                       ))}
