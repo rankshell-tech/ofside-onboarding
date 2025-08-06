@@ -296,35 +296,30 @@ export default function VenueOnboardingPage() {
     }
   };
 
-  // Submit handler: upload all court images, replace File[] with string[] (URLs), then send to backend
+  // Optimized: Upload all images in parallel for all courts
   const handleSubmit = async (e: React.FormEvent) => {
     setLoading(true);
     e.preventDefault();
 
-    // Upload images for each court and replace with URLs
+    // Upload all images in parallel and map to courts
     const courtsWithUrls = await Promise.all(
       formData.courts.map(async (court) => {
-        // Upload each image and get its URL
-        const imageUrls: string[] = [];
-        for (const file of court.courtImages) {
-          const url = await uploadImageAndGetUrl(file);
-          if (url) imageUrls.push(url);
-        }
+        // Upload all images for this court in parallel
+        const imageUrls = await Promise.all(
+          court.courtImages.map(file => uploadImageAndGetUrl(file))
+        );
         return {
           ...court,
-          courtImages: imageUrls, // Replace File[] with string[] (URLs)
+          courtImages: imageUrls.filter(Boolean) as string[], // Remove nulls
         };
       })
     );
 
-    // Prepare final form data with courts containing image URLs
     const finalFormData = {
       ...formData,
       courts: courtsWithUrls,
     };
 
-    // TODO: Send finalFormData to your backend API here
-    // Example:
     await fetch('/api/venue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
