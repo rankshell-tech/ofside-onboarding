@@ -50,6 +50,7 @@ export const metadata: Metadata = {
   other: {
     instagram: "https://www.instagram.com/ofsideindia/",
   },
+ 
 };
 
 export default function RootLayout({

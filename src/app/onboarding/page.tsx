@@ -1,10 +1,32 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Upload, X, Plus, MapPin, Phone, Mail, User, Building, Camera, Clock, DollarSign, ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { useRef } from 'react';
-import imageCompression from 'browser-image-compression';
-const footballVideo = './assets/football-playing-vertical.mp4';
+import React, { useEffect, useState } from "react";
+import {
+  Upload,
+  X,
+  Plus,
+  MapPin,
+  Phone,
+  Mail,
+  User,
+  Building,
+  Camera,
+  Clock,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Wifi, // <-- If not in lucide-react, keep Upload or similar
+  Lightbulb,
+  Droplets,
+  Dumbbell,
+  Car,
+  Shield,
+  Utensils,
+} from "lucide-react";
+import { useRef } from "react";
+import imageCompression from "browser-image-compression";
+const footballVideo = "./assets/football-playing-vertical.mp4";
 
 export default function VenueOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -12,7 +34,7 @@ export default function VenueOnboardingPage() {
   useEffect(() => {
     // Make every * bold and red in labels after render
     const interval = setTimeout(() => {
-      document.querySelectorAll('label').forEach(label => {
+      document.querySelectorAll("label").forEach((label) => {
         label.innerHTML = label.innerHTML.replace(
           /\*/g,
           '<span style="color:red;font-weight:900">*</span>'
@@ -24,37 +46,36 @@ export default function VenueOnboardingPage() {
 
   const [loading, setLoading] = useState(false);
 
+  const [sameAsContact, setSameAsContact] = useState(false);
 
   const [formData, setFormData] = useState({
     // Basic Details
-    venueName: '',
-    venueType: '',
+    venueName: "",
+    venueType: "",
     sportsOffered: [] as string[],
-    description: '',
+    description: "",
     venueLogo: null as File | null,
     is24HoursOpen: false,
 
     // Address & Contact
-    shopNo: '',
-    floorTower: '',
-    areaSectorLocality: '',
-    city: '',
-    state: '',
-    pincode: '',
-    latitude: '',
-    longitude: '',
-    contactPersonName: '',
-    contactPhone: '',
-    contactEmail: '',
-    ownerName: '',
-    ownerPhone: '',
-    ownerEmail: '',
-    startTime: '',
-    endTime: '',
+    shopNo: "",
+    floorTower: "",
+    areaSectorLocality: "",
+    city: "",
+    state: "",
+    pincode: "",
+    latitude: "",
+    longitude: "",
+    contactPersonName: "",
+    contactPhone: "",
+    contactEmail: "",
+    ownerName: "",
+    ownerPhone: "",
+    ownerEmail: "",
+    startTime: "",
+    endTime: "",
     // Amenities
     amenities: [] as string[],
-
-
 
     availableDays: [] as string[],
     declarationAgreed: false,
@@ -62,25 +83,219 @@ export default function VenueOnboardingPage() {
     // Courts Array for multiple courts support
     courts: [
       {
-        courtName: '',
-        surfaceType: '',
-        courtSportType: '',
-        courtSlotDuration: '',
-        courtMaxPeople: '',
-        courtPricePerSlot: '',
+        courtName: "",
+        surfaceType: "",
+        courtSportType: "",
+        courtSlotDuration: "",
+        courtMaxPeople: "",
+        courtPricePerSlot: "",
         courtImages: [] as File[],
         courtPeakEnabled: false,
         courtPeakDays: [] as string[],
-        courtPeakStart: '',
-        courtPeakEnd: '',
-        courtPeakPricePerSlot: '',
+        courtPeakStart: "",
+        courtPeakEnd: "",
+        courtPeakPricePerSlot: "",
       },
     ],
   });
 
+  const requiredFields = [
+    "venueName",
+    "description",
+    "startTime",
+    "endTime",
+    "availableDays",
+    "shopNo",
+    "areaSectorLocality",
+    "city",
+    "pincode",
+    "contactPersonName",
+    "contactPhone",
+    "contactEmail",
+    "ownerName",
+    "ownerPhone",
+    "ownerEmail",
+    // Remove single court fields, handle via courts array
+    "slotDuration",
+    "pricePerSlot",
+    "declarationAgreed",
+  ];
+
+  // For multiple courts, track touched for each court by index
+  const courtFields = [
+    "courtName",
+    "surfaceType",
+    "courtSportType",
+    "courtSlotDuration",
+    "courtMaxPeople",
+    "courtPricePerSlot",
+    "courtImages",
+    "courtPeakEnabled",
+    "courtPeakDays",
+    "courtPeakStart",
+    "courtPeakEnd",
+    "courtPeakPricePerSlot",
+  ];
+
+  // touched for main form fields
+  const [touched, setTouched] = useState<Record<string, boolean>>(
+    Object.fromEntries(requiredFields.map((field) => [field, false]))
+  );
+
+  // touched for each court (array of objects)
+  const [courtsTouched, setCourtsTouched] = useState<Record<string, boolean>[]>(
+    formData.courts.map(() =>
+      Object.fromEntries(courtFields.map((field) => [field, false]))
+    )
+  );
 
   // Add courts state and setCourts function
   const [courts, setCourts] = useState(formData.courts);
+
+  // Validation logic for each court
+  const courtsErrors: Record<number, Record<string, string>> = {};
+
+  formData.courts.forEach((court, idx) => {
+    const errors: Record<string, string> = {};
+    if (!court.courtName.trim() && courtsTouched[idx]?.courtName)
+      errors.courtName = "Court name is required.";
+
+    if (!court.courtSportType.trim() && courtsTouched[idx]?.courtSportType)
+      errors.courtSportType = "Sport type is required.";
+    if (!court.courtSlotDuration && courtsTouched[idx]?.courtSlotDuration)
+      errors.courtSlotDuration = "Slot duration is required.";
+    if (!court.courtMaxPeople && courtsTouched[idx]?.courtMaxPeople)
+      errors.courtMaxPeople = "Max booking per slot is required.";
+    if (
+      (!court.courtPricePerSlot || Number(court.courtPricePerSlot) <= 0) &&
+      courtsTouched[idx]?.courtPricePerSlot
+    )
+      errors.courtPricePerSlot = "Enter a valid price per slot.";
+    if (
+      (!court.courtImages || court.courtImages.length < 2) &&
+      courtsTouched[idx]?.courtImages
+    )
+      errors.courtImages = "At least 2 images are required.";
+    if (court.courtPeakEnabled) {
+      if (
+        (!court.courtPeakDays || court.courtPeakDays.length === 0) &&
+        courtsTouched[idx]?.courtPeakDays
+      )
+        errors.courtPeakDays = "Select at least one peak day.";
+      if (!court.courtPeakStart && courtsTouched[idx]?.courtPeakStart)
+        errors.courtPeakStart = "Peak start time is required.";
+      if (!court.courtPeakEnd && courtsTouched[idx]?.courtPeakEnd)
+        errors.courtPeakEnd = "Peak end time is required.";
+      if (
+        (!court.courtPeakPricePerSlot ||
+          Number(court.courtPeakPricePerSlot) <= 0) &&
+        courtsTouched[idx]?.courtPeakPricePerSlot
+      )
+        errors.courtPeakPricePerSlot = "Enter a valid peak price per slot.";
+    }
+    courtsErrors[idx] = errors;
+  });
+
+  const handleCourtChange = (
+    idx: number,
+    field: string,
+    value: string | boolean
+  ) => {
+    setFormData((prevFormData) => {
+      const updatedCourts = prevFormData.courts.map((court, i) =>
+        i === idx ? { ...court, [field]: value } : court
+      );
+      return {
+        ...prevFormData,
+        courts: updatedCourts,
+      };
+    });
+  };
+
+  const handleCourtFileChange = (idx: number, files: FileList | null) => {
+    if (!files) return;
+    setFormData((prev) => {
+      const updatedCourts = prev.courts.map((court, i) =>
+        i === idx
+          ? { ...court, courtImages: Array.from(files).slice(0, 5) }
+          : court
+      );
+      return {
+        ...prev,
+        courts: updatedCourts,
+      };
+    });
+  };
+
+  const handleRemoveCourtImage = (idx: number, imgIdx: number) => {
+    setFormData((prev) => {
+      const updatedCourts = prev.courts.map((court, i) =>
+        i === idx
+          ? {
+              ...court,
+              courtImages: court.courtImages.filter(
+                (_: File, j: number) => j !== imgIdx
+              ),
+            }
+          : court
+      );
+      return {
+        ...prev,
+        courts: updatedCourts,
+      };
+    });
+  };
+
+  type CourtArrayField = "courtPeakDays";
+  const handleCourtMultiSelect = (
+    idx: number,
+    field: CourtArrayField,
+    value: string
+  ) => {
+    setCourts((prev) =>
+      prev.map((court, i) =>
+        i === idx
+          ? {
+              ...court,
+              [field]: court[field].includes(value)
+                ? court[field].filter((item) => item !== value)
+                : [...court[field], value],
+            }
+          : court
+      )
+    );
+  };
+
+  const addCourt = () => {
+    setFormData((prev) => ({
+      ...prev,
+      courts: [
+        ...prev.courts,
+        {
+          courtName: "",
+          surfaceType: "",
+          courtSportType: "",
+          courtSlotDuration: "",
+          courtMaxPeople: "",
+          courtPricePerSlot: "",
+          courtImages: [] as File[],
+          courtPeakEnabled: false,
+          courtPeakDays: [] as string[],
+          courtPeakStart: "",
+          courtPeakEnd: "",
+          courtPeakPricePerSlot: "",
+        },
+      ],
+    }));
+  };
+
+  const removeCourt = (idx: number) => {
+    const updated = formData.courts.filter((_, i) => i !== idx);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      courts: updated,
+    }));
+  };
 
   const compressImage = async (file: File): Promise<File> => {
     const options = {
@@ -91,127 +306,22 @@ export default function VenueOnboardingPage() {
     return await imageCompression(file, options);
   };
 
-  //  const [formData, setFormData] = useState(
-  //   {
-  //       venueName: 'Sports Arena',
-  //       venueType: 'Stadium',
-  //       sportsOffered: ['Football', 'Cricket'],
-  //       description: 'A premium sports venue with world-class facilities.',
-  //       venueLogo: null,
-  //       is24HoursOpen: true,
-  //       shopNo: '12A',
-  //       floorTower: 'Tower 2',
-  //       areaSectorLocality: 'Sector 45',
-  //       city: 'New Delhi',
-  //       state: 'Delhi',
-  //       pincode: '110045',
-  //       latitude: '28.6139',
-  //       longitude: '77.2090',
-  //       contactPersonName: 'John Doe',
-  //       contactPhone: '9876543210',
-  //       contactEmail: 'john@sportsarena.com',
-  //       ownerName: 'Jane Smith',
-  //       ownerPhone: '9123456789',
-  //       ownerEmail: 'jane@sportsarena.com',
-  //       amenities: ['WiFi', 'Flood lights', 'Washroom / Restroom'],
-  //       galleryImages: [],
-  //       courtName: 'Main Court',
-  //       courtSportType: 'Football',
-  //       surfaceType: 'Artificial Turf',
-  //       courtSize: 'Standard',
-  //       isIndoor: false,
-  //       hasLighting: true,
-  //       courtImages: [],
-  //       courtSlotDuration: '2',
-  //       courtMaxPeople: '15',
-  //       courtPricePerSlot: '1200',
-  //       courtPeakEnabled: true,
-  //       courtPeakDays: ['Saturday', 'Sunday'],
-  //       courtPeakStart: '18:00',
-  //       courtPeakEnd: '21:00',
-  //       courtPeakPricePerSlot: '1500',
-  //       slotDuration: '2',
-  //       pricePerSlot: '1200',
-  //       startTime: '06:00',
-  //       endTime: '23:59',
-  //       availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-  //       declarationAgreed: true,
-  //     }
-
-  //  )
-
-
-
-
-
   // Sync courts with formData
   useEffect(() => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       courts: formData.courts,
     }));
   }, [formData.courts]);
 
-
-
-  const requiredFields = [
-    'venueName',
-    'description',
-    'startTime',
-    'endTime',
-    'availableDays',
-    'shopNo',
-    'areaSectorLocality',
-    'city',
-    'pincode',
-    'contactPersonName',
-    'contactPhone',
-    'contactEmail',
-    'ownerName',
-    'ownerPhone',
-    'ownerEmail',
-    // Remove single court fields, handle via courts array
-    'slotDuration',
-    'pricePerSlot',
-    'declarationAgreed'
-  ];
-
-  // For multiple courts, track touched for each court by index
-  const courtFields = [
-    'courtName',
-    'surfaceType',
-    'courtSportType',
-    'courtSlotDuration',
-    'courtMaxPeople',
-    'courtPricePerSlot',
-    'courtImages',
-    'courtPeakEnabled',
-    'courtPeakDays',
-    'courtPeakStart',
-    'courtPeakEnd',
-    'courtPeakPricePerSlot',
-  ];
-
-  // touched for main form fields
-  const [touched, setTouched] = useState<Record<string, boolean>>(
-    Object.fromEntries(requiredFields.map(field => [field, false]))
-  );
-
-  // touched for each court (array of objects)
-  const [courtsTouched, setCourtsTouched] = useState<Record<string, boolean>[]>(
-    formData.courts.map(() =>
-      Object.fromEntries(courtFields.map(field => [field, false]))
-    )
-  );
-
   // Update courtsTouched when courts array changes (add/remove courts)
   useEffect(() => {
-    setCourtsTouched(prev => {
+    setCourtsTouched((prev) => {
       // If courts length increased, add new touched object
       if (formData.courts.length > prev.length) {
         return [
           ...prev,
-          Object.fromEntries(courtFields.map(field => [field, false]))
+          Object.fromEntries(courtFields.map((field) => [field, false])),
         ];
       }
       // If courts length decreased, remove touched object
@@ -224,12 +334,12 @@ export default function VenueOnboardingPage() {
 
   // For main fields
   const handleTouched = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
+    setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
   // For court fields
   const handleCourtTouched = (courtIdx: number, field: string) => {
-    setCourtsTouched(prev =>
+    setCourtsTouched((prev) =>
       prev.map((obj, idx) =>
         idx === courtIdx ? { ...obj, [field]: true } : obj
       )
@@ -238,55 +348,108 @@ export default function VenueOnboardingPage() {
 
   const handleGoToHome = () => {
     // Redirect to home page
-    window.location.href = '/';
-  }
+    window.location.href = "/";
+  };
   const steps = [
-    { title: 'Basic Details', icon: Building, color: 'from-[#ffe100] to-[#ffed4e]' },
-    { title: 'Address & Contact', icon: MapPin, color: 'from-[#ffe100] to-[#ffed4e]' },
-    { title: 'Amenities', icon: Plus, color: 'from-[#ffe100] to-[#ffed4e]' },
-    { title: 'Court Details', icon: Building, color: 'from-[#ffe100] to-[#ffed4e]' },
-    { title: 'Declaration', icon: Check, color: 'from-[#ffe100] to-[#ffed4e]' }
+    {
+      title: "Basic Details",
+      icon: Building,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
+    {
+      title: "Address & Contact",
+      icon: MapPin,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
+    { title: "Amenities", icon: Plus, color: "from-[#ffe100] to-[#ffed4e]" },
+    {
+      title: "Court Details",
+      icon: Building,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
+    { title: "Declaration", icon: Check, color: "from-[#ffe100] to-[#ffed4e]" },
   ];
 
-  const venueTypes = ['Turf', 'Stadium', 'Court', 'Ground', 'Complex'];
-  const sportsOptions = ['Football', 'Cricket', 'Basketball', 'Tennis', 'Badminton', 'Volleyball', 'Swimming', 'Hockey'];
-  const amenitiesOptions = ['WiFi', 'Flood lights', 'Washroom / Restroom', 'Changing Room', 'Drinking Water', 'Artificial Grass', 'Natural Grass', 'Bike/Car Parking', 'Mobile Charging', 'Showers/Steam', 'Match.refree', 'Warm-up track', 'Rental Equipment', 'First Aid', 'Locker Room', 'Seating Area', 'Cafeteria', 'Coaching']
+  const venueTypes = ["Turf", "Stadium", "Court", "Ground", "Complex"];
+  const sportsOptions = [
+    "Football",
+    "Cricket",
+    "Basketball",
+    "Tennis",
+    "Badminton",
+    "Volleyball",
+    "Swimming",
+    "Hockey",
+  ];
+  const amenitiesOptions = [
+    "WiFi",
+    "Flood lights",
+    "Washroom / Restroom",
+    "Changing Room",
+    "Drinking Water",
+    "Artificial Grass",
+    "Natural Grass",
+    "Bike/Car Parking",
+    "Mobile Charging",
+    "Showers/Steam",
+    "Match.refree",
+    "Warm-up track",
+    "Rental Equipment",
+    "First Aid",
+    "Locker Room",
+    "Seating Area",
+    "Cafeteria",
+    "Coaching",
+  ];
 
-  const surfaceTypes = ['Natural Grass', 'Artificial Turf', 'Concrete', 'Wooden', 'Synthetic', 'Clay'];
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const surfaceTypes = [
+    "Natural Grass",
+    "Artificial Turf",
+    "Concrete",
+    "Wooden",
+    "Synthetic",
+    "Clay",
+  ];
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
   const handleMultiSelect = <T extends keyof typeof formData>(
     field: T,
     value: string
   ) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       // Only allow multi-select on fields that are string arrays
       if (
-        field === 'sportsOffered' ||
-        field === 'amenities' ||
-        field === 'availableDays'
+        field === "sportsOffered" ||
+        field === "amenities" ||
+        field === "availableDays"
       ) {
         const arr = prev[field] as string[];
         return {
           ...prev,
           [field]: arr.includes(value)
             ? arr.filter((item) => item !== value)
-            : [...arr, value]
+            : [...arr, value],
         };
       }
       return prev;
     });
   };
 
-
-
   const nextStep = () => {
     // Try to scroll the main container to top (for both mobile and desktop)
-     if ('scrollBehavior' in document.documentElement.style) {
-       window.scrollTo({ top: 0, behavior: 'smooth' });
-     } else {
-       window.scrollTo(0, 0);
-     }
+    if ("scrollBehavior" in document.documentElement.style) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo(0, 0);
+    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -299,32 +462,34 @@ export default function VenueOnboardingPage() {
   };
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-
   const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
     const fileName = `${Date.now()}-${file.name}`;
 
     try {
-      const res = await fetch(`/api/upload?fileName=${encodeURIComponent(fileName)}&fileType=${file.type}`);
+      const res = await fetch(
+        `/api/upload?fileName=${encodeURIComponent(fileName)}&fileType=${
+          file.type
+        }`
+      );
       const { url, success } = await res.json();
 
-      if (!success || !url) throw new Error('Failed to get signed URL');
+      if (!success || !url) throw new Error("Failed to get signed URL");
 
       const uploadRes = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': file.type,
+          "Content-Type": file.type,
         },
         body: file,
       });
 
-      if (!uploadRes.ok) throw new Error('Upload failed');
+      if (!uploadRes.ok) throw new Error("Upload failed");
 
       // Use hardcoded or public ENV var (not process.env in browser)
       const publicUrl = `https://ofside-venue-images.s3.ap-south-1.amazonaws.com/${fileName}`;
       return publicUrl;
-
     } catch (err) {
-      console.error('Image upload failed:', err);
+      console.error("Image upload failed:", err);
       return null;
     }
   };
@@ -357,8 +522,21 @@ export default function VenueOnboardingPage() {
     // Step 3: Map results back into courts
     const updatedCourts = formData.courts.map((court, i) => {
       const uploadedUrls = uploadResults
-        .filter(result => result.status === 'fulfilled' && result.value.courtIndex === i && result.value.url)
-        .map(result => (result as PromiseFulfilledResult<{ courtIndex: number; url: string }>).value.url);
+        .filter(
+          (result) =>
+            result.status === "fulfilled" &&
+            result.value.courtIndex === i &&
+            result.value.url
+        )
+        .map(
+          (result) =>
+            (
+              result as PromiseFulfilledResult<{
+                courtIndex: number;
+                url: string;
+              }>
+            ).value.url
+        );
       return {
         ...court,
         courtImages: uploadedUrls, // Only successful URLs
@@ -372,34 +550,42 @@ export default function VenueOnboardingPage() {
     };
 
     try {
-      const response = await fetch('/api/venue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/venue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalFormData),
       });
 
       const result = await response.json();
       if (result.success) {
         setShowSuccessPopup(true);
-        console.log('Form submitted:', finalFormData);
+        console.log("Form submitted:", finalFormData);
       } else {
-        alert(result.error || 'Submission failed. Please try again.');
+        alert(result.error || "Submission failed. Please try again.");
       }
     } catch (err) {
-      console.error('Submission error:', err);
-      alert('Something went wrong.');
+      console.error("Submission error:", err);
+      alert("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
-
 
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Basic Details
         return formData.venueName && formData.description;
       case 1: // Address & Contact
-        return formData.city && formData.pincode && formData.contactPersonName && formData.contactPhone && formData.contactEmail;
+        return (
+          formData.city &&
+          formData.pincode &&
+          formData.contactPersonName &&
+          formData.contactPhone &&
+          formData.contactEmail &&
+          formData.ownerName &&
+          formData.ownerPhone &&
+          formData.ownerEmail
+        );
       case 2: // Amenities
         return true; // Optional step
 
@@ -407,7 +593,6 @@ export default function VenueOnboardingPage() {
         return formData.courts.every(
           (court) =>
             court.courtName &&
-            court.surfaceType &&
             court.courtSportType &&
             court.courtSlotDuration &&
             court.courtMaxPeople &&
@@ -422,13 +607,16 @@ export default function VenueOnboardingPage() {
                 court.courtPeakPricePerSlot))
         );
       case 4: // Pricing & Availability
-        return formData.declarationAgreed && formData.startTime && formData.endTime && formData.availableDays.length > 0;
+        return (
+          formData.declarationAgreed &&
+          formData.startTime &&
+          formData.endTime &&
+          formData.availableDays.length > 0
+        );
       default:
         return false;
     }
   };
-
-
 
   // Success Popup
   if (showSuccessPopup) {
@@ -440,9 +628,12 @@ export default function VenueOnboardingPage() {
               <Check className="w-12 h-12 text-green-600" />
             </div>
           </div>
-          <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">Venue Submitted!</h2>
+          <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">
+            Venue application submitted!
+          </h2>
           <p className="text-lg text-gray-700 mb-8 font-medium">
-            Your venue details have been submitted for review.<br />
+            Your venue details have been submitted for review.
+            <br />
             <span className="text-yellow-700 font-semibold">
               Our executive will connect with you within the next 24-48 hours.
             </span>
@@ -462,11 +653,28 @@ export default function VenueOnboardingPage() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
         <div className="flex flex-col items-center">
-          <svg className="animate-spin h-16 w-16 text-yellow-400 mb-6" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+          <svg
+            className="animate-spin h-16 w-16 text-yellow-400 mb-6"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
           </svg>
-          <span className="text-lg font-semibold text-yellow-700">Submitting your venue...</span>
+          <span className="text-lg font-semibold text-yellow-700">
+            Submitting your venue...
+          </span>
         </div>
       </div>
     );
@@ -480,15 +688,19 @@ export default function VenueOnboardingPage() {
       case 0: // Basic Details
         // Validation logic
         const errors: Record<string, string> = {};
-        if (!formData.venueName.trim()) errors.venueName = "Venue name is required.";
-        if (!formData.description.trim()) errors.description = "Description is required.";
-        if (formData.availableDays.length === 0) errors.availableDays = "Select at least one operational day.";
+        if (!formData.venueName.trim())
+          errors.venueName = "Venue name is required.";
+        if (!formData.description.trim())
+          errors.description = "Description is required.";
+        if (formData.availableDays.length === 0)
+          errors.availableDays = "Select at least one operational day.";
         // Track if user has interacted with fields
 
-
         if (!formData.is24HoursOpen) {
-          if (!formData.startTime?.trim()) errors.startTime = "Start time is required.";
-          if (!formData.endTime?.trim()) errors.endTime = "End time is required.";
+          if (!formData.startTime?.trim())
+            errors.startTime = "Start time is required.";
+          if (!formData.endTime?.trim())
+            errors.endTime = "End time is required.";
         }
 
         return (
@@ -503,17 +715,26 @@ export default function VenueOnboardingPage() {
                   value={formData.venueName}
                   onChange={(e) => {
                     setFormData({ ...formData, venueName: e.target.value });
-                    handleTouched('venueName');
+                    handleTouched("venueName");
                   }}
-                  onBlur={() => handleTouched('venueName')}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700 ${errors.venueName && touched.venueName && !formData.venueName.trim() ? "border-red-500" : "border-gray-300"
-                    }`}
+                  onBlur={() => handleTouched("venueName")}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all text-gray-900 text-gray-700 ${
+                    errors.venueName &&
+                    touched.venueName &&
+                    !formData.venueName.trim()
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter your venue name"
                   required
                 />
-                {errors.venueName && touched.venueName && !formData.venueName.trim() && (
-                  <span className="text-xs text-red-600 mt-1 block">{errors.venueName}</span>
-                )}
+                {errors.venueName &&
+                  touched.venueName &&
+                  !formData.venueName.trim() && (
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {errors.venueName}
+                    </span>
+                  )}
               </div>
 
               <div className="lg:col-span-2">
@@ -524,55 +745,77 @@ export default function VenueOnboardingPage() {
                   value={formData.description}
                   onChange={(e) => {
                     setFormData({ ...formData, description: e.target.value });
-                    handleTouched('description');
+                    handleTouched("description");
                   }}
-                  onBlur={() => handleTouched('description')}
+                  onBlur={() => handleTouched("description")}
                   rows={4}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700 ${errors.description && touched.description && !formData.description.trim() ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ffe100] focus:border-transparent transition-all resize-none text-gray-700 ${
+                    errors.description &&
+                    touched.description &&
+                    !formData.description.trim()
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Describe your venue, facilities, and what makes it special..."
                   required
                 />
-                {errors.description && touched.description && !formData.description.trim() && (
-                  <span className="text-xs text-red-600 mt-1 block">{errors.description}</span>
-                )}
+                {errors.description &&
+                  touched.description &&
+                  !formData.description.trim() && (
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {errors.description}
+                    </span>
+                  )}
               </div>
               <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select the operational days *
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                  {daysOfWeek.map(day => (
-                    <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
+                  {daysOfWeek.map((day) => (
+                    <label
+                      key={day}
+                      className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
+                    >
                       <input
                         type="checkbox"
                         checked={formData.availableDays.includes(day)}
                         onChange={() => {
-                          handleMultiSelect('availableDays', day);
-                          handleTouched('availableDays');
+                          handleMultiSelect("availableDays", day);
+                          handleTouched("availableDays");
                         }}
-                        onBlur={() => handleTouched('availableDays')}
+                        onBlur={() => handleTouched("availableDays")}
                         className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
                       />
-                      <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+                      <span className="text-sm font-medium text-gray-700">
+                        {day.slice(0, 3)}
+                      </span>
                     </label>
                   ))}
                 </div>
-                {errors.availableDays && touched.availableDays && formData.availableDays.length === 0 && (
-                  <span className="text-xs text-red-600 mt-1 block">{errors.availableDays}</span>
-                )}
+                {errors.availableDays &&
+                  touched.availableDays &&
+                  formData.availableDays.length === 0 && (
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {errors.availableDays}
+                    </span>
+                  )}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4">
-                  <span className="text-sm font-semibold text-gray-700">Venue is open 24 hours?</span>
+                  <span className="text-sm font-semibold text-gray-700">
+                    Venue is open 24 hours?
+                  </span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={!!formData.is24HoursOpen}
-                      onChange={e => {
-                        setFormData(prev => ({
+                      onChange={(e) => {
+                        setFormData((prev) => ({
                           ...prev,
                           is24HoursOpen: e.target.checked,
-                          startTime: e.target.checked ? '00:00' : prev.startTime,
-                          endTime: e.target.checked ? '23:59' : prev.endTime,
+                          startTime: e.target.checked
+                            ? "00:00"
+                            : prev.startTime,
+                          endTime: e.target.checked ? "23:59" : prev.endTime,
                         }));
                       }}
                       className="sr-only peer"
@@ -591,22 +834,38 @@ export default function VenueOnboardingPage() {
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="time"
-                        value={formData.startTime || '06:00'}
+                        value={formData.startTime || "06:00"}
                         onChange={(e) => {
-                          setFormData({ ...formData, startTime: e.target.value });
-                          handleTouched('startTime');
+                          setFormData({
+                            ...formData,
+                            startTime: e.target.value,
+                          });
+                          handleTouched("startTime");
                         }}
-                        onBlur={() => handleTouched('startTime')}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${errors.startTime && touched.startTime && !formData.is24HoursOpen && !formData.startTime?.trim() ? "border-red-500" : "border-gray-300"
-                          }`}
+                        onBlur={() => handleTouched("startTime")}
+                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
+                          errors.startTime &&
+                          touched.startTime &&
+                          !formData.is24HoursOpen &&
+                          !formData.startTime?.trim()
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
                         required
                         disabled={formData.is24HoursOpen}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Venue opening time (e.g., 06:00)</p>
-                    {errors.startTime && touched.startTime && !formData.is24HoursOpen && !formData.startTime?.trim() && (
-                      <span className="text-xs text-red-600 mt-1 block">{errors.startTime}</span>
-                    )}
+                    <p className="text-xs text-gray-500 mt-2">
+                      Venue opening time (e.g., 06:00)
+                    </p>
+                    {errors.startTime &&
+                      touched.startTime &&
+                      !formData.is24HoursOpen &&
+                      !formData.startTime?.trim() && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {errors.startTime}
+                        </span>
+                      )}
                   </div>
 
                   <div className="flex-1">
@@ -617,27 +876,42 @@ export default function VenueOnboardingPage() {
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="time"
-                        value={formData.endTime || '22:00'}
+                        value={formData.endTime || "22:00"}
                         onChange={(e) => {
                           setFormData({ ...formData, endTime: e.target.value });
-                          handleTouched('endTime');
+                          handleTouched("endTime");
                         }}
-                        onBlur={() => handleTouched('endTime')}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${errors.endTime && touched.endTime && !formData.is24HoursOpen && !formData.endTime?.trim() ? "border-red-500" : "border-gray-300"
-                          }`}
+                        onBlur={() => handleTouched("endTime")}
+                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
+                          errors.endTime &&
+                          touched.endTime &&
+                          !formData.is24HoursOpen &&
+                          !formData.endTime?.trim()
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        }`}
                         required
                         disabled={formData.is24HoursOpen}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Venue closing time (e.g., 22:00)</p>
-                    {errors.endTime && touched.endTime && !formData.is24HoursOpen && !formData.endTime?.trim() && (
-                      <span className="text-xs text-red-600 mt-1 block">{errors.endTime}</span>
-                    )}
+                    <p className="text-xs text-gray-500 mt-2">
+                      Venue closing time (e.g., 22:00)
+                    </p>
+                    {errors.endTime &&
+                      touched.endTime &&
+                      !formData.is24HoursOpen &&
+                      !formData.endTime?.trim() && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {errors.endTime}
+                        </span>
+                      )}
                   </div>
                 </div>
                 <div>
                   <p className="text-sm text-gray-700 mb-6">
-                    <span className="font-bold">Note:</span> Your Venue profile details will help attract users to your Venue. Please fill correct details of your venue/turf/ground.
+                    <span className="font-bold">Note:</span> Your Venue profile
+                    details will help attract users to your Venue. Please fill
+                    correct details of your venue/turf/ground.
                   </p>
                 </div>
               </div>
@@ -648,22 +922,38 @@ export default function VenueOnboardingPage() {
       case 1: // Address & Contact
         // Validation logic
         const addressErrors: Record<string, string> = {};
-        if (!formData.shopNo.trim()) addressErrors.shopNo = "Shop/Building no. is required.";
-        if (!formData.areaSectorLocality.trim()) addressErrors.areaSectorLocality = "Area/Sector/Locality is required.";
+        if (!formData.shopNo.trim())
+          addressErrors.shopNo = "Shop/Building no. is required.";
+        if (!formData.areaSectorLocality.trim())
+          addressErrors.areaSectorLocality =
+            "Area/Sector/Locality is required.";
         if (!formData.city.trim()) addressErrors.city = "City is required.";
-        if (!formData.pincode.trim()) addressErrors.pincode = "Pincode is required.";
-        if (!formData.contactPersonName.trim()) addressErrors.contactPersonName = "Contact person name is required.";
-        if (!formData.contactPhone.trim()) addressErrors.contactPhone = "Contact phone is required.";
-        if (!formData.contactEmail.trim()) addressErrors.contactEmail = "Contact email is required.";
-        if (!formData.ownerName.trim()) addressErrors.ownerName = "Owner name is required.";
-        if (!formData.ownerPhone.trim()) addressErrors.ownerPhone = "Owner phone is required.";
-        if (!formData.ownerEmail.trim()) addressErrors.ownerEmail = "Owner email is required.";
+        if (!formData.pincode.trim())
+          addressErrors.pincode = "Pincode is required.";
+        if (!formData.contactPersonName.trim())
+          addressErrors.contactPersonName = "Contact person name is required.";
+        if (!formData.contactPhone.trim())
+          addressErrors.contactPhone = "Contact phone is required.";
+        if (!formData.contactEmail.trim())
+          addressErrors.contactEmail = "Contact email is required.";
+        if (!formData.ownerName.trim())
+          addressErrors.ownerName = "Owner name is required.";
+        if (!formData.ownerPhone.trim())
+          addressErrors.ownerPhone = "Owner phone is required.";
+        if (!formData.ownerEmail.trim())
+          addressErrors.ownerEmail = "Owner email is required.";
 
         // Simple email and phone validation (can be improved)
-        if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+        if (
+          formData.contactEmail &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)
+        ) {
           addressErrors.contactEmail = "Enter a valid email address.";
         }
-        if (formData.ownerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.ownerEmail)) {
+        if (
+          formData.ownerEmail &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.ownerEmail)
+        ) {
           addressErrors.ownerEmail = "Enter a valid email address.";
         }
         if (formData.contactPhone && !/^\d{10}$/.test(formData.contactPhone)) {
@@ -688,16 +978,21 @@ export default function VenueOnboardingPage() {
                   value={formData.shopNo}
                   onChange={(e) => {
                     setFormData({ ...formData, shopNo: e.target.value });
-                    handleTouched('shopNo');
+                    handleTouched("shopNo");
                   }}
-                  onBlur={() => handleTouched('shopNo')}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.shopNo && touched.shopNo ? "border-red-500" : "border-gray-300"
-                    }`}
+                  onBlur={() => handleTouched("shopNo")}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                    addressErrors.shopNo && touched.shopNo
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter shop no./ building no."
                   required
                 />
                 {addressErrors.shopNo && touched.shopNo && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.shopNo}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.shopNo}
+                  </span>
                 )}
               </div>
 
@@ -708,7 +1003,9 @@ export default function VenueOnboardingPage() {
                 <input
                   type="text"
                   value={formData.floorTower}
-                  onChange={(e) => setFormData({ ...formData, floorTower: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, floorTower: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
                   placeholder="Enter floor/tower"
                 />
@@ -722,18 +1019,28 @@ export default function VenueOnboardingPage() {
                   type="text"
                   value={formData.areaSectorLocality}
                   onChange={(e) => {
-                    setFormData({ ...formData, areaSectorLocality: e.target.value });
-                    handleTouched('areaSectorLocality');
+                    setFormData({
+                      ...formData,
+                      areaSectorLocality: e.target.value,
+                    });
+                    handleTouched("areaSectorLocality");
                   }}
-                  onBlur={() => handleTouched('areaSectorLocality')}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.areaSectorLocality && touched.areaSectorLocality ? "border-red-500" : "border-gray-300"
-                    }`}
+                  onBlur={() => handleTouched("areaSectorLocality")}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                    addressErrors.areaSectorLocality &&
+                    touched.areaSectorLocality
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter area/sector/locality"
                   required
                 />
-                {addressErrors.areaSectorLocality && touched.areaSectorLocality && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.areaSectorLocality}</span>
-                )}
+                {addressErrors.areaSectorLocality &&
+                  touched.areaSectorLocality && (
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {addressErrors.areaSectorLocality}
+                    </span>
+                  )}
               </div>
 
               <div className="w-full">
@@ -745,16 +1052,21 @@ export default function VenueOnboardingPage() {
                   value={formData.city}
                   onChange={(e) => {
                     setFormData({ ...formData, city: e.target.value });
-                    handleTouched('city');
+                    handleTouched("city");
                   }}
-                  onBlur={() => handleTouched('city')}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.city && touched.city ? "border-red-500" : "border-gray-300"
-                    }`}
+                  onBlur={() => handleTouched("city")}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                    addressErrors.city && touched.city
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter city"
                   required
                 />
                 {addressErrors.city && touched.city && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.city}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.city}
+                  </span>
                 )}
               </div>
 
@@ -765,7 +1077,9 @@ export default function VenueOnboardingPage() {
                 <input
                   type="text"
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, state: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
                   placeholder="Add landmark area"
                 />
@@ -780,22 +1094,29 @@ export default function VenueOnboardingPage() {
                   value={formData.pincode}
                   onChange={(e) => {
                     setFormData({ ...formData, pincode: e.target.value });
-                    handleTouched('pincode');
+                    handleTouched("pincode");
                   }}
-                  onBlur={() => handleTouched('pincode')}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.pincode && touched.pincode ? "border-red-500" : "border-gray-300"
-                    }`}
+                  onBlur={() => handleTouched("pincode")}
+                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                    addressErrors.pincode && touched.pincode
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                   placeholder="Enter pincode"
                   required
                 />
                 {addressErrors.pincode && touched.pincode && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.pincode}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.pincode}
+                  </span>
                 )}
               </div>
 
               <div className="col-span-1 sm:col-span-2">
                 <p className="text-sm text-gray-700 mb-4 sm:mb-6">
-                  <span className="font-bold">Please note Users will see this address on Ofside</span>
+                  <span className="font-bold">
+                    Please note Users will see this address on Ofside
+                  </span>
                 </p>
               </div>
 
@@ -809,19 +1130,29 @@ export default function VenueOnboardingPage() {
                     type="text"
                     value={formData.contactPersonName}
                     onChange={(e) => {
-                      setFormData({ ...formData, contactPersonName: e.target.value });
-                      handleTouched('contactPersonName');
+                      setFormData({
+                        ...formData,
+                        contactPersonName: e.target.value,
+                      });
+                      handleTouched("contactPersonName");
                     }}
-                    onBlur={() => handleTouched('contactPersonName')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.contactPersonName && touched.contactPersonName ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("contactPersonName")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.contactPersonName &&
+                      touched.contactPersonName
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter contact person name"
                     required
                   />
                 </div>
-                {addressErrors.contactPersonName && touched.contactPersonName && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactPersonName}</span>
-                )}
+                {addressErrors.contactPersonName &&
+                  touched.contactPersonName && (
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {addressErrors.contactPersonName}
+                    </span>
+                  )}
               </div>
 
               <div className="w-full">
@@ -834,18 +1165,26 @@ export default function VenueOnboardingPage() {
                     type="tel"
                     value={formData.contactPhone}
                     onChange={(e) => {
-                      setFormData({ ...formData, contactPhone: e.target.value });
-                      handleTouched('contactPhone');
+                      setFormData({
+                        ...formData,
+                        contactPhone: e.target.value,
+                      });
+                      handleTouched("contactPhone");
                     }}
-                    onBlur={() => handleTouched('contactPhone')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.contactPhone && touched.contactPhone ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("contactPhone")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.contactPhone && touched.contactPhone
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter phone number"
                     required
                   />
                 </div>
                 {addressErrors.contactPhone && touched.contactPhone && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactPhone}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.contactPhone}
+                  </span>
                 )}
               </div>
 
@@ -859,18 +1198,26 @@ export default function VenueOnboardingPage() {
                     type="email"
                     value={formData.contactEmail}
                     onChange={(e) => {
-                      setFormData({ ...formData, contactEmail: e.target.value });
-                      handleTouched('contactEmail');
+                      setFormData({
+                        ...formData,
+                        contactEmail: e.target.value,
+                      });
+                      handleTouched("contactEmail");
                     }}
-                    onBlur={() => handleTouched('contactEmail')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.contactEmail && touched.contactEmail ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("contactEmail")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.contactEmail && touched.contactEmail
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter email address"
                     required
                   />
                 </div>
                 {addressErrors.contactEmail && touched.contactEmail && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.contactEmail}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.contactEmail}
+                  </span>
                 )}
                 <div className="mt-2">
                   <span className="inline-block bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded">
@@ -878,7 +1225,49 @@ export default function VenueOnboardingPage() {
                   </span>
                 </div>
               </div>
+              <div className="flex items-center mt-6 mb-4">
+                <input
+                  type="checkbox"
+                  id="sameAsContact"
+                  className="w-5 h-5 accent-black mr-2"
+                  checked={sameAsContact}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setSameAsContact(checked);
 
+                    if (checked) {
+                      setFormData({
+                        ...formData,
+                        ownerName: formData.contactPersonName,
+                        ownerPhone: formData.contactPhone,
+                        ownerEmail: formData.contactEmail,
+                      });
+                    } else {
+                      setFormData({
+                        ...formData,
+                        ownerName: "",
+                        ownerPhone: "",
+                        ownerEmail: "",
+                      });
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="sameAsContact"
+                  className="text-sm text-gray-700 font-medium"
+                >
+                  Owner details are same as contact person
+                </label>
+              </div>
+            </div>
+            <div
+              className={`col-span-2 gap-6 transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 ${
+                sameAsContact
+                  ? "max-h-0 opacity-0"
+                  : "max-h-[2000px] opacity-100"
+              }`}
+            >
+              {/* Owner Name */}
               <div className="w-full">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Owner Name *
@@ -890,20 +1279,26 @@ export default function VenueOnboardingPage() {
                     value={formData.ownerName}
                     onChange={(e) => {
                       setFormData({ ...formData, ownerName: e.target.value });
-                      handleTouched('ownerName');
+                      handleTouched("ownerName");
                     }}
-                    onBlur={() => handleTouched('ownerName')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.ownerName && touched.ownerName ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("ownerName")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.ownerName && touched.ownerName
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter owner name"
                     required
                   />
                 </div>
                 {addressErrors.ownerName && touched.ownerName && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerName}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.ownerName}
+                  </span>
                 )}
               </div>
 
+              {/* Owner Phone */}
               <div className="w-full">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Owner Phone Number *
@@ -914,21 +1309,30 @@ export default function VenueOnboardingPage() {
                     type="tel"
                     value={formData.ownerPhone}
                     onChange={(e) => {
-                      setFormData({ ...formData, ownerPhone: e.target.value });
-                      handleTouched('ownerPhone');
+                      setFormData({
+                        ...formData,
+                        ownerPhone: e.target.value,
+                      });
+                      handleTouched("ownerPhone");
                     }}
-                    onBlur={() => handleTouched('ownerPhone')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.ownerPhone && touched.ownerPhone ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("ownerPhone")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.ownerPhone && touched.ownerPhone
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter phone number"
                     required
                   />
                 </div>
                 {addressErrors.ownerPhone && touched.ownerPhone && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerPhone}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.ownerPhone}
+                  </span>
                 )}
               </div>
 
+              {/* Owner Email */}
               <div className="w-full">
                 <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
                   Owner Email Address *
@@ -939,18 +1343,26 @@ export default function VenueOnboardingPage() {
                     type="email"
                     value={formData.ownerEmail}
                     onChange={(e) => {
-                      setFormData({ ...formData, ownerEmail: e.target.value });
-                      handleTouched('ownerEmail');
+                      setFormData({
+                        ...formData,
+                        ownerEmail: e.target.value,
+                      });
+                      handleTouched("ownerEmail");
                     }}
-                    onBlur={() => handleTouched('ownerEmail')}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${addressErrors.ownerEmail && touched.ownerEmail ? "border-red-500" : "border-gray-300"
-                      }`}
+                    onBlur={() => handleTouched("ownerEmail")}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                      addressErrors.ownerEmail && touched.ownerEmail
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Enter email address"
                     required
                   />
                 </div>
                 {addressErrors.ownerEmail && touched.ownerEmail && (
-                  <span className="text-xs text-red-600 mt-1 block">{addressErrors.ownerEmail}</span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {addressErrors.ownerEmail}
+                  </span>
                 )}
               </div>
             </div>
@@ -967,26 +1379,26 @@ export default function VenueOnboardingPage() {
         return (
           <div className="space-y-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {amenitiesOptions.map(amenity => {
+              {amenitiesOptions.map((amenity) => {
                 const amenityIcons: Record<string, React.ElementType> = {
-                  'WiFi': Upload,
-                  'Flood lights': Camera,
-                  'Washroom / Restroom': User,
-                  'Changing Room': User,
-                  'Drinking Water': Mail,
-                  'Artificial Grass': Building,
-                  'Natural Grass': Building,
-                  'Bike/Car Parking': MapPin,
-                  'Mobile Charging': Phone,
-                  'Showers/Steam': Camera,
-                  'Match.refree': Check,
-                  'Warm-up track': Clock,
-                  'Rental Equipment': Plus,
-                  'First Aid': X,
-                  'Locker Room': User,
-                  'Seating Area': ChevronRight,
-                  'Cafeteria': DollarSign,
-                  'Coaching': ChevronLeft,
+                  WiFi: Wifi || Upload, // fallback if Wifi not available
+                  "Flood lights": Lightbulb,
+                  "Washroom / Restroom": Droplets,
+                  "Changing Room": User,
+                  "Drinking Water": Droplets,
+                  "Artificial Grass": Building,
+                  "Natural Grass": Building,
+                  "Bike/Car Parking": Car || MapPin,
+                  "Mobile Charging": Phone,
+                  "Showers/Steam": Droplets,
+                  "Match.refree": Check,
+                  "Warm-up track": Clock,
+                  "Rental Equipment": Plus,
+                  "First Aid": Shield || X,
+                  "Locker Room": User,
+                  "Seating Area": ChevronRight,
+                  Cafeteria: Utensils || DollarSign,
+                  Coaching: Dumbbell || ChevronLeft,
                 };
                 const Icon = amenityIcons[amenity] || Plus;
                 const checked = formData.amenities.includes(amenity);
@@ -995,18 +1407,28 @@ export default function VenueOnboardingPage() {
                   <label
                     key={amenity}
                     className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
-          ${checked ? 'bg-green-50 border-green-400 shadow' : 'bg-white border-gray-200 hover:bg-green-50 hover:border-green-300'}
+          ${
+            checked
+              ? "bg-green-50 border-green-400 shadow"
+              : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
+          }
         `}
                     style={{ minHeight: 110 }}
                   >
-                    <Icon className={`w-7 h-7 ${checked ? 'text-green-600' : 'text-gray-400'}`} />
-                    <span className="text-xs font-medium text-center text-gray-700">{amenity}</span>
+                    <Icon
+                      className={`w-7 h-7 ${
+                        checked ? "text-green-600" : "text-gray-400"
+                      }`}
+                    />
+                    <span className="text-xs font-medium text-center text-gray-700">
+                      {amenity}
+                    </span>
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => {
-                        handleMultiSelect('amenities', amenity);
-                        handleTouched('amenities');
+                        handleMultiSelect("amenities", amenity);
+                        handleTouched("amenities");
                       }}
                       className="mt-1 accent-green-500"
                       style={{ width: 18, height: 18 }}
@@ -1016,7 +1438,9 @@ export default function VenueOnboardingPage() {
               })}
             </div>
             {amenitiesErrors.amenities && (
-              <span className="text-xs text-red-600 mt-2 block text-center">{amenitiesErrors.amenities}</span>
+              <span className="text-xs text-red-600 mt-2 block text-center">
+                {amenitiesErrors.amenities}
+              </span>
             )}
           </div>
         );
@@ -1024,109 +1448,14 @@ export default function VenueOnboardingPage() {
       case 3: // Court Details
         // Multiple courts support
 
-
-        // Validation logic for each court
-        const courtsErrors: Record<number, Record<string, string>> = {};
-        formData.courts.forEach((court, idx) => {
-          const errors: Record<string, string> = {};
-          if (!court.courtName.trim() && courtsTouched[idx]?.courtName) errors.courtName = "Court name is required.";
-          if (!court.surfaceType.trim() && courtsTouched[idx]?.surfaceType) errors.surfaceType = "Surface type is required.";
-          if (!court.courtSportType.trim() && courtsTouched[idx]?.courtSportType) errors.courtSportType = "Sport type is required.";
-          if (!court.courtSlotDuration && courtsTouched[idx]?.courtSlotDuration) errors.courtSlotDuration = "Slot duration is required.";
-          if (!court.courtMaxPeople && courtsTouched[idx]?.courtMaxPeople) errors.courtMaxPeople = "Max booking per slot is required.";
-          if ((!court.courtPricePerSlot || Number(court.courtPricePerSlot) <= 0) && courtsTouched[idx]?.courtPricePerSlot) errors.courtPricePerSlot = "Enter a valid price per slot.";
-          if ((!court.courtImages || court.courtImages.length < 2) && courtsTouched[idx]?.courtImages) errors.courtImages = "At least 2 images are required.";
-          if (court.courtPeakEnabled) {
-            if ((!court.courtPeakDays || court.courtPeakDays.length === 0) && courtsTouched[idx]?.courtPeakDays) errors.courtPeakDays = "Select at least one peak day.";
-            if (!court.courtPeakStart && courtsTouched[idx]?.courtPeakStart) errors.courtPeakStart = "Peak start time is required.";
-            if (!court.courtPeakEnd && courtsTouched[idx]?.courtPeakEnd) errors.courtPeakEnd = "Peak end time is required.";
-            if ((!court.courtPeakPricePerSlot || Number(court.courtPeakPricePerSlot) <= 0) && courtsTouched[idx]?.courtPeakPricePerSlot) errors.courtPeakPricePerSlot = "Enter a valid peak price per slot.";
-          }
-          courtsErrors[idx] = errors;
-        });
-
-
-        const handleCourtChange = (idx: number, field: string, value: string | boolean) => {
-          setCourts((prev: typeof formData.courts) => {
-            const updatedCourts = prev.map((court: typeof formData.courts[number], i: number) =>
-              i === idx ? { ...court, [field]: value } : court
-            );
-            setFormData(prevFormData => ({ ...prevFormData, courts: updatedCourts }));
-            return updatedCourts;
-          });
-        };
-
-        const handleCourtFileChange = (idx: number, files: FileList | null) => {
-          if (!files) return;
-          setCourts(prev => {
-            const updatedCourts = prev.map((court, i) =>
-              i === idx
-                ? { ...court, courtImages: Array.from(files).slice(0, 5) }
-                : court
-            );
-            setFormData(prevFormData => ({ ...prevFormData, courts: updatedCourts }));
-            return updatedCourts;
-          });
-        };
-
-        const handleRemoveCourtImage = (idx: number, imgIdx: number) => {
-          setCourts(prev =>
-            prev.map((court: typeof formData.courts[number], i: number) =>
-              i === idx
-                ? {
-                  ...court,
-                  courtImages: court.courtImages.filter((_: File, j: number) => j !== imgIdx),
-                }
-                : court
-            )
-          );
-        };
-
-        type CourtArrayField = 'courtPeakDays';
-        const handleCourtMultiSelect = (idx: number, field: CourtArrayField, value: string) => {
-          setCourts(prev =>
-            prev.map((court, i) =>
-              i === idx
-                ? {
-                  ...court,
-                  [field]: court[field].includes(value)
-                    ? court[field].filter((item) => item !== value)
-                    : [...court[field], value],
-                }
-                : court
-            )
-          );
-        };
-
-        const addCourt = () => {
-          setCourts(prev => [
-            ...prev,
-            {
-              courtName: '',
-              surfaceType: '',
-              courtSportType: '',
-              courtSlotDuration: '',
-              courtMaxPeople: '',
-              courtPricePerSlot: '',
-              courtImages: [] as File[],
-              courtPeakEnabled: false,
-              courtPeakDays: [] as string[],
-              courtPeakStart: '',
-              courtPeakEnd: '',
-              courtPeakPricePerSlot: '',
-            },
-          ]);
-        };
-
-        const removeCourt = (idx: number) => {
-          setCourts(prev => prev.filter((_, i) => i !== idx));
-        };
-
         return (
           <div className="space-y-8">
-            {courts.map((court, idx) => (
-              <div key={idx} className="border rounded-2xl p-6 mb-8 bg-white shadow relative">
-                {courts.length > 1 && (
+            {formData.courts.map((court, idx) => (
+              <div
+                key={idx}
+                className="border rounded-2xl p-6 mb-8 bg-white shadow relative"
+              >
+                {formData.courts.length > 1 && (
                   <button
                     type="button"
                     className="absolute top-4 right-4 bg-red-100 text-red-600 rounded-full p-2 hover:bg-red-200 transition"
@@ -1151,39 +1480,50 @@ export default function VenueOnboardingPage() {
                       type="text"
                       value={court.courtName}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'courtName', e.target.value);
+                        handleCourtChange(idx, "courtName", e.target.value);
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'courtName')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtName ? "border-red-500" : "border-gray-300"
-                        }`}
+                      onBlur={() => handleCourtTouched(idx, "courtName")}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.courtName
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                       placeholder="e.g., Court A, Main Ground"
                       required
                     />
                     {courtsErrors[idx]?.courtName && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtName}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtName}
+                      </span>
                     )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Surface Type *
+                      Surface Type
                     </label>
                     <select
                       value={court.surfaceType}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'surfaceType', e.target.value);
+                        handleCourtChange(idx, "surfaceType", e.target.value);
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'surfaceType')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.surfaceType ? "border-red-500" : "border-gray-300"
-                        }`}
-                      required
+                      onBlur={() => handleCourtTouched(idx, "surfaceType")}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.surfaceType
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                     >
                       <option value="">Select surface type</option>
-                      {surfaceTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
+                      {surfaceTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
                       ))}
                     </select>
                     {courtsErrors[idx]?.surfaceType && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].surfaceType}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].surfaceType}
+                      </span>
                     )}
                   </div>
 
@@ -1192,11 +1532,17 @@ export default function VenueOnboardingPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                       Court Images (Minimum 2 Images required, first is cover) *
                     </label>
-                    <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${courtsErrors[idx]?.courtImages ? "border-red-500" : "border-gray-300 hover:border-orange-500"
-                      }`}>
+                    <div
+                      className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${
+                        courtsErrors[idx]?.courtImages
+                          ? "border-red-500"
+                          : "border-gray-300 hover:border-orange-500"
+                      }`}
+                    >
                       <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-600 mb-2">
-                        Please upload Minimum - 2 Maximum - 5 images of this court. The first image will be used as the cover photo.
+                        Please upload Minimum - 2 Maximum - 5 images of this
+                        court. The first image will be used as the cover photo.
                       </p>
                       <input
                         type="file"
@@ -1205,11 +1551,14 @@ export default function VenueOnboardingPage() {
                         onChange={(e) => {
                           handleCourtFileChange(idx, e.target.files);
                         }}
-                        onBlur={() => handleCourtTouched(idx, 'courtImages')}
+                        onBlur={() => handleCourtTouched(idx, "courtImages")}
                         className="hidden"
                         id={`court-images-upload-${idx}`}
                       />
-                      <label htmlFor={`court-images-upload-${idx}`} className="btn-primary cursor-pointer text-gray-700">
+                      <label
+                        htmlFor={`court-images-upload-${idx}`}
+                        className="btn-primary cursor-pointer text-gray-700"
+                      >
                         Select Images
                       </label>
                     </div>
@@ -1220,17 +1569,23 @@ export default function VenueOnboardingPage() {
                             <img
                               src={URL.createObjectURL(file)}
                               alt={`Court ${imgIdx + 1}`}
-                              className={`w-full h-32 object-cover rounded-xl ${imgIdx === 0 ? 'border-4 border-orange-400' : ''}`}
+                              className={`w-full h-32 object-cover rounded-xl ${
+                                imgIdx === 0 ? "border-4 border-orange-400" : ""
+                              }`}
                             />
                             <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                              {imgIdx === 0 ? 'Cover Photo' : `Image ${imgIdx + 1}`}
+                              {imgIdx === 0
+                                ? "Cover Photo"
+                                : `Image ${imgIdx + 1}`}
                             </span>
                             <button
                               type="button"
                               onClick={() => {
                                 handleRemoveCourtImage(idx, imgIdx);
                               }}
-                              onBlur={() => handleCourtTouched(idx, 'courtImages')}
+                              onBlur={() =>
+                                handleCourtTouched(idx, "courtImages")
+                              }
                               className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <X className="w-4 h-4" />
@@ -1240,10 +1595,14 @@ export default function VenueOnboardingPage() {
                       </div>
                     )}
                     {courtsErrors[idx]?.courtImages && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtImages}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtImages}
+                      </span>
                     )}
                     <p className="text-sm text-gray-700 mb-6">
-                      <span className="font-bold">Note:</span> Your Venue profile image will help attract users to your Venue. Please upload a clear and high-quality picture showcasing your venue/turf/ground.
+                      <span className="font-bold">Note:</span> Your Venue images will help attract users to your Venue.
+                      Please upload clear and high-quality pictures showcasing
+                      your venue/turf/ground.
                     </p>
                   </div>
 
@@ -1255,20 +1614,31 @@ export default function VenueOnboardingPage() {
                     <select
                       value={court.courtSportType}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'courtSportType', e.target.value);
+                        handleCourtChange(
+                          idx,
+                          "courtSportType",
+                          e.target.value
+                        );
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'courtSportType')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtSportType ? "border-red-500" : "border-gray-300"
-                        }`}
+                      onBlur={() => handleCourtTouched(idx, "courtSportType")}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.courtSportType
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                       required
                     >
                       <option value="">Select sport type</option>
-                      {sportsOptions.map(sport => (
-                        <option key={sport} value={sport}>{sport}</option>
+                      {sportsOptions.map((sport) => (
+                        <option key={sport} value={sport}>
+                          {sport}
+                        </option>
                       ))}
                     </select>
                     {courtsErrors[idx]?.courtSportType && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtSportType}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtSportType}
+                      </span>
                     )}
                   </div>
 
@@ -1280,20 +1650,33 @@ export default function VenueOnboardingPage() {
                     <select
                       value={court.courtSlotDuration}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'courtSlotDuration', e.target.value);
+                        handleCourtChange(
+                          idx,
+                          "courtSlotDuration",
+                          e.target.value
+                        );
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'courtSlotDuration')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtSlotDuration ? "border-red-500" : "border-gray-300"
-                        }`}
+                      onBlur={() =>
+                        handleCourtTouched(idx, "courtSlotDuration")
+                      }
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.courtSlotDuration
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                       required
                     >
-                         <option value="">Select duration here</option>
-                      {[1, 2, 3, 4, 5].map(hour => (
-                        <option key={hour} value={hour}>{hour} hour{hour > 1 ? 's' : ''}</option>
+                      <option value="">Select duration here</option>
+                      {[1, 2, 3, 4, 5].map((hour) => (
+                        <option key={hour} value={hour}>
+                          {hour} hour{hour > 1 ? "s" : ""}
+                        </option>
                       ))}
                     </select>
                     {courtsErrors[idx]?.courtSlotDuration && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtSlotDuration}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtSlotDuration}
+                      </span>
                     )}
                   </div>
 
@@ -1305,20 +1688,31 @@ export default function VenueOnboardingPage() {
                     <select
                       value={court.courtMaxPeople}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'courtMaxPeople', e.target.value);
+                        handleCourtChange(
+                          idx,
+                          "courtMaxPeople",
+                          e.target.value
+                        );
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'courtMaxPeople')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtMaxPeople ? "border-red-500" : "border-gray-300"
-                        }`}
+                      onBlur={() => handleCourtTouched(idx, "courtMaxPeople")}
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.courtMaxPeople
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                       required
                     >
-                        <option value="">Select max booking here</option>
+                      <option value="">Select max booking here</option>
                       {[...Array(20)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1}</option>
+                        <option key={i + 1} value={i + 1}>
+                          {i + 1}
+                        </option>
                       ))}
                     </select>
                     {courtsErrors[idx]?.courtMaxPeople && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtMaxPeople}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtMaxPeople}
+                      </span>
                     )}
                   </div>
 
@@ -1332,126 +1726,197 @@ export default function VenueOnboardingPage() {
                       min={0}
                       value={court.courtPricePerSlot}
                       onChange={(e) => {
-                        handleCourtChange(idx, 'courtPricePerSlot', e.target.value);
+                        handleCourtChange(
+                          idx,
+                          "courtPricePerSlot",
+                          e.target.value
+                        );
                       }}
-                      onBlur={() => handleCourtTouched(idx, 'courtPricePerSlot')}
-                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtPricePerSlot ? "border-red-500" : "border-gray-300"
-                        }`}
+                      onBlur={() =>
+                        handleCourtTouched(idx, "courtPricePerSlot")
+                      }
+                      className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
+                        courtsErrors[idx]?.courtPricePerSlot
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                       placeholder="e.g., 500"
                       required
                     />
                     {courtsErrors[idx]?.courtPricePerSlot && (
-                      <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPricePerSlot}</span>
+                      <span className="text-xs text-red-600 mt-1 block">
+                        {courtsErrors[idx].courtPricePerSlot}
+                      </span>
                     )}
                   </div>
 
                   {/* Peak Hours Toggle */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    <span className="text-sm font-semibold text-gray-700">Set different price for peak hours?</span>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Set different price for peak hours?
+                    </span>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={!!court.courtPeakEnabled}
-                        onChange={(e) => {
-                          handleCourtChange(idx, 'courtPeakEnabled', e.target.checked);
-                        }}
-                        onBlur={() => handleCourtTouched(idx, 'courtPeakEnabled')}
+                        checked={court.courtPeakEnabled}
+                        onChange={(e) =>
+                          handleCourtChange(
+                            idx,
+                            "courtPeakEnabled",
+                            e.target.checked
+                          )
+                        }
+                        onBlur={() =>
+                          handleCourtTouched(idx, "courtPeakEnabled")
+                        }
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                      <div
+                        className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full 
+      peer peer-checked:after:translate-x-full peer-checked:after:border-white 
+      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white 
+      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
+      peer-checked:bg-orange-500"
+                      ></div>
                     </label>
                   </div>
-
-                  {/* Peak Hours Details */}
-                  {court.courtPeakEnabled && (
-                    <>
-                      <div className="sm:col-span-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                          Peak Days
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                          {daysOfWeek.map(day => (
-                            <label key={day} className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all">
-                              <input
-                                type="checkbox"
-                                checked={court.courtPeakDays?.includes(day) || false}
-                                onChange={() => {
-                                  handleCourtMultiSelect(idx, 'courtPeakDays', day);
-                                }}
-                                onBlur={() => handleCourtTouched(idx, 'courtPeakDays')}
-                                className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 text-gray-700"
-                              />
-                              <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
-                            </label>
-                          ))}
-                        </div>
-                        {courtsErrors[idx]?.courtPeakDays && (
-                          <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakDays}</span>
-                        )}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                          Peak Hours (Select Range)
-                        </label>
-                        <div className="flex flex-col sm:flex-row gap-4 items-center">
-                          <input
-                            type="time"
-                            value={court.courtPeakStart || ''}
-                            onChange={(e) => {
-                              handleCourtChange(idx, 'courtPeakStart', e.target.value);
-                            }}
-                            onBlur={() => handleCourtTouched(idx, 'courtPeakStart')}
-                            className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtPeakStart ? "border-red-500" : "border-gray-300"
-                              }`}
-                            placeholder="Start"
-                          />
-                          <span className="mx-2 text-gray-500">to</span>
-                          <input
-                            type="time"
-                            value={court.courtPeakEnd || ''}
-                            onChange={(e) => {
-                              handleCourtChange(idx, 'courtPeakEnd', e.target.value);
-                            }}
-                            onBlur={() => handleCourtTouched(idx, 'courtPeakEnd')}
-                            className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtPeakEnd ? "border-red-500" : "border-gray-300"
-                              }`}
-                            placeholder="End"
-                          />
-                        </div>
-                        {courtsErrors[idx]?.courtPeakStart && (
-                          <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakStart}</span>
-                        )}
-                        {courtsErrors[idx]?.courtPeakEnd && (
-                          <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakEnd}</span>
-                        )}
-                        <p className="text-xs text-gray-500 mt-2">
-                          Example: 18:00 to 21:00 (24-hour format)
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                          Peak Hours Price Per Slot (₹)
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          value={court.courtPeakPricePerSlot || ''}
-                          onChange={(e) => {
-                            handleCourtChange(idx, 'courtPeakPricePerSlot', e.target.value);
-                          }}
-                          onBlur={() => handleCourtTouched(idx, 'courtPeakPricePerSlot')}
-                          className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${courtsErrors[idx]?.courtPeakPricePerSlot ? "border-red-500" : "border-gray-300"
-                            }`}
-                          placeholder="e.g., 700"
-                        />
-                        {courtsErrors[idx]?.courtPeakPricePerSlot && (
-                          <span className="text-xs text-red-600 mt-1 block">{courtsErrors[idx].courtPeakPricePerSlot}</span>
-                        )}
-                      </div>
-                    </>
-                  )}
                 </div>
+                {/* Peak Hours Details */}
+                {court.courtPeakEnabled && (
+                  <div className="grid gap-6 sm:grid-cols-2 mt-3">
+                    {/* Peak Days */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Peak Days
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                        {daysOfWeek.map((day) => (
+                          <label
+                            key={day}
+                            className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl 
+              hover:bg-orange-50 hover:border-orange-300 cursor-pointer transition-all"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={court.courtPeakDays.includes(day)}
+                              onChange={() =>
+                                handleCourtMultiSelect(
+                                  idx,
+                                  "courtPeakDays",
+                                  day
+                                )
+                              }
+                              onBlur={() =>
+                                handleCourtTouched(idx, "courtPeakDays")
+                              }
+                              className="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700">
+                              {day.slice(0, 3)}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                      {courtsErrors[idx]?.courtPeakDays && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {courtsErrors[idx].courtPeakDays}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Peak Hours */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Peak Hours (Select Range)
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-4 items-center">
+                        <input
+                          type="time"
+                          value={court.courtPeakStart}
+                          onChange={(e) =>
+                            handleCourtChange(
+                              idx,
+                              "courtPeakStart",
+                              e.target.value
+                            )
+                          }
+                          onBlur={() =>
+                            handleCourtTouched(idx, "courtPeakStart")
+                          }
+                          className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 
+            ${
+              courtsErrors[idx]?.courtPeakStart
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+                        />
+                        <span className="mx-2 text-gray-500">to</span>
+                        <input
+                          type="time"
+                          value={court.courtPeakEnd}
+                          onChange={(e) =>
+                            handleCourtChange(
+                              idx,
+                              "courtPeakEnd",
+                              e.target.value
+                            )
+                          }
+                          onBlur={() => handleCourtTouched(idx, "courtPeakEnd")}
+                          className={`px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 
+            ${
+              courtsErrors[idx]?.courtPeakEnd
+                ? "border-red-500"
+                : "border-gray-300"
+            }`}
+                        />
+                      </div>
+                      {courtsErrors[idx]?.courtPeakStart && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {courtsErrors[idx].courtPeakStart}
+                        </span>
+                      )}
+                      {courtsErrors[idx]?.courtPeakEnd && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {courtsErrors[idx].courtPeakEnd}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Price per slot */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Peak Hours Price Per Slot (₹)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={court.courtPeakPricePerSlot}
+                        onChange={(e) =>
+                          handleCourtChange(
+                            idx,
+                            "courtPeakPricePerSlot",
+                            e.target.value
+                          )
+                        }
+                        onBlur={() =>
+                          handleCourtTouched(idx, "courtPeakPricePerSlot")
+                        }
+                        className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 
+          ${
+            courtsErrors[idx]?.courtPeakPricePerSlot
+              ? "border-red-500"
+              : "border-gray-300"
+          }`}
+                        placeholder="e.g., 700"
+                      />
+                      {courtsErrors[idx]?.courtPeakPricePerSlot && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {courtsErrors[idx].courtPeakPricePerSlot}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             <div className="flex justify-center">
@@ -1473,14 +1938,26 @@ export default function VenueOnboardingPage() {
         return (
           <div className="space-y-8">
             <div className="col-span-2">
-              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">Declaration & Consent</h3>
+              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+                Declaration & Consent
+              </h3>
               <div className="mb-4">
                 <span className="text-gray-800">
-                  I hereby certify that I am an authorized representative of <span className="font-semibold">{formData.venueName || '[Venue Name]'}</span>, and that all information provided in the Ofside onboarding form is true, complete, and accurate to the best of my knowledge. I understand that Ofside (powered by Rankshell – India’s ultimate sports ecosystem) will rely on these details to list and promote my venue.
+                  I hereby certify that I am an authorized representative of{" "}
+                  <span className="font-semibold">
+                    {formData.venueName || "[Venue Name]"}
+                  </span>
+                  , and that all information provided in the Ofside onboarding
+                  form is true, complete, and accurate to the best of my
+                  knowledge. I understand that Ofside (powered by Rankshell –
+                  India’s ultimate sports ecosystem) will rely on these details
+                  to list and promote my venue.
                 </span>
               </div>
               <div className="mb-4">
-                <strong className="font-semibold text-gray-700">Details Provided:</strong>
+                <strong className="font-semibold text-gray-700">
+                  Details Provided:
+                </strong>
                 <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
                   <li>Brand / Venue Name, Contact Number &amp; Email</li>
                   <li>Owner’s Name &amp; Contact Details</li>
@@ -1493,30 +1970,41 @@ export default function VenueOnboardingPage() {
               </div>
               <div className="mb-4">
                 <span className="text-gray-800">
-                  I understand that this declaration constitutes my formal consent and will be used to activate and manage my venue listing on the Ofside platform. I acknowledge that any false or misleading information may result in removal from the platform or other remedial action by Ofside.
+                  I understand that this declaration constitutes my formal
+                  consent and will be used to activate and manage my venue
+                  listing on the Ofside platform. I acknowledge that any false
+                  or misleading information may result in removal from the
+                  platform or other remedial action by Ofside.
                 </span>
               </div>
               <div className="flex items-center mt-6">
                 <input
                   type="checkbox"
                   id="declaration"
-                  className={`w-5 h-5 accent-black mr-2 ${declarationErrors.declarationAgreed ? "border-red-500" : ""}`}
+                  className={`w-5 h-5 accent-black mr-2 ${
+                    declarationErrors.declarationAgreed ? "border-red-500" : ""
+                  }`}
                   checked={formData.declarationAgreed}
-                  onChange={e => {
-                    setFormData(prev => ({
+                  onChange={(e) => {
+                    setFormData((prev) => ({
                       ...prev,
                       declarationAgreed: e.target.checked,
                     }));
-                    handleTouched('declarationAgreed');
+                    handleTouched("declarationAgreed");
                   }}
-                  onBlur={() => handleTouched('declarationAgreed')}
+                  onBlur={() => handleTouched("declarationAgreed")}
                 />
-                <label htmlFor="declaration" className="font-semibold text-gray-900">
+                <label
+                  htmlFor="declaration"
+                  className="font-semibold text-gray-900"
+                >
                   I agree and confirm the accuracy of the above information.
                 </label>
               </div>
               {declarationErrors.declarationAgreed && (
-                <span className="text-xs text-red-600 mt-2 block">{declarationErrors.declarationAgreed}</span>
+                <span className="text-xs text-red-600 mt-2 block">
+                  {declarationErrors.declarationAgreed}
+                </span>
               )}
             </div>
           </div>
@@ -1530,7 +2018,6 @@ export default function VenueOnboardingPage() {
   return (
     <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  ">
       <div className="min-h-screen ">
-
         <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
           <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative overflow-hidden flex flex-col  md:min-h-[350px]  sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
             {/* Background Video */}
@@ -1540,7 +2027,7 @@ export default function VenueOnboardingPage() {
               muted
               playsInline
               className="absolute inset-0 w-full h-full object-cover z-2"
-              style={{ filter: 'brightness(0.9)' }}
+              style={{ filter: "brightness(0.9)" }}
             >
               <source src={footballVideo} type="video/mp4" />
               Your browser does not support the video tag.
@@ -1554,60 +2041,78 @@ export default function VenueOnboardingPage() {
               
             "
               style={{
-                minHeight: '100%',
+                minHeight: "100%",
               }}
             >
               {/* Logo at top */}
               <div className="flex justify-center mb-4 sm:my-4 md:mb-8 md:mr-6">
                 <img
-                  src="/assets/main logo 2.png"
+                  src="/assets/ofside-logo.png"
                   alt="Ofside Logo"
                   className="w-20 sm:w-24 md:w-36 lg:w-46 h-auto object-contain"
-                  style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.15))' }}
+                  style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.15))" }}
                 />
               </div>
               {/* Header and Info */}
               <div className="flex flex-col items-center text-center sm:mb-6 md:mb-0  ">
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-4">List Your Sports Venue</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-4">
+                  List Your Sports Venue
+                </h1>
                 <p className="text-base sm:text-lg text-white max-w-2xl mx-auto md:mx-0">
-                  Join thousands of venue owners and start earning by listing your sports facility on Ofside
+                  Join thousands of venue owners and start earning by listing
+                  your sports facility on Ofside
                 </p>
                 {/* Extra Info */}
                 <div className="hidden md:block mt-4 sm:mt-8 space-y-3 sm:space-y-6 text-white">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">Get discovered by thousands of sports enthusiasts in your city.</span>
+                    <span className="text-xs sm:text-sm md:text-base">
+                      Get discovered by thousands of sports enthusiasts in your
+                      city.
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">Easy booking management and hassle-free payments.</span>
+                    <span className="text-xs sm:text-sm md:text-base">
+                      Easy booking management and hassle-free payments.
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3">
                     <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">Dedicated support team to help you grow your business.</span>
+                    <span className="text-xs sm:text-sm md:text-base">
+                      Dedicated support team to help you grow your business.
+                    </span>
                   </div>
                 </div>
-            
               </div>
-                  <div className="mt-6 sm:mt-12 flex justify-center ">
-                  <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-xl shadow text-xs sm:text-base gap-2">
-                    Need help?{' '}
-                    <a href="mailto:play@ofside.in" className="underline text-black inline-flex items-center gap-1">
-                      <Mail className="inline-block w-4 h-4" /> Connect
-                    </a>{' '}
-                    or{' '}
-                    <a href="tel:+919999999999" className="underline text-black inline-flex items-center gap-1">
-                      <Phone className="inline-block w-4 h-4" /> Call us
-                    </a>
-                  </span>
-                </div>
+              <div className="mt-6 sm:mt-12 flex justify-center ">
+                <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-xl shadow text-xs sm:text-base gap-2">
+                  Need help?{" "}
+                  <a
+                    href="mailto:play@ofside.in"
+                    className="underline text-black inline-flex items-center gap-1"
+                  >
+                    <Mail className="inline-block w-4 h-4" /> Connect
+                  </a>{" "}
+                  or{" "}
+                  <a
+                    href="tel:+919999999999"
+                    className="underline text-black inline-flex items-center gap-1"
+                  >
+                    <Phone className="inline-block w-4 h-4" /> Call us
+                  </a>
+                </span>
+              </div>
             </div>
             {/* Overlay for darkening video */}
             <div className="absolute inset-0 bg-black bg-opacity-30 pointer-events-none z-0" />
           </div>
 
           {/* Progress Indicator */}
-          <div className="w-full lg:w-2/3 bg-gray-100 sm:overflow-y-auto p-2 sm:p-6" ref={rightRef}>
+          <div
+            className="w-full lg:w-2/3 bg-gray-100 sm:overflow-y-auto p-2 sm:p-6"
+            ref={rightRef}
+          >
             <div className="mb-12">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-4 mt-2 sm:mt-0 sm:mb-8">
                 {steps.map((step, index) => (
@@ -1615,31 +2120,33 @@ export default function VenueOnboardingPage() {
                     <div className="flex flex-col items-center min-hitew-[40px] sm:min-w-[70px]">
                       <div
                         className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 shadow transition-all duration-300
-            ${index < currentStep
-                            ? 'bg-green-500 border-green-500 text-white'
-                            : index === currentStep
-                              ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
-                              : 'bg-white border-gray-300 text-gray-400'
-                          }
+            ${
+              index < currentStep
+                ? "bg-green-500 border-green-500 text-white"
+                : index === currentStep
+                ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
+                : "bg-white border-gray-300 text-gray-400"
+            }
           `}
                       >
                         {index < currentStep ? (
                           <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                         ) : (
                           React.createElement(step.icon, {
-                            className: 'w-4 h-4 sm:w-5 sm:h-5',
+                            className: "w-4 h-4 sm:w-5 sm:h-5",
                           })
                         )}
                       </div>
 
                       {/* Step name only visible on sm and above */}
                       <span
-                        className={`hidden sm:block mt-2 text-xs font-medium text-center transition-all duration-200 ${index === currentStep
-                            ? 'text-black'
+                        className={`hidden sm:block mt-2 text-xs font-medium text-center transition-all duration-200 ${
+                          index === currentStep
+                            ? "text-black"
                             : index < currentStep
-                              ? 'text-green-600'
-                              : 'text-gray-400'
-                          }`}
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
                       >
                         {step.title}
                       </span>
@@ -1648,12 +2155,13 @@ export default function VenueOnboardingPage() {
                     {/* Progress bar between steps */}
                     {index < steps.length - 1 && (
                       <div
-                        className={`flex-1 h-1 rounded transition-all duration-300 ${index < currentStep
-                            ? 'bg-green-500'
+                        className={`flex-1 h-1 rounded transition-all duration-300 ${
+                          index < currentStep
+                            ? "bg-green-500"
                             : index === currentStep
-                              ? 'bg-gradient-to-r from-yellow-300 to-yellow-400'
-                              : 'bg-gray-300'
-                          }`}
+                            ? "bg-gradient-to-r from-yellow-300 to-yellow-400"
+                            : "bg-gray-300"
+                        }`}
                       />
                     )}
                   </React.Fragment>
@@ -1662,9 +2170,13 @@ export default function VenueOnboardingPage() {
 
               <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {/* Step Header */}
-                <div className={`bg-gradient-to-r ${steps[currentStep].color} p-4 sm:px-8 sm:py-6`}>
+                <div
+                  className={`bg-gradient-to-r ${steps[currentStep].color} p-4 sm:px-8 sm:py-6`}
+                >
                   <h2 className="text-xl sm:text-2xl font-bold text-black flex items-center">
-                    {React.createElement(steps[currentStep].icon, { className: "w-6 h-6 mr-3" })}
+                    {React.createElement(steps[currentStep].icon, {
+                      className: "w-6 h-6 mr-3",
+                    })}
                     {steps[currentStep].title}
                   </h2>
                 </div>
@@ -1676,24 +2188,31 @@ export default function VenueOnboardingPage() {
 
                 {/* Navigation Buttons */}
                 <div
-                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${currentStep === 4 ? 'flex-col' : 'flex-row'
-                    } items-center justify-center gap-2`}
+                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
+                    currentStep === 4 ? "flex-col" : "flex-row"
+                  } items-center justify-center gap-2`}
                 >
                   <button
                     type="button"
                     onClick={prevStep}
                     disabled={currentStep === 0}
-                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${currentStep === 0
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                      } ${currentStep === 4 ? 'w-full' : 'w-full sm:w-auto'}`}
-                    style={currentStep === 4 ? { width: '100%' } : { maxWidth: 160 }}
+                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
+                      currentStep === 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
+                    style={
+                      currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }
+                    }
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Back</span>
                   </button>
 
-                  <div className="text-sm text-gray-500 flex-shrink-0 text-center" style={{ minWidth: 110 }}>
+                  <div
+                    className="text-sm text-gray-500 flex-shrink-0 text-center"
+                    style={{ minWidth: 110 }}
+                  >
                     Step {currentStep + 1} of {steps.length}
                   </div>
 
@@ -1703,16 +2222,17 @@ export default function VenueOnboardingPage() {
                       onClick={handleSubmit}
                       disabled={!formData.declarationAgreed}
                       className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg flex items-center space-x-3 w-full justify-center transition-all duration-200
-                        ${formData.declarationAgreed
-                          ? 'hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105'
-                          : 'opacity-60 cursor-not-allowed'
+                        ${
+                          formData.declarationAgreed
+                            ? "hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105"
+                            : "opacity-60 cursor-not-allowed"
                         }
                       `}
                       style={{
-                        fontSize: '1.15rem',
-                        letterSpacing: '0.02em',
-                        boxShadow: '0 4px 16px 0 rgba(255,225,0,0.10)',
-                        border: '2px solid #ffe100',
+                        fontSize: "1.15rem",
+                        letterSpacing: "0.02em",
+                        boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
+                        border: "2px solid #ffe100",
                       }}
                     >
                       <Check className="w-5 h-5 mr-2" />
@@ -1723,10 +2243,11 @@ export default function VenueOnboardingPage() {
                       type="button"
                       onClick={nextStep}
                       disabled={!isStepValid(currentStep)}
-                      className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${isStepValid(currentStep)
-                          ? `bg-gradient-to-r ${steps[currentStep].color} text-white hover:shadow-lg transform hover:scale-105`
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
+                      className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${
+                        isStepValid(currentStep)
+                          ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
                       style={{ maxWidth: 160 }}
                     >
                       <span>Next</span>
@@ -1739,7 +2260,8 @@ export default function VenueOnboardingPage() {
               {/* Help Text */}
               <div className="text-center mt-8">
                 <p className="text-gray-600">
-                  Your venue will be reviewed within 24-48 hours and you will be notified via email.
+                  Your venue will be reviewed within 24-48 hours and you will be
+                  notified via email.
                 </p>
               </div>
             </div>

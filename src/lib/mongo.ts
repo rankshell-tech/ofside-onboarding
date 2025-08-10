@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI as string;
+const DB_NAME = process.env.DB_NAME as string;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI in .env.local');
@@ -18,7 +19,7 @@ export async function connectToDB() {
 
 if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-        dbName: 'ofside-staging',
+        dbName: DB_NAME,
         bufferCommands: false,
     });
 }
