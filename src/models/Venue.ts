@@ -1,15 +1,19 @@
 import mongoose, { Schema, models } from 'mongoose';
 
-// Court Schema (Nested inside Sports Facility)
+// Sports Facility Schema (Each facility is a court for a specific sport)
 const courtSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },                  // courtName
-    sportType: { type: String },                             // courtSportType
+    sportType: { type: String, required: true },             // courtSportType (e.g., "Football", "Tennis")
     surfaceType: { type: String },                           // surfaceType
     size: { type: String },                                  // courtSize (e.g., 5-a-side, Standard)
     isIndoor: { type: Boolean, default: false },             // isIndoor
     hasLighting: { type: Boolean, default: false },          // hasLighting
-    images: { type: [String], default: [] },                 // courtImages
+    images: {
+      cover: { type: String, default: null },                // URL or path to cover image
+      logo: { type: String, default: null },                 // URL or path to logo image
+      others: { type: [String], default: [] }                // Array of URLs/paths for other images
+    },
     slotDuration: { type: Number },                          // courtSlotDuration (in minutes)
     maxPeople: { type: Number },                             // courtMaxPeople
     pricePerSlot: { type: Number },                          // courtPricePerSlot
@@ -22,16 +26,6 @@ const courtSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Sports Facility Schema (One sport can have multiple courts)
-const sportsFacilitySchema = new mongoose.Schema(
-  {
-    name: { type: String },                                  // courtName
-    sportType: { type: String, required: true },             // e.g., "Football", "Tennis"
-    courts: { type: [courtSchema], default: [] },
-  },
-  { _id: false }
-);
-
 // Main Venue Schema
 const venueSchema = new mongoose.Schema({
   venueName: { type: String, required: true },               // venueName
@@ -40,11 +34,6 @@ const venueSchema = new mongoose.Schema({
   description: { type: String, required: true },
 
   amenities: { type: [String], default: [] },                // e.g., Parking, Washroom, etc.
-
-  images: {
-    logo: { type: String },                                  // venueLogo
-    gallery: [{ type: String }],                             // galleryImages
-  },
 
   is24HoursOpen: { type: Boolean, default: false },
 
@@ -72,7 +61,7 @@ const venueSchema = new mongoose.Schema({
     email: { type: String }
   },
 
-  sportsFacilities: { type: [sportsFacilitySchema], default: [] },
+  courts: { type: [courtSchema], default: [] },
 
   declarationAgreed: { type: Boolean, default: false },
 

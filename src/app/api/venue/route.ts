@@ -5,7 +5,6 @@ import { connectToDB } from '@/lib/mongo';
 
 export async function POST(req: NextRequest) {
   try {
-
     await connectToDB(); 
     const body = await req.json();
 
@@ -15,7 +14,7 @@ export async function POST(req: NextRequest) {
       venueType,
       sportsOffered,
       description,
-      venueLogo,
+      
       is24HoursOpen,
       shopNo,
       floorTower,
@@ -32,7 +31,7 @@ export async function POST(req: NextRequest) {
       ownerPhone,
       ownerEmail,
       amenities,
-      galleryImages,
+   
       courts,
       declarationAgreed,
     } = body;
@@ -42,7 +41,7 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ success: false, message: 'Missing required fields.' }), { status: 400 });
     }
 
-    // Check for duplicate venue
+    // Check for duplicate venuea
     const existingVenue = await Venue.findOne({
       venueName,
       'location.address': `${shopNo}, ${floorTower}, ${areaSectorLocality}`
@@ -66,30 +65,32 @@ export async function POST(req: NextRequest) {
       await userWhoCreated.save();
     }
     if (userWhoCreated.role === 0) userWhoCreated.role = 1;
+    userWhoCreated.totalVenueCreated++;
+    await userWhoCreated.save();
 
-    const sportsFacilities = courts.map(court => ({
+    // Map courts directly to sportsFacilities as per schema
+    const courtsData = courts.map((court: any) => ({
       name: court.courtName,
       sportType: court.courtSportType,
-      courts: [
-        {
-          name: court.courtName,
-          sportType: court.courtSportType,
-          surfaceType: court.surfaceType,
-          size: court.courtSize || '',
-          isIndoor: court.isIndoor || false,
-          hasLighting: court.hasLighting || false,
-          images: court.courtImages || [],
-          slotDuration: court.courtSlotDuration,
-          maxPeople: court.courtMaxPeople,
-          pricePerSlot: court.courtPricePerSlot,
-          peakEnabled: court.courtPeakEnabled,
-          peakDays: court.courtPeakDays,
-          peakStart: court.courtPeakStart,
-          peakEnd: court.courtPeakEnd,
-          peakPricePerSlot: court.courtPeakPricePerSlot
-        }
-      ]
+      surfaceType: court.surfaceType,
+      size: court.courtSize || '',
+      isIndoor: court.isIndoor || false,
+      hasLighting: court.hasLighting || false,
+      images: {
+      cover: court.courtImages?.cover,
+      logo: court.courtImages?.logo,
+      others: Array.isArray(court.courtImages?.others) ? court.courtImages.others : [],
+      },
+      slotDuration: court.courtSlotDuration,
+      maxPeople: court.courtMaxPeople,
+      pricePerSlot: court.courtPricePerSlot,
+      peakEnabled: court.courtPeakEnabled,
+      peakDays: court.courtPeakDays,
+      peakStart: court.courtPeakStart,
+      peakEnd: court.courtPeakEnd,
+      peakPricePerSlot: court.courtPeakPricePerSlot
     }));
+    console.log(courtsData);
 
     const venueData = {
       venueName,
@@ -97,44 +98,38 @@ export async function POST(req: NextRequest) {
       sportsOffered,
       description,
       amenities,
-      images: {
-        logo: venueLogo,
-        gallery: galleryImages
-      },
       is24HoursOpen,
       location: {
-        shopNo,
-        floorTower,
-        areaSectorLocality,
-        address: `${shopNo}, ${floorTower}, ${areaSectorLocality}`,
-        city,
-        state: state || '',
-        pincode,
-        country: 'India',
-        coordinates: {
-          type: 'Point',
-          coordinates: [
-            longitude ? parseFloat(longitude) : 0,
-            latitude ? parseFloat(latitude) : 0
-          ]
-        }
+      address: `${shopNo}, ${floorTower}, ${areaSectorLocality}`,
+      city,
+      // state is not required in schema, but you can add if needed
+      country: 'India',
+      pincode,
+      coordinates: {
+        type: 'Point',
+        coordinates: [
+        longitude ? parseFloat(longitude) : 0,
+        latitude ? parseFloat(latitude) : 0
+        ]
+      }
       },
       contact: {
-        name: contactPersonName,
-        phone: contactPhone,
-        email: contactEmail
+      name: contactPersonName,
+      phone: contactPhone,
+      email: contactEmail
       },
       owner: {
-        name: ownerName,
-        phone: ownerPhone,
-        email: ownerEmail
+      name: ownerName,
+      phone: ownerPhone,
+      email: ownerEmail
       },
-      sportsFacilities,
+      courts: courtsData,
       declarationAgreed,
-      createdBy: userWhoCreated._id,
-      rawVenueData: body
+      rawVenueData: body,
+      createdBy: userWhoCreated._id
     };
 
+  
     const newVenue = new Venue(venueData);
     await newVenue.save();
 

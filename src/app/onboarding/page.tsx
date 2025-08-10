@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
   Upload,
   X,
@@ -48,30 +49,87 @@ export default function VenueOnboardingPage() {
 
   const [sameAsContact, setSameAsContact] = useState(false);
 
+  // const [formData, setFormData] = useState({
+  //   // Basic Details
+  //   venueName: "",
+  //   venueType: "",
+  //   sportsOffered: [] as string[],
+  //   description: "",
+  //   venueLogo: null as File | null,
+  //   is24HoursOpen: false,
+
+  //   // Address & Contact
+  //   shopNo: "",
+  //   floorTower: "",
+  //   areaSectorLocality: "",
+  //   city: "",
+  //   state: "",
+  //   pincode: "",
+  //   latitude: "",
+  //   longitude: "",
+  //   contactPersonName: "",
+  //   contactPhone: "",
+  //   contactEmail: "",
+  //   ownerName: "",
+  //   ownerPhone: "",
+  //   ownerEmail: "",
+  //   startTime: "",
+  //   endTime: "",
+  //   // Amenities
+  //   amenities: [] as string[],
+
+  //   availableDays: [] as string[],
+  //   declarationAgreed: false,
+
+  //   // Courts Array for multiple courts support
+  //   courts: [
+  //     {
+  //       courtName: "",
+  //       surfaceType: "",
+  //       courtSportType: "",
+  //       courtSlotDuration: "",
+  //       courtMaxPeople: "",
+  //       courtPricePerSlot: "",
+  // courtImages: {
+  //   cover: null as File | null,
+  //   logo: null as File | null,
+  //   others: [] as File[],
+  // },
+  //       courtPeakEnabled: false,
+  //       courtPeakDays: [] as string[],
+  //       courtPeakStart: "",
+  //       courtPeakEnd: "",
+  //       courtPeakPricePerSlot: "",
+  //     },
+  //   ],
+  // });
+
+
+
+  
   const [formData, setFormData] = useState({
     // Basic Details
-    venueName: "",
-    venueType: "",
+    venueName: "test" + Math.floor(Math.random() * 1000),
+    venueType: "Turf",
     sportsOffered: [] as string[],
-    description: "",
+    description: "edesc",
     venueLogo: null as File | null,
     is24HoursOpen: false,
 
     // Address & Contact
-    shopNo: "",
-    floorTower: "",
-    areaSectorLocality: "",
-    city: "",
-    state: "",
-    pincode: "",
-    latitude: "",
-    longitude: "",
-    contactPersonName: "",
-    contactPhone: "",
-    contactEmail: "",
-    ownerName: "",
-    ownerPhone: "",
-    ownerEmail: "",
+    shopNo: "w",
+    floorTower: "w",
+    areaSectorLocality: "w",
+    city: "w",
+    state: "w",
+    pincode: "787878",
+
+    contactPersonName: "contact",
+    contactPhone: "8989898989",
+    contactEmail: "contact@gmail.com",
+    ownerName: "owner@gmail.com",
+    ownerPhone: "8989898989",
+    ownerEmail: "owner@gmail.com",
     startTime: "",
     endTime: "",
     // Amenities
@@ -83,13 +141,17 @@ export default function VenueOnboardingPage() {
     // Courts Array for multiple courts support
     courts: [
       {
-        courtName: "",
-        surfaceType: "",
+        courtName: "Court 1",
+        surfaceType: "Grass",
         courtSportType: "",
         courtSlotDuration: "",
         courtMaxPeople: "",
         courtPricePerSlot: "",
-        courtImages: [] as File[],
+        courtImages: {
+          cover: null as File | null,
+          logo: null as File | null,
+          others: [] as File[],
+        },
         courtPeakEnabled: false,
         courtPeakDays: [] as string[],
         courtPeakStart: "",
@@ -171,11 +233,31 @@ export default function VenueOnboardingPage() {
       courtsTouched[idx]?.courtPricePerSlot
     )
       errors.courtPricePerSlot = "Enter a valid price per slot.";
+    // Validate cover image
     if (
-      (!court.courtImages || court.courtImages.length < 2) &&
+      !court.courtImages.cover &&
       courtsTouched[idx]?.courtImages
-    )
-      errors.courtImages = "At least 2 images are required.";
+    ) {
+      errors.courtImages = "Cover image is required.";
+    }
+    // Validate logo image
+    if (
+      !court.courtImages.logo &&
+      courtsTouched[idx]?.courtImages
+    ) {
+      errors.courtImages = errors.courtImages
+      ? errors.courtImages + " Logo/profile image is required."
+      : "Logo/profile image is required.";
+    }
+    // Validate other images (optional, but you can require at least one if needed)
+    // if (
+    //   (!court.courtImages.others || court.courtImages.others.length === 0) &&
+    //   courtsTouched[idx]?.courtImages
+    // ) {
+    //   errors.courtImages = errors.courtImages
+    //     ? errors.courtImages + " At least one other image is required."
+    //     : "At least one other image is required.";
+    // }
     if (court.courtPeakEnabled) {
       if (
         (!court.courtPeakDays || court.courtPeakDays.length === 0) &&
@@ -215,11 +297,19 @@ export default function VenueOnboardingPage() {
   const handleCourtFileChange = (idx: number, files: FileList | null) => {
     if (!files) return;
     setFormData((prev) => {
-      const updatedCourts = prev.courts.map((court, i) =>
-        i === idx
-          ? { ...court, courtImages: Array.from(files).slice(0, 5) }
-          : court
-      );
+      const updatedCourts = prev.courts.map((court, i) => {
+        if (i !== idx) return court;
+        // Map files to cover, logo, others
+        const fileArr = Array.from(files).slice(0, 5);
+        return {
+          ...court,
+          courtImages: {
+            cover: fileArr[0] || null,
+            logo: fileArr[1] || null,
+            others: fileArr.slice(2),
+          },
+        };
+      });
       return {
         ...prev,
         courts: updatedCourts,
@@ -229,16 +319,39 @@ export default function VenueOnboardingPage() {
 
   const handleRemoveCourtImage = (idx: number, imgIdx: number) => {
     setFormData((prev) => {
-      const updatedCourts = prev.courts.map((court, i) =>
-        i === idx
-          ? {
-              ...court,
-              courtImages: court.courtImages.filter(
-                (_: File, j: number) => j !== imgIdx
-              ),
-            }
-          : court
-      );
+      const updatedCourts = prev.courts.map((court, i) => {
+        if (i !== idx) return court;
+        if (imgIdx === 0) {
+          // Remove cover
+          return {
+            ...court,
+            courtImages: {
+              ...court.courtImages,
+              cover: null,
+            },
+          };
+        } else if (imgIdx === 1) {
+          // Remove logo
+          return {
+            ...court,
+            courtImages: {
+              ...court.courtImages,
+              logo: null,
+            },
+          };
+        } else {
+          // Remove from others (imgIdx - 2)
+          const newOthers = [...court.courtImages.others];
+          newOthers.splice(imgIdx - 2, 1);
+          return {
+            ...court,
+            courtImages: {
+              ...court.courtImages,
+              others: newOthers,
+            },
+          };
+        }
+      });
       return {
         ...prev,
         courts: updatedCourts,
@@ -270,21 +383,25 @@ export default function VenueOnboardingPage() {
     setFormData((prev) => ({
       ...prev,
       courts: [
-        ...prev.courts,
-        {
-          courtName: "",
-          surfaceType: "",
-          courtSportType: "",
-          courtSlotDuration: "",
-          courtMaxPeople: "",
-          courtPricePerSlot: "",
-          courtImages: [] as File[],
-          courtPeakEnabled: false,
-          courtPeakDays: [] as string[],
-          courtPeakStart: "",
-          courtPeakEnd: "",
-          courtPeakPricePerSlot: "",
+      ...prev.courts,
+      {
+        courtName: "",
+        surfaceType: "",
+        courtSportType: "",
+        courtSlotDuration: "",
+        courtMaxPeople: "",
+        courtPricePerSlot: "",
+        courtImages: {
+        cover: null as File | null,
+        logo: null as File | null,
+        others: [] as File[],
         },
+        courtPeakEnabled: false,
+        courtPeakDays: [] as string[],
+        courtPeakStart: "",
+        courtPeakEnd: "",
+        courtPeakPricePerSlot: "",
+      },
       ],
     }));
   };
@@ -498,77 +615,122 @@ export default function VenueOnboardingPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Step 1: Flatten and compress all images from courts
-    const allImageJobs: {
+    // Step 1: Prepare all image upload jobs for each court
+    type ImageJob = {
       file: File;
       courtIndex: number;
-    }[] = [];
+      imageType: "cover" | "logo" | "others";
+      otherIndex?: number;
+    };
+
+    const allImageJobs: ImageJob[] = [];
 
     formData.courts.forEach((court, i) => {
-      court.courtImages.forEach((file) => {
-        allImageJobs.push({ file, courtIndex: i });
-      });
+      if (court.courtImages.cover) {
+        allImageJobs.push({
+          file: court.courtImages.cover,
+          courtIndex: i,
+          imageType: "cover",
+        });
+      }
+      if (court.courtImages.logo) {
+        allImageJobs.push({
+          file: court.courtImages.logo,
+          courtIndex: i,
+          imageType: "logo",
+        });
+      }
+      if (Array.isArray(court.courtImages.others)) {
+        court.courtImages.others.forEach((file, idx) => {
+          allImageJobs.push({
+            file,
+            courtIndex: i,
+            imageType: "others",
+            otherIndex: idx,
+          });
+        });
+      }
     });
 
-    // Step 2: Compress and upload all in parallel
+    // Step 2: Compress and upload all images in parallel
     const uploadResults = await Promise.allSettled(
-      allImageJobs.map(async ({ file, courtIndex }) => {
-        const compressed = await compressImage(file);
+      allImageJobs.map(async (job) => {
+        const compressed = await compressImage(job.file);
         const url = await uploadImageAndGetUrl(compressed);
-        return { courtIndex, url };
+        return { ...job, url };
       })
     );
 
-    // Step 3: Map results back into courts
+    // Step 3: Map uploaded URLs back to courtImages structure
     const updatedCourts = formData.courts.map((court, i) => {
-      const uploadedUrls = uploadResults
+      // Find uploaded cover
+      const coverResult = uploadResults.find(
+        (r) =>
+          r.status === "fulfilled" &&
+          r.value.courtIndex === i &&
+          r.value.imageType === "cover" &&
+          r.value.url
+      ) as PromiseFulfilledResult<any> | undefined;
+
+      // Find uploaded logo
+      const logoResult = uploadResults.find(
+        (r) =>
+          r.status === "fulfilled" &&
+          r.value.courtIndex === i &&
+          r.value.imageType === "logo" &&
+          r.value.url
+      ) as PromiseFulfilledResult<any> | undefined;
+
+      // Find uploaded others (array)
+      const othersResults = uploadResults
         .filter(
-          (result) =>
-            result.status === "fulfilled" &&
-            result.value.courtIndex === i &&
-            result.value.url
+          (r) =>
+            r.status === "fulfilled" &&
+            r.value.courtIndex === i &&
+            r.value.imageType === "others" &&
+            r.value.url
         )
-        .map(
-          (result) =>
-            (
-              result as PromiseFulfilledResult<{
-                courtIndex: number;
-                url: string;
-              }>
-            ).value.url
-        );
+        .sort(
+          (a, b) =>
+            (a.status === "fulfilled" && b.status === "fulfilled"
+              ? (a.value.otherIndex ?? 0) - (b.value.otherIndex ?? 0)
+              : 0)
+        ) as PromiseFulfilledResult<any>[];
+
       return {
         ...court,
-        courtImages: uploadedUrls, // Only successful URLs
+        courtImages: {
+          cover: coverResult?.value.url ?? null,
+          logo: logoResult?.value.url ?? null,
+          others: othersResults.map((r) => r.value.url) as string[],
+        },
       };
     });
 
-    // Step 4: Submit final form
-    const finalFormData = {
+    // Step 4: Prepare final payload (replace courtImages with URLs)
+    const payload = {
       ...formData,
       courts: updatedCourts,
     };
 
+    // Step 5: Submit the form data (replace with your API endpoint)
     try {
-      const response = await fetch("/api/venue", {
+      const res = await fetch("/api/venue", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalFormData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
-      const result = await response.json();
-      if (result.success) {
-        setShowSuccessPopup(true);
-        console.log("Form submitted:", finalFormData);
-      } else {
-        alert(result.error || "Submission failed. Please try again.");
-      }
+      if (!res.ok) throw new Error("Submission failed");
+
+      setShowSuccessPopup(true);
     } catch (err) {
-      console.error("Submission error:", err);
-      alert("Something went wrong.");
-    } finally {
+      alert("Submission failed. Please try again.");
       setLoading(false);
     }
+    setLoading(false);
   };
 
   const isStepValid = (stepIndex: number) => {
@@ -598,7 +760,8 @@ export default function VenueOnboardingPage() {
             court.courtMaxPeople &&
             court.courtPricePerSlot &&
             court.courtImages &&
-            court.courtImages.length >= 2 &&
+            court.courtImages.cover &&
+            court.courtImages.logo &&
             (!court.courtPeakEnabled ||
               (court.courtPeakDays &&
                 court.courtPeakDays.length > 0 &&
@@ -1527,84 +1690,255 @@ export default function VenueOnboardingPage() {
                     )}
                   </div>
 
-                  {/* Court Images Upload Section */}
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Court Images (Minimum 2 Images required, first is cover) *
-                    </label>
-                    <div
-                      className={`border-2 border-dashed rounded-xl p-8 text-center transition-all mb-4 ${
-                        courtsErrors[idx]?.courtImages
-                          ? "border-red-500"
-                          : "border-gray-300 hover:border-orange-500"
-                      }`}
-                    >
-                      <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 mb-2">
-                        Please upload Minimum - 2 Maximum - 5 images of this
-                        court. The first image will be used as the cover photo.
-                      </p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => {
-                          handleCourtFileChange(idx, e.target.files);
-                        }}
-                        onBlur={() => handleCourtTouched(idx, "courtImages")}
-                        className="hidden"
-                        id={`court-images-upload-${idx}`}
-                      />
-                      <label
-                        htmlFor={`court-images-upload-${idx}`}
-                        className="btn-primary cursor-pointer text-gray-700"
-                      >
-                        Select Images
+                    {/* Court Images Upload Section */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Court Images (Cover, Logo, and Others) <span className="text-red-500">*</span>
                       </label>
-                    </div>
-                    {court.courtImages && court.courtImages.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                        {court.courtImages.map((file: File, imgIdx: number) => (
-                          <div key={imgIdx} className="relative group">
-                            <img
-                              src={URL.createObjectURL(file)}
-                              alt={`Court ${imgIdx + 1}`}
-                              className={`w-full h-32 object-cover rounded-xl ${
-                                imgIdx === 0 ? "border-4 border-orange-400" : ""
-                              }`}
-                            />
-                            <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                              {imgIdx === 0
-                                ? "Cover Photo"
-                                : `Image ${imgIdx + 1}`}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                handleRemoveCourtImage(idx, imgIdx);
-                              }}
-                              onBlur={() =>
-                                handleCourtTouched(idx, "courtImages")
-                              }
-                              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
+                        {/* Cover Image */}
+                        <div className="flex flex-col items-center w-32">
+                          <span className="text-xs font-semibold mb-2">Cover Image</span>
+                          <div
+                            className={`relative border-2 border-dashed rounded-xl w-28 h-28 flex items-center justify-center transition-all duration-200 bg-gray-50 hover:bg-orange-50 ${
+                              courtsErrors[idx]?.courtImages && !court.courtImages.cover
+                                ? "border-red-500"
+                                : "border-gray-300 hover:border-orange-400"
+                            }`}
+                          >
+                            {court.courtImages.cover ? (
+                              <>
+                                <Image
+                                  src={URL.createObjectURL(court.courtImages.cover)}
+                                  alt="Cover"
+                                  className="w-full h-full object-cover rounded-xl"
+                                  width={112}
+                                  height={112}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveCourtImage(idx, 0)}
+                                  onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                  className="absolute top-1 right-1 bg-white text-red-600 border border-red-200 rounded-full p-1 shadow hover:bg-red-500 hover:text-white transition"
+                                  title="Remove"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <Camera className="w-8 h-8 text-gray-300" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      // Only update cover image
+                                      setFormData((prev) => {
+                                        const updatedCourts = prev.courts.map((courtItem, i) =>
+                                          i === idx
+                                            ? {
+                                                ...courtItem,
+                                                courtImages: {
+                                                  ...courtItem.courtImages,
+                                                  cover: e.target.files![0],
+                                                },
+                                              }
+                                            : courtItem
+                                        );
+                                        return { ...prev, courts: updatedCourts };
+                                      });
+                                    }
+                                  }}
+                                  onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                  style={{ width: "100%", height: "100%" }}
+                                />
+                              </>
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                    {courtsErrors[idx]?.courtImages && (
-                      <span className="text-xs text-red-600 mt-1 block">
-                        {courtsErrors[idx].courtImages}
-                      </span>
-                    )}
-                    <p className="text-sm text-gray-700 mb-6">
-                      <span className="font-bold">Note:</span> Your Venue images will help attract users to your Venue.
-                      Please upload clear and high-quality pictures showcasing
-                      your venue/turf/ground.
-                    </p>
-                  </div>
+                          <span className="text-xs text-gray-500 text-center mt-1">First impression</span>
+                        </div>
+                        {/* Logo/Profile Image */}
+                        <div className="flex flex-col items-center w-32">
+                          <span className="text-xs font-semibold mb-2">Logo / Profile</span>
+                          <div
+                            className={`relative border-2 border-dashed rounded-xl w-28 h-28 flex items-center justify-center transition-all duration-200 bg-gray-50 hover:bg-orange-50 ${
+                              courtsErrors[idx]?.courtImages && !court.courtImages.logo
+                                ? "border-red-500"
+                                : "border-gray-300 hover:border-orange-400"
+                            }`}
+                          >
+                            {court.courtImages.logo ? (
+                              <>
+                                <Image
+                                  src={URL.createObjectURL(court.courtImages.logo)}
+                                  alt="Logo"
+                                  className="w-full h-full object-cover rounded-xl"
+                                  width={112}
+                                  height={112}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveCourtImage(idx, 1)}
+                                  onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                  className="absolute top-1 right-1 bg-white text-red-600 border border-red-200 rounded-full p-1 shadow hover:bg-red-500 hover:text-white transition"
+                                  title="Remove"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <Camera className="w-8 h-8 text-gray-300" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      // Only update logo image
+                                      setFormData((prev) => {
+                                        const updatedCourts = prev.courts.map((courtItem, i) =>
+                                          i === idx
+                                            ? {
+                                                ...courtItem,
+                                                courtImages: {
+                                                  ...courtItem.courtImages,
+                                                  logo: e.target.files![0],
+                                                },
+                                              }
+                                            : courtItem
+                                        );
+                                        return { ...prev, courts: updatedCourts };
+                                      });
+                                    }
+                                  }}
+                                  onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                  style={{ width: "100%", height: "100%" }}
+                                />
+                              </>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500 text-center mt-1">Logo or profile</span>
+                        </div>
+                        {/* Other Images (single box, multiple files) */}
+                        <div className="flex flex-col items-center w-40 flex-1 min-w-[140px]">
+                          <span className="text-xs font-semibold mb-2">Other Images</span>
+                          <div
+                            className={`relative border-2 border-dashed rounded-xl w-full min-h-[112px] flex items-center justify-center transition-all duration-200 bg-gray-50 hover:bg-orange-50 ${
+                              courtsErrors[idx]?.courtImages && court.courtImages.others.length === 0
+                                ? "border-red-500"
+                                : "border-gray-300 hover:border-orange-400"
+                            }`}
+                            style={{ minHeight: 112, maxWidth: 180 }}
+                          >
+                            {court.courtImages.others && court.courtImages.others.length > 0 ? (
+                              <div className="flex flex-wrap gap-2 justify-center items-center w-full h-full p-1">
+                                {court.courtImages.others.map((file, oIdx) => (
+                                  <div key={oIdx} className="relative w-12 h-12 rounded overflow-hidden shadow border border-gray-200 bg-white">
+                                    <Image
+                                      src={URL.createObjectURL(file)}
+                                      alt={`Other ${oIdx + 1}`}
+                                      className="w-full h-full object-cover"
+                                      width={48}
+                                      height={48}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveCourtImage(idx, oIdx + 2)}
+                                      onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                      className="absolute -top-1 -right-1 bg-white text-red-600 border border-red-200 rounded-full p-0.5 shadow hover:bg-red-500 hover:text-white transition"
+                                      title="Remove"
+                                      style={{ fontSize: 10 }}
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                                {court.courtImages.others.length < 3 && (
+                                  <label className="w-12 h-12 flex items-center justify-center cursor-pointer rounded border border-dashed border-gray-300 bg-white hover:bg-orange-50 transition">
+                                    <Camera className="w-6 h-6 text-gray-300" />
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      multiple
+                                      onChange={(e) => {
+                                        if (e.target.files && e.target.files.length > 0) {
+                                          // Only update others images
+                                          const filesArr = Array.from(e.target.files).slice(0, 3 - court.courtImages.others.length);
+                                          setFormData((prev) => {
+                                            const updatedCourts = prev.courts.map((courtItem, i) =>
+                                              i === idx
+                                                ? {
+                                                    ...courtItem,
+                                                    courtImages: {
+                                                      ...courtItem.courtImages,
+                                                      others: [
+                                                        ...courtItem.courtImages.others,
+                                                        ...filesArr,
+                                                      ].slice(0, 3),
+                                                    },
+                                                  }
+                                                : courtItem
+                                            );
+                                            return { ...prev, courts: updatedCourts };
+                                          });
+                                        }
+                                      }}
+                                      onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                      className="absolute inset-0 opacity-0 cursor-pointer"
+                                      style={{ width: "100%", height: "100%" }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                            ) : (
+                              <>
+                                <Camera className="w-8 h-8 text-gray-300" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files.length > 0) {
+                                      const filesArr = Array.from(e.target.files).slice(0, 3);
+                                      setFormData((prev) => {
+                                        const updatedCourts = prev.courts.map((courtItem, i) =>
+                                          i === idx
+                                            ? {
+                                                ...courtItem,
+                                                courtImages: {
+                                                  ...courtItem.courtImages,
+                                                  others: filesArr,
+                                                },
+                                              }
+                                            : courtItem
+                                        );
+                                        return { ...prev, courts: updatedCourts };
+                                      });
+                                    }
+                                  }}
+                                  onBlur={() => handleCourtTouched(idx, "courtImages")}
+                                  className="absolute inset-0 opacity-0 cursor-pointer"
+                                  style={{ width: "100%", height: "100%" }}
+                                />
+                              </>
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-500 text-center mt-1">Up to 3 images</span>
+                        </div>
+                    </div>
+                      {courtsErrors[idx]?.courtImages && (
+                        <span className="text-xs text-red-600 mt-1 block">
+                          {courtsErrors[idx].courtImages}
+                        </span>
+                      )}
+                      <p className="text-sm text-gray-600 mt-2">
+                        <span className="font-bold">Note:</span> Upload clear, high-quality images. Cover and logo are required. Other images are optional but recommended.
+                      </p>
+                
+                
+               
 
                   {/* Sport Type */}
                   <div>
@@ -2096,7 +2430,7 @@ export default function VenueOnboardingPage() {
                   </a>{" "}
                   or{" "}
                   <a
-                    href="tel:+919999999999"
+                    href="tel:+919811785330"
                     className="underline text-black inline-flex items-center gap-1"
                   >
                     <Phone className="inline-block w-4 h-4" /> Call us
