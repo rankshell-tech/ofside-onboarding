@@ -35,7 +35,7 @@ export default function Header() {
 </Link>
           
             {/* Desktop Nav */}
-            <div className="hidden md:flex space-x-4 items-center">
+            <div className="hidden md:flex space-x-4 items-center ">
                 {navLinks.map((link) =>
                     link.primary ? (
                         <a
