@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import { useJsApiLoader } from '@react-google-maps/api';
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
@@ -30,6 +30,13 @@ import { useRef } from "react";
 import imageCompression from "browser-image-compression";
 const footballVideo = "./assets/football-playing-vertical.mp4";
 
+
+import { Libraries } from '@googlemaps/js-api-loader';
+
+const libraries: Libraries = ['places'];
+
+
+
 export default function VenueOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const rightRef = useRef<HTMLDivElement>(null);
@@ -46,121 +53,314 @@ export default function VenueOnboardingPage() {
     return () => clearTimeout(interval);
   }, [currentStep]);
 
+
+
+  
+
   const [loading, setLoading] = useState(false);
 
   const [sameAsContact, setSameAsContact] = useState(false);
 
-  // const [formData, setFormData] = useState({
-  //   // Basic Details
-  //   venueName: "",
-  //   venueType: "",
-  //   sportsOffered: [] as string[],
-  //   description: "",
-  //   venueLogo: null as File | null,
-  //   is24HoursOpen: false,
-
-  //   // Address & Contact
-  //   shopNo: "",
-  //   floorTower: "",
-  //   areaSectorLocality: "",
-  //   city: "",
-  //   state: "",
-  //   pincode: "",
-  //   latitude: "",
-  //   longitude: "",
-  //   contactPersonName: "",
-  //   contactPhone: "",
-  //   contactEmail: "",
-  //   ownerName: "",
-  //   ownerPhone: "",
-  //   ownerEmail: "",
-  //   startTime: "",
-  //   endTime: "",
-  //   // Amenities
-  //   amenities: [] as string[],
-
-  //   availableDays: [] as string[],
-  //   declarationAgreed: false,
-
-  //   // Courts Array for multiple courts support
-  //   courts: [
-  //     {
-  //       courtName: "",
-  //       surfaceType: "",
-  //       courtSportType: "",
-  //       courtSlotDuration: "",
-  //       courtMaxPeople: "",
-  //       courtPricePerSlot: "",
-  // courtImages: {
-  //   cover: null as File | null,
-  //   logo: null as File | null,
-  //   others: [] as File[],
-  // },
-  //       courtPeakEnabled: false,
-  //       courtPeakDays: [] as string[],
-  //       courtPeakStart: "",
-  //       courtPeakEnd: "",
-  //       courtPeakPricePerSlot: "",
-  //     },
-  //   ],
-  // });
 
 
+const [formData, setFormData] = useState({
+  // Basic Details
+  venueName: "",
+  venueType: "",
+  sportsOffered: [] as string[],
+  description: "",
+  venueLogo: null as File | null,
+  is24HoursOpen: false,
 
-  
-  const [formData, setFormData] = useState({
-    // Basic Details
-    venueName: "test" + Math.floor(Math.random() * 1000),
-    venueType: "Turf",
-    sportsOffered: [] as string[],
-    description: "edesc",
-    venueLogo: null as File | null,
-    is24HoursOpen: false,
+  // Address & Contact
+  shopNo: "",
+  floorTower: "",
+  areaSectorLocality: "",
+  latitude: "",
+  longitude: "",
+  city: "",
+  state: "",
+  landmark: "",
+  pincode: "",
+  fullAddress: "",
 
-    // Address & Contact
-    shopNo: "w",
-    floorTower: "w",
-    areaSectorLocality: "w",
-    city: "w",
-    state: "w",
-    pincode: "787878",
+  contactPersonName: "",
+  contactPhone: "",
+  contactEmail: "",
+  ownerName: "",
+  ownerPhone: "",
+  ownerEmail: "",
+  startTime: "",
+  endTime: "",
+  // Amenities
+  amenities: [] as string[],
 
-    contactPersonName: "contact",
-    contactPhone: "8989898989",
-    contactEmail: "contact@gmail.com",
-    ownerName: "owner@gmail.com",
-    ownerPhone: "8989898989",
-    ownerEmail: "owner@gmail.com",
-    startTime: "",
-    endTime: "",
-    // Amenities
-    amenities: [] as string[],
+  availableDays: [] as string[],
+  declarationAgreed: false,
 
-    availableDays: [] as string[],
-    declarationAgreed: false,
-
-    // Courts Array for multiple courts support
-    courts: [
-      {
-        courtName: "Court 1",
-        surfaceType: "Grass",
-        courtSportType: "",
-        courtSlotDuration: "",
-        courtMaxPeople: "",
-        courtPricePerSlot: "",
-        courtImages: {
-          cover: null as File | null,
-          logo: null as File | null,
-          others: [] as File[],
-        },
-        courtPeakEnabled: false,
-        courtPeakDays: [] as string[],
-        courtPeakStart: "",
-        courtPeakEnd: "",
-        courtPeakPricePerSlot: "",
+  // Courts Array for multiple courts support
+  courts: [
+    {
+      courtName: "",
+      surfaceType: "",
+      courtSportType: "",
+      courtSlotDuration: "",
+      courtMaxPeople: "",
+      courtPricePerSlot: "",
+      courtImages: {
+        cover: null as File | null,
+        logo: null as File | null,
+        others: [] as File[],
       },
-    ],
+      courtPeakEnabled: false,
+      courtPeakDays: [] as string[],
+      courtPeakStart: "",
+      courtPeakEnd: "",
+      courtPeakPricePerSlot: "",
+    },
+  ],
+});
+
+
+    // const [formData, setFormData] = useState({
+    //   // Basic Details
+    //   venueName: "test" + Math.floor(Math.random() * 1000),
+    //   venueType: "Turf",
+    //   sportsOffered: [] as string[],
+    //   description: "edesc",
+    //   venueLogo: null as File | null,
+    //   is24HoursOpen: false,
+
+    //   // Address & Contact
+    //   shopNo: "w",
+    //   floorTower: "w",
+    //   areaSectorLocality: "w",
+    //   latitude: "12.9716",
+    //   longitude: "77.5946",
+    //   city: "Bangalore",
+    //   state: "Karnataka",
+    //   landmark: "Some Landmark",
+    //   pincode: "787878",
+    //   fullAddress: "",
+
+    //   contactPersonName: "contact",
+    //   contactPhone: "8989898989",
+    //   contactEmail: "contact@gmail.com",
+    //   ownerName: "owner@gmail.com",
+    //   ownerPhone: "8989898989",
+    //   ownerEmail: "owner@gmail.com",
+    //   startTime: "",
+    //   endTime: "",
+    //   // Amenities
+    //   amenities: [] as string[],
+
+    //   availableDays: [] as string[],
+    //   declarationAgreed: false,
+
+    //   // Courts Array for multiple courts support
+    //   courts: [
+    //     {
+    //       courtName: "Court 1",
+    //       surfaceType: "Grass",
+    //       courtSportType: "",
+    //       courtSlotDuration: "",
+    //       courtMaxPeople: "",
+    //       courtPricePerSlot: "",
+    //       courtImages: {
+    //         cover: null as File | null,
+    //         logo: null as File | null,
+    //         others: [] as File[],
+    //       },
+    //       courtPeakEnabled: false,
+    //       courtPeakDays: [] as string[],
+    //       courtPeakStart: "",
+    //       courtPeakEnd: "",
+    //       courtPeakPricePerSlot: "",
+    //     },
+    //   ],
+    // });
+
+
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries,
+    region: 'IN',
+    language: 'en-IN'
   });
+
+  const [sessionToken, setSessionToken] = useState<google.maps.places.AutocompleteSessionToken>();
+  const [businessResults, setBusinessResults] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<google.maps.places.Place | null>(null);
+
+  // Initialize session token
+  useEffect(() => {
+    if (isLoaded) {
+      setSessionToken(new google.maps.places.AutocompleteSessionToken());
+    }
+  }, [isLoaded]);
+
+  const fetchBusinessPredictions = async (input: string) => {
+    if (!input.trim() || !window.google) return;
+    
+    try {
+      const autocompleteService = new google.maps.places.AutocompleteService();
+      
+      // Use either locationBias OR locationRestriction, not both
+      const request = {
+        input,
+        sessionToken,
+        types: ['establishment'],
+        componentRestrictions: { country: 'in' },
+        // Choose one of these location parameters:
+        locationBias: {
+          center: { lat: 20.5937, lng: 78.9629 }, // Center of India
+          radius: 2000000 // 2000km radius
+        }
+        // OR
+        // locationRestriction: {
+        //   north: 35.5087,
+        //   south: 6.4627,
+        //   east: 97.3956,
+        //   west: 68.1097
+        // }
+      };
+
+      const response = await autocompleteService.getPlacePredictions(request);
+      if (response.predictions) {
+        setBusinessResults(response.predictions);
+      }
+    } catch (error) {
+      console.error('Autocomplete error:', error);
+    }
+  };
+
+const handlePlaceSelect = async (placeId: string) => {
+  if (!placeId || !window.google?.maps?.places) return;
+
+  try {
+    const mapDiv = document.createElement('div');
+    const service = new window.google.maps.places.PlacesService(mapDiv);
+
+    const request: google.maps.places.PlaceDetailsRequest = {
+      placeId,
+      fields: [
+        'name',
+        'formatted_address',
+        'address_components',
+        'geometry',
+        'website',
+        'international_phone_number'
+      ],
+      sessionToken,
+    };
+
+    service.getDetails(request, (place, status) => {
+      if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) {
+        console.error('Place details error:', status, place);
+        return;
+      }
+
+      // Enhanced address component extractor
+      const getComponent = (...types: string[]): string => {
+        if (!place.address_components) return "";
+        for (const type of types) {
+          const component = place.address_components.find(c => 
+            c.types?.includes(type)
+          );
+          if (component?.long_name) return component.long_name;
+        }
+        return "";
+      };
+
+      // Extract all address components in one pass
+      const addressComponents = {
+        shopNo: getComponent("street_number", "subpremise", "premise", "establishment") ||
+               (place.address_components?.[0]?.long_name || ""),
+        
+        floorTower: getComponent("floor", "tower", "room"),
+        
+        areaSectorLocality: [
+          getComponent("route"),
+          getComponent("neighborhood"),
+          getComponent("sublocality_level_3"),
+          getComponent("sublocality_level_2"),
+          getComponent("sublocality_level_1"),
+          getComponent("political"),
+          getComponent("premise")
+        ].filter(Boolean)
+         .filter((v, i, arr) => arr.indexOf(v) === i)
+         .join(", "),
+        
+        city: getComponent(
+          "locality", 
+          "administrative_area_level_2", 
+          "sublocality", 
+          "postal_town"
+        ),
+        
+        state: getComponent(
+          "administrative_area_level_1", 
+          "administrative_area_level_2"
+        ),
+        
+        landmark: getComponent("landmark"),
+        
+        pincode: getComponent("postal_code", "postal_code_suffix")
+      };
+
+      setFormData(prev => ({
+        ...prev,
+        ...addressComponents,
+        fullAddress: place.formatted_address || "",
+        latitude: place.geometry?.location?.lat()?.toString() || "",
+        longitude: place.geometry?.location?.lng()?.toString() || "",
+        // Uncomment if needed:
+        // businessName: place.name || "",
+        // website: place.website || "",
+        // phone: place.international_phone_number || ""
+      }));
+
+      setBusinessResults([]);
+      setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
+    });
+  } catch (error) {
+    console.error('Place details error:', error);
+    setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
+  }
+};
+
+  // Helper to extract address components
+  const extractAddressComponents = (components: google.maps.places.AddressComponent[] | undefined) => {
+    const result = {
+      shopNo: '',
+      areaSectorLocality: '',
+      city: '',
+      pincode: '',
+      state: ''
+    };
+
+    components?.forEach(component => {
+      if (component.types.includes('street_number')) {
+        result.shopNo = component.longText || '';
+      }
+      if (component.types.includes('route')) {
+        result.areaSectorLocality = component.longText || '';
+      }
+      if (component.types.includes('locality') || component.types.includes('sublocality')) {
+        result.city = component.longText || '';
+      }
+      if (component.types.includes('postal_code')) {
+        result.pincode = component.longText || '';
+      }
+      if (component.types.includes('administrative_area_level_1')) {
+        result.state = component.longText || '';
+      }
+    });
+
+    return result;
+  };
+
 
   const requiredFields = [
     "venueName",
@@ -1130,408 +1330,473 @@ export default function VenueOnboardingPage() {
           addressErrors.pincode = "Enter a valid 6-digit pincode.";
         }
 
-        return (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Shop no./ Building no. *
-                </label>
-                <input
-                  type="text"
-                  value={formData.shopNo}
-                  onChange={(e) => {
-                    setFormData({ ...formData, shopNo: e.target.value });
-                    handleTouched("shopNo");
-                  }}
-                  onBlur={() => handleTouched("shopNo")}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                    addressErrors.shopNo && touched.shopNo
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter shop no./ building no."
-                  required
-                />
-                {addressErrors.shopNo && touched.shopNo && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.shopNo}
-                  </span>
-                )}
-              </div>
+ 
 
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Floor/Tower (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.floorTower}
-                  onChange={(e) =>
-                    setFormData({ ...formData, floorTower: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-                  placeholder="Enter floor/tower"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Area / Sector / Locality *
-                </label>
-                <input
-                  type="text"
-                  value={formData.areaSectorLocality}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      areaSectorLocality: e.target.value,
-                    });
-                    handleTouched("areaSectorLocality");
-                  }}
-                  onBlur={() => handleTouched("areaSectorLocality")}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                    addressErrors.areaSectorLocality &&
-                    touched.areaSectorLocality
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter area/sector/locality"
-                  required
-                />
-                {addressErrors.areaSectorLocality &&
-                  touched.areaSectorLocality && (
-                    <span className="text-xs text-red-600 mt-1 block">
-                      {addressErrors.areaSectorLocality}
-                    </span>
-                  )}
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => {
-                    setFormData({ ...formData, city: e.target.value });
-                    handleTouched("city");
-                  }}
-                  onBlur={() => handleTouched("city")}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                    addressErrors.city && touched.city
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter city"
-                  required
-                />
-                {addressErrors.city && touched.city && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.city}
-                  </span>
-                )}
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Any landmark area (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formData.state}
-                  onChange={(e) =>
-                    setFormData({ ...formData, state: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
-                  placeholder="Add landmark area"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Area pincode *
-                </label>
-                <input
-                  type="text"
-                  value={formData.pincode}
-                  onChange={(e) => {
-                    setFormData({ ...formData, pincode: e.target.value });
-                    handleTouched("pincode");
-                  }}
-                  onBlur={() => handleTouched("pincode")}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                    addressErrors.pincode && touched.pincode
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
-                  placeholder="Enter pincode"
-                  required
-                />
-                {addressErrors.pincode && touched.pincode && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.pincode}
-                  </span>
-                )}
-              </div>
-
-              <div className="col-span-1 sm:col-span-2">
-                <p className="text-sm text-gray-700 mb-4 sm:mb-6">
-                  <span className="font-bold">
-                    Please note Users will see this address on Ofside
-                  </span>
-                </p>
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Contact Person Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={formData.contactPersonName}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        contactPersonName: e.target.value,
-                      });
-                      handleTouched("contactPersonName");
-                    }}
-                    onBlur={() => handleTouched("contactPersonName")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.contactPersonName &&
-                      touched.contactPersonName
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter contact person name"
-                    required
-                  />
-                </div>
-                {addressErrors.contactPersonName &&
-                  touched.contactPersonName && (
-                    <span className="text-xs text-red-600 mt-1 block">
-                      {addressErrors.contactPersonName}
-                    </span>
-                  )}
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Contact Person Phone Number *
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="tel"
-                    value={formData.contactPhone}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        contactPhone: e.target.value,
-                      });
-                      handleTouched("contactPhone");
-                    }}
-                    onBlur={() => handleTouched("contactPhone")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.contactPhone && touched.contactPhone
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
-                {addressErrors.contactPhone && touched.contactPhone && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.contactPhone}
-                  </span>
-                )}
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Contact Person Email Address *
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="email"
-                    value={formData.contactEmail}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        contactEmail: e.target.value,
-                      });
-                      handleTouched("contactEmail");
-                    }}
-                    onBlur={() => handleTouched("contactEmail")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.contactEmail && touched.contactEmail
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-                {addressErrors.contactEmail && touched.contactEmail && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.contactEmail}
-                  </span>
-                )}
-                <div className="mt-2">
-                  <span className="inline-block bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded">
-                    Booking confirmation emails will be sent to this address
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center mt-6 mb-4">
-                <input
-                  type="checkbox"
-                  id="sameAsContact"
-                  className="w-5 h-5 accent-black mr-2"
-                  checked={sameAsContact}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setSameAsContact(checked);
-
-                    if (checked) {
-                      setFormData({
-                        ...formData,
-                        ownerName: formData.contactPersonName,
-                        ownerPhone: formData.contactPhone,
-                        ownerEmail: formData.contactEmail,
-                      });
-                    } else {
-                      setFormData({
-                        ...formData,
-                        ownerName: "",
-                        ownerPhone: "",
-                        ownerEmail: "",
-                      });
-                    }
-                  }}
-                />
-                <label
-                  htmlFor="sameAsContact"
-                  className="text-sm text-gray-700 font-medium"
-                >
-                  Owner details are same as contact person
-                </label>
-              </div>
-            </div>
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
+{isLoaded ? (
+  <div className="col-span-1 sm:col-span-2 mb-2">
+    <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+      Search &amp; Autofill Business Address <span className="text-yellow-500">*</span>
+    </label>
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Search for your venue (e.g., Smash2Play, Play Arena)"
+        className="w-full px-4 py-3 border-2 border-yellow-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-yellow-50 text-gray-900 placeholder-gray-400 shadow-sm transition-all"
+        onChange={(e) => fetchBusinessPredictions(e.target.value)}
+        style={{ fontWeight: 500, fontSize: "1rem" }}
+      />
+      {businessResults.length > 0 && (
+        <div className="absolute z-20 mt-1 w-full bg-white shadow-xl rounded-xl border border-yellow-200 max-h-64 overflow-auto animate__animated animate__fadeIn">
+          {businessResults.map((prediction) => (
             <div
-              className={`col-span-2 gap-6 transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 ${
-                sameAsContact
-                  ? "max-h-0 opacity-0"
-                  : "max-h-[2000px] opacity-100"
-              }`}
+              key={prediction.place_id}
+              className="p-3 hover:bg-yellow-50 hover:text-yellow-900 cursor-pointer transition-all border-b last:border-b-0 flex flex-col"
+              onClick={() => handlePlaceSelect(prediction.place_id)}
             >
-              {/* Owner Name */}
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Owner Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={formData.ownerName}
-                    onChange={(e) => {
-                      setFormData({ ...formData, ownerName: e.target.value });
-                      handleTouched("ownerName");
-                    }}
-                    onBlur={() => handleTouched("ownerName")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.ownerName && touched.ownerName
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter owner name"
-                    required
-                  />
-                </div>
-                {addressErrors.ownerName && touched.ownerName && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.ownerName}
+              <div className="font-semibold text-gray-900 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-yellow-500" />
+                {prediction.structured_formatting.main_text}
+                {prediction.types?.includes('establishment') && (
+                  <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-semibold">
+                    Verified Business
                   </span>
                 )}
               </div>
-
-              {/* Owner Phone */}
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Owner Phone Number *
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="tel"
-                    value={formData.ownerPhone}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        ownerPhone: e.target.value,
-                      });
-                      handleTouched("ownerPhone");
-                    }}
-                    onBlur={() => handleTouched("ownerPhone")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.ownerPhone && touched.ownerPhone
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
-                {addressErrors.ownerPhone && touched.ownerPhone && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.ownerPhone}
-                  </span>
-                )}
-              </div>
-
-              {/* Owner Email */}
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                  Owner Email Address *
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="email"
-                    value={formData.ownerEmail}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        ownerEmail: e.target.value,
-                      });
-                      handleTouched("ownerEmail");
-                    }}
-                    onBlur={() => handleTouched("ownerEmail")}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                      addressErrors.ownerEmail && touched.ownerEmail
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-                {addressErrors.ownerEmail && touched.ownerEmail && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {addressErrors.ownerEmail}
-                  </span>
-                )}
+              <div className="text-xs text-gray-500 pl-6">
+                {prediction.structured_formatting.secondary_text}
               </div>
             </div>
+          ))}
+        </div>
+      )}
+    </div>
+    <p className="text-xs text-yellow-700 mt-2">
+      Start typing your venue name to quickly autofill address details from Google Maps.
+    </p>
+  </div>
+) : (
+  <div className="col-span-1 sm:col-span-2 flex items-center text-yellow-700 text-sm">
+    <svg className="animate-spin h-5 w-5 mr-2 text-yellow-400" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+    Loading Google Maps...
+  </div>
+)}
+
+        {/* Shop/Building no. */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Shop no./ Building no. *
+          </label>
+          <input
+            type="text"
+            value={formData.shopNo}
+            onChange={(e) => {
+              setFormData({ ...formData, shopNo: e.target.value });
+              handleTouched("shopNo");
+            }}
+            onBlur={() => handleTouched("shopNo")}
+            className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.shopNo && touched.shopNo
+                ? "border-red-500"
+                : "border-gray-300"
+            } ${formData.fullAddress ? 'bg-gray-50' : ''}`}
+            placeholder="Enter shop no./ building no."
+            required
+          />
+          {addressErrors.shopNo && touched.shopNo && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.shopNo}
+            </span>
+          )}
+        </div>
+
+        {/* Floor/Tower */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Floor/Tower (Optional)
+          </label>
+          <input
+            type="text"
+            value={formData.floorTower}
+            onChange={(e) =>
+              setFormData({ ...formData, floorTower: e.target.value })
+            }
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            placeholder="Enter floor/tower"
+          />
+        </div>
+
+        {/* Area/Sector/Locality */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Area / Sector / Locality *
+          </label>
+          <input
+            type="text"
+            value={formData.areaSectorLocality}
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                areaSectorLocality: e.target.value,
+              });
+              handleTouched("areaSectorLocality");
+            }}
+            onBlur={() => handleTouched("areaSectorLocality")}
+            className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.areaSectorLocality && touched.areaSectorLocality
+                ? "border-red-500"
+                : "border-gray-300"
+            } ${formData.fullAddress ? 'bg-gray-50' : ''}`}
+            placeholder="Enter area/sector/locality"
+            required
+          />
+          {addressErrors.areaSectorLocality && touched.areaSectorLocality && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.areaSectorLocality}
+            </span>
+          )}
+        </div>
+
+        {/* City */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            City *
+          </label>
+          <input
+            type="text"
+            value={formData.city}
+            onChange={(e) => {
+              setFormData({ ...formData, city: e.target.value });
+              handleTouched("city");
+            }}
+            onBlur={() => handleTouched("city")}
+            className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.city && touched.city
+                ? "border-red-500"
+                : "border-gray-300"
+            } ${formData.fullAddress ? 'bg-gray-50' : ''}`}
+            placeholder="Enter city"
+            required
+          />
+          {addressErrors.city && touched.city && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.city}
+            </span>
+          )}
+        </div>
+
+        {/* Landmark */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Any landmark area (Optional)
+          </label>
+          <input
+            type="text"
+            value={formData.landmark}
+            onChange={(e) =>
+              setFormData({ ...formData, landmark: e.target.value })
+            }
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+            placeholder="Add landmark area"
+          />
+        </div>
+
+        {/* Pincode */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Area pincode *
+          </label>
+          <input
+            type="text"
+            value={formData.pincode}
+            onChange={(e) => {
+              setFormData({ ...formData, pincode: e.target.value });
+              handleTouched("pincode");
+            }}
+            onBlur={() => handleTouched("pincode")}
+            className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+              addressErrors.pincode && touched.pincode
+                ? "border-red-500"
+                : "border-gray-300"
+            } ${formData.fullAddress ? 'bg-gray-50' : ''}`}
+            placeholder="Enter pincode"
+            required
+          />
+          {addressErrors.pincode && touched.pincode && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.pincode}
+            </span>
+          )}
+        </div>
+
+        {/* Address Note */}
+        <div className="col-span-1 sm:col-span-2">
+          <p className="text-sm text-gray-700 mb-4 sm:mb-6">
+            <span className="font-bold">
+              Please note Users will see this address on Ofside
+            </span>
+          </p>
+        </div>
+
+        {/* Contact Person Name */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Contact Person Name *
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              value={formData.contactPersonName}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  contactPersonName: e.target.value,
+                });
+                handleTouched("contactPersonName");
+              }}
+              onBlur={() => handleTouched("contactPersonName")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.contactPersonName && touched.contactPersonName
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter contact person name"
+              required
+            />
           </div>
-        );
+          {addressErrors.contactPersonName && touched.contactPersonName && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.contactPersonName}
+            </span>
+          )}
+        </div>
+
+        {/* Contact Person Phone */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Contact Person Phone Number *
+          </label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="tel"
+              value={formData.contactPhone}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  contactPhone: e.target.value,
+                });
+                handleTouched("contactPhone");
+              }}
+              onBlur={() => handleTouched("contactPhone")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.contactPhone && touched.contactPhone
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter phone number"
+              required
+            />
+          </div>
+          {addressErrors.contactPhone && touched.contactPhone && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.contactPhone}
+            </span>
+          )}
+        </div>
+
+        {/* Contact Person Email */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Contact Person Email Address *
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="email"
+              value={formData.contactEmail}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  contactEmail: e.target.value,
+                });
+                handleTouched("contactEmail");
+              }}
+              onBlur={() => handleTouched("contactEmail")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.contactEmail && touched.contactEmail
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter email address"
+              required
+            />
+          </div>
+          {addressErrors.contactEmail && touched.contactEmail && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.contactEmail}
+            </span>
+          )}
+          <div className="mt-2">
+            <span className="inline-block bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded">
+              Booking confirmation emails will be sent to this address
+            </span>
+          </div>
+        </div>
+
+        {/* Same as Contact Checkbox */}
+        <div className="flex items-center mt-6 mb-4 col-span-1 sm:col-span-2">
+          <input
+            type="checkbox"
+            id="sameAsContact"
+            className="w-5 h-5 accent-black mr-2"
+            checked={sameAsContact}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setSameAsContact(checked);
+
+              if (checked) {
+                setFormData({
+                  ...formData,
+                  ownerName: formData.contactPersonName,
+                  ownerPhone: formData.contactPhone,
+                  ownerEmail: formData.contactEmail,
+                });
+              } else {
+                setFormData({
+                  ...formData,
+                  ownerName: "",
+                  ownerPhone: "",
+                  ownerEmail: "",
+                });
+              }
+            }}
+          />
+          <label
+            htmlFor="sameAsContact"
+            className="text-sm text-gray-700 font-medium"
+          >
+            Owner details are same as contact person
+          </label>
+        </div>
+
+        {/* Owner Details (conditionally shown) */}
+        <div
+          className={`col-span-2 gap-6 transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 ${
+            sameAsContact
+              ? "max-h-0 opacity-0 overflow-hidden"
+              : "max-h-[2000px] opacity-100"
+          }`}
+        >
+          {/* Owner Name */}
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+              Owner Name *
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={formData.ownerName}
+                onChange={(e) => {
+                  setFormData({ ...formData, ownerName: e.target.value });
+                  handleTouched("ownerName");
+                }}
+                onBlur={() => handleTouched("ownerName")}
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                  addressErrors.ownerName && touched.ownerName
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+                placeholder="Enter owner name"
+                required
+              />
+            </div>
+            {addressErrors.ownerName && touched.ownerName && (
+              <span className="text-xs text-red-600 mt-1 block">
+                {addressErrors.ownerName}
+              </span>
+            )}
+          </div>
+
+          {/* Owner Phone */}
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+              Owner Phone Number *
+            </label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="tel"
+                value={formData.ownerPhone}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    ownerPhone: e.target.value,
+                  });
+                  handleTouched("ownerPhone");
+                }}
+                onBlur={() => handleTouched("ownerPhone")}
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                  addressErrors.ownerPhone && touched.ownerPhone
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+                placeholder="Enter phone number"
+                required
+              />
+            </div>
+            {addressErrors.ownerPhone && touched.ownerPhone && (
+              <span className="text-xs text-red-600 mt-1 block">
+                {addressErrors.ownerPhone}
+              </span>
+            )}
+          </div>
+
+          {/* Owner Email */}
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+              Owner Email Address *
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="email"
+                value={formData.ownerEmail}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    ownerEmail: e.target.value,
+                  });
+                  handleTouched("ownerEmail");
+                }}
+                onBlur={() => handleTouched("ownerEmail")}
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                  addressErrors.ownerEmail && touched.ownerEmail
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+                placeholder="Enter email address"
+                required
+              />
+            </div>
+            {addressErrors.ownerEmail && touched.ownerEmail && (
+              <span className="text-xs text-red-600 mt-1 block">
+                {addressErrors.ownerEmail}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
 
       case 2: // Amenities
         // Validation logic
@@ -2351,7 +2616,7 @@ export default function VenueOnboardingPage() {
   };
 
   return (
-    <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  ">
+    <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  flex-1">
       <div className="min-h-screen ">
         <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
           <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative overflow-hidden flex flex-col  md:min-h-[350px]  sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
