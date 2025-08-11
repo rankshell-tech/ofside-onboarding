@@ -14,13 +14,11 @@ export async function POST(req: NextRequest) {
       venueType,
       sportsOffered,
       description,
-      
       is24HoursOpen,
       shopNo,
       floorTower,
       areaSectorLocality,
       city,
-      state,
       pincode,
       latitude,
       longitude,
@@ -69,7 +67,29 @@ export async function POST(req: NextRequest) {
     await userWhoCreated.save();
 
     // Map courts directly to sportsFacilities as per schema
-    const courtsData = courts.map((court: any) => ({
+    interface Court {
+      courtName: string;
+      courtSportType: string;
+      surfaceType: string;
+      courtSize?: string;
+      isIndoor?: boolean;
+      hasLighting?: boolean;
+      courtImages?: {
+        cover?: string;
+        logo?: string;
+        others?: string[];
+      };
+      courtSlotDuration: number;
+      courtMaxPeople: number;
+      courtPricePerSlot: number;
+      courtPeakEnabled?: boolean;
+      courtPeakDays?: string[];
+      courtPeakStart?: string;
+      courtPeakEnd?: string;
+      courtPeakPricePerSlot?: number;
+    }
+
+    const courtsData = (courts as Court[]).map((court) => ({
       name: court.courtName,
       sportType: court.courtSportType,
       surfaceType: court.surfaceType,
@@ -77,9 +97,9 @@ export async function POST(req: NextRequest) {
       isIndoor: court.isIndoor || false,
       hasLighting: court.hasLighting || false,
       images: {
-      cover: court.courtImages?.cover,
-      logo: court.courtImages?.logo,
-      others: Array.isArray(court.courtImages?.others) ? court.courtImages.others : [],
+        cover: court.courtImages?.cover,
+        logo: court.courtImages?.logo,
+        others: Array.isArray(court.courtImages?.others) ? court.courtImages.others : [],
       },
       slotDuration: court.courtSlotDuration,
       maxPeople: court.courtMaxPeople,
