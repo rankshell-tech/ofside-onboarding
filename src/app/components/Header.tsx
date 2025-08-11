@@ -22,8 +22,8 @@ export default function Header() {
         <header className="bg-white font-inter" style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.28), 0 1.5px 8px 0 rgba(0,0,0,0.12)" }}>
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
             {/* Logo */}
-         <Link href="/" passHref>
-  <a className="inline-block h-10">
+         <Link href="/" legacyBehavior>
+  
     <Image
       src="/assets/ofside-logo.png"
       alt="Ofside Logo"
@@ -31,7 +31,7 @@ export default function Header() {
       height={40}
       priority
     />
-  </a>
+ 
 </Link>
           
             {/* Desktop Nav */}
