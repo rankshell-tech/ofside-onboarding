@@ -2619,7 +2619,7 @@ const handlePlaceSelect = async (placeId: string) => {
     <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  flex-1">
       <div className="min-h-screen ">
         <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
-          <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative overflow-hidden flex flex-col  md:min-h-[350px]  sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
+          <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
             {/* Background Video */}
             <video
               autoPlay
@@ -2635,69 +2635,56 @@ const handlePlaceSelect = async (placeId: string) => {
             {/* Overlay for content */}
             <div
               className="
-              relative z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full
-              flex flex-col justify-between
-              md:flex-col
-              
-            "
-              style={{
-                minHeight: "100%",
-              }}
+                relative  z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full
+                flex flex-col justify-between
+                md:flex-col
+              "
             >
-              {/* Logo at top */}
-              <div className="flex justify-center mb-4 sm:my-4 md:mb-8 md:mr-6">
-                <img
-                  src="/assets/ofside-logo.png"
-                  alt="Ofside Logo"
-                  className="w-20 sm:w-24 md:w-36 lg:w-46 h-auto object-contain"
-                  style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.15))" }}
-                />
-              </div>
               {/* Header and Info */}
-              <div className="flex flex-col items-center text-center sm:mb-6 md:mb-0  ">
-                <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-4">
+              <div className="flex flex-col items-center  sm:mb-6 md:mb-0">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-6 drop-shadow-lg tracking-tight">
                   List Your Sports Venue
                 </h1>
-                <p className="text-base sm:text-lg text-white max-w-2xl mx-auto md:mx-0">
-                  Join thousands of venue owners and start earning by listing
-                  your sports facility on Ofside
+                <p className="text-base text-center w-80 sm:w-100 sm:text-lg text-white max-w-2xl mx-auto md:mx-0 mb-2 sm:mb-6 font-medium">
+                  Join thousands of venue owners and start earning by listing your sports facility on <span className="font-bold text-yellow-300">Ofside</span>
                 </p>
-                {/* Extra Info */}
-                <div className="hidden md:block mt-4 sm:mt-8 space-y-3 sm:space-y-6 text-white">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">
-                      Get discovered by thousands of sports enthusiasts in your
-                      city.
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">
-                      Easy booking management and hassle-free payments.
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                    <span className="text-xs sm:text-sm md:text-base">
-                      Dedicated support team to help you grow your business.
-                    </span>
-                  </div>
+                {/* Enhanced Info with circled checks */}
+                <div className="hidden md:block mt-4 sm:mt-8 space-y-4 sm:space-y-6 text-white">
+                  {[
+                    "Get discovered by thousands of sports enthusiasts in your city.",
+                    "Easy booking management and hassle-free payments.",
+                    "Dedicated support team to help you grow your business.",
+                  ].map((text, idx) => (
+                    <div key={idx} className="flex justify-start items-center gap-3">
+                      <span className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg p-2 mr-2">
+                        <Check className="w-6 h-6 text-white" />
+                      </span>
+                      <span className="text-sm sm:text-base md:text-lg font-semibold text-white drop-shadow">
+                        {text}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+                {/* Decorative divider */}
+                <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-400 rounded-full hidden sm:block mt-6 mb-2 mx-auto" />
               </div>
-              <div className="mt-6 sm:mt-12 flex justify-center ">
-                <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-xl shadow text-xs sm:text-base gap-2">
-                  Need help?{" "}
+              {/* Contact/Help */}
+              <div className="mt-2 sm:mt-6 sm:mt-12 flex justify-center">
+                <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300">
+                  <span className="flex items-center gap-1">
+                  
+                    Need help?
+                  </span>
                   <a
                     href="mailto:play@ofside.in"
-                    className="underline text-black inline-flex items-center gap-1"
+                    className="underline text-black inline-flex items-center gap-1 font-medium"
                   >
                     <Mail className="inline-block w-4 h-4" /> Connect
-                  </a>{" "}
-                  or{" "}
+                  </a>
+                  <span>or</span>
                   <a
                     href="tel:+919811785330"
-                    className="underline text-black inline-flex items-center gap-1"
+                    className="underline text-black inline-flex items-center gap-1 font-medium"
                   >
                     <Phone className="inline-block w-4 h-4" /> Call us
                   </a>
@@ -2705,7 +2692,8 @@ const handlePlaceSelect = async (placeId: string) => {
               </div>
             </div>
             {/* Overlay for darkening video */}
-            <div className="absolute inset-0 bg-black bg-opacity-30 pointer-events-none z-0" />
+            <div className="absolute inset-0 bg-black bg-opacity-40 pointer-events-none z-0" />
+        
           </div>
 
           {/* Progress Indicator */}

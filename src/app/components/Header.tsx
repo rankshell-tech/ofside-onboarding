@@ -41,7 +41,7 @@ export default function Header() {
                         <a
                             key={link.name}
                             href={link.href}
-                            className="bg-yellow-300 text-yellow-700 font-semibold px-4 py-2 rounded-full shadow scale-105 shadow-lg transition-all duration-200 hover:bg-yellow-300 hover:scale-110 hover:shadow-xl"
+                            className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-xl shadow text-xs sm:text-base gap-2 border-2 border-yellow-300"
                         >
                             {link.name}
                         </a>
@@ -49,7 +49,7 @@ export default function Header() {
                         <a
                             key={link.name}
                             href={link.href}
-                            className="bg-yellow-300 px-3 py-2 rounded transition-all duration-200 font-medium scale-105 text-yellow-900 hover:bg-yellow-400 hover:scale-110"
+                            className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-xl shadow text-xs sm:text-base gap-2 border-2 border-yellow-300"
                         >
                             {link.name}
                         </a>
@@ -75,13 +75,13 @@ export default function Header() {
             </nav>
             {/* Mobile Nav */}
             <div id="mobile-menu" className="md:hidden hidden px-4 pb-4">
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col items-start space-y-2">
                 {navLinks.map((link) =>
                 link.primary ? (
                     <a
                     key={link.name}
                     href={link.href}
-                    className="bg-white text-yellow-700 font-semibold px-4 py-2 rounded-full shadow hover:bg-yellow-100 hover:scale-105 hover:shadow-lg transition-all duration-200 text-center"
+                    className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold mt-4 px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300"
                     >
                     {link.name}
                     </a>
@@ -89,7 +89,7 @@ export default function Header() {
                     <a
                     key={link.name}
                     href={link.href}
-                    className="text-gray-900 hover:text-yellow-900 px-3 py-2 rounded transition-all duration-200 font-medium hover:bg-yellow-200 hover:scale-105 text-center"
+                    className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base mt-4 gap-2 border-2 border-yellow-300"
                     >
                     {link.name}
                     </a>
