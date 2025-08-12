@@ -1960,7 +1960,11 @@ const handlePlaceSelect = async (placeId: string) => {
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Court Images (Cover, Logo, and Others) <span className="text-red-500">*</span>
+                        <span className="block text-xs text-gray-500 mt-1">
+                          Max size per image: 5 MB
+                        </span>
                       </label>
+                      <div className="flex flex-row gap-6 flex-wrap items-start justify-start">
                         {/* Cover Image */}
                         <div className="flex flex-col items-center w-32">
                           <span className="text-xs font-semibold mb-2">Cover Image</span>
@@ -2192,6 +2196,7 @@ const handlePlaceSelect = async (placeId: string) => {
                             )}
                           </div>
                           <span className="text-xs text-gray-500 text-center mt-1">Up to 3 images</span>
+                        </div>
                         </div>
                     </div>
                       {courtsErrors[idx]?.courtImages && (
