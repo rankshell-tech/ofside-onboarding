@@ -2636,7 +2636,7 @@ const handlePlaceSelect = async (placeId: string) => {
             <div
               className="
                 relative  z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full
-                flex flex-col justify-between
+                flex flex-col justify-center
                 md:flex-col
               "
             >
