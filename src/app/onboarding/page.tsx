@@ -1335,57 +1335,57 @@ const handlePlaceSelect = async (placeId: string) => {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-{isLoaded ? (
-  <div className="col-span-1 sm:col-span-2 mb-2">
-    <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-      Search &amp; Autofill Business Address <span className="text-yellow-500">*</span>
-    </label>
-    <div className="relative">
-      <input
-        type="text"
-        placeholder="Search for your venue (e.g., Smash2Play, Play Arena)"
-        className="w-full px-4 py-3 border-2 border-yellow-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-yellow-50 text-gray-900 placeholder-gray-400 shadow-sm transition-all"
-        onChange={(e) => fetchBusinessPredictions(e.target.value)}
-        style={{ fontWeight: 500, fontSize: "1rem" }}
-      />
-      {businessResults.length > 0 && (
-        <div className="absolute z-20 mt-1 w-full bg-white shadow-xl rounded-xl border border-yellow-200 max-h-64 overflow-auto animate__animated animate__fadeIn">
-          {businessResults.map((prediction) => (
-            <div
-              key={prediction.place_id}
-              className="p-3 hover:bg-yellow-50 hover:text-yellow-900 cursor-pointer transition-all border-b last:border-b-0 flex flex-col"
-              onClick={() => handlePlaceSelect(prediction.place_id)}
-            >
-              <div className="font-semibold text-gray-900 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-yellow-500" />
-                {prediction.structured_formatting.main_text}
-                {prediction.types?.includes('establishment') && (
-                  <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-semibold">
-                    Verified Business
-                  </span>
-                )}
-              </div>
-              <div className="text-xs text-gray-500 pl-6">
-                {prediction.structured_formatting.secondary_text}
-              </div>
+        {isLoaded ? (
+          <div className="col-span-1 sm:col-span-2 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+              Search &amp; Autofill Business Address <span className="text-yellow-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search for your venue (e.g., Smash2Play, Play Arena)"
+                className="w-full px-4 py-3 border-2 border-yellow-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-yellow-50 text-gray-900 placeholder-gray-400 shadow-sm transition-all"
+                onChange={(e) => fetchBusinessPredictions(e.target.value)}
+                style={{ fontWeight: 500, fontSize: "1rem" }}
+              />
+              {businessResults.length > 0 && (
+                <div className="absolute z-20 mt-1 w-full bg-white shadow-xl rounded-xl border border-yellow-200 max-h-64 overflow-auto animate__animated animate__fadeIn">
+                  {businessResults.map((prediction) => (
+                    <div
+                      key={prediction.place_id}
+                      className="p-3 hover:bg-yellow-50 hover:text-yellow-900 cursor-pointer transition-all border-b last:border-b-0 flex flex-col"
+                      onClick={() => handlePlaceSelect(prediction.place_id)}
+                    >
+                      <div className="font-semibold text-gray-900 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-yellow-500" />
+                        {prediction.structured_formatting.main_text}
+                        {prediction.types?.includes('establishment') && (
+                          <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-semibold">
+                            Verified Business
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 pl-6">
+                        {prediction.structured_formatting.secondary_text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-    <p className="text-xs text-yellow-700 mt-2">
-      Start typing your venue name to quickly autofill address details from Google Maps.
-    </p>
-  </div>
-) : (
-  <div className="col-span-1 sm:col-span-2 flex items-center text-yellow-700 text-sm">
-    <svg className="animate-spin h-5 w-5 mr-2 text-yellow-400" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-    </svg>
-    Loading Google Maps...
-  </div>
-)}
+            <p className="text-xs text-yellow-700 mt-2">
+              Start typing your venue name to quickly autofill address details from Google Maps.
+            </p>
+          </div>
+        ) : (
+          <div className="col-span-1 sm:col-span-2 flex items-center text-yellow-700 text-sm">
+            <svg className="animate-spin h-5 w-5 mr-2 text-yellow-400" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+            Loading Google Maps...
+          </div>
+        )}
 
         {/* Shop/Building no. */}
         <div className="w-full">
@@ -1685,113 +1685,113 @@ const handlePlaceSelect = async (placeId: string) => {
             Owner details are same as contact person
           </label>
         </div>
+      </div>
 
-        {/* Owner Details (conditionally shown) */}
-        <div
-          className={`col-span-2 gap-6 transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 ${
-            sameAsContact
-              ? "max-h-0 opacity-0 overflow-hidden"
-              : "max-h-[2000px] opacity-100"
-          }`}
-        >
-          {/* Owner Name */}
-          <div className="w-full">
-            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-              Owner Name *
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                value={formData.ownerName}
-                onChange={(e) => {
-                  setFormData({ ...formData, ownerName: e.target.value });
-                  handleTouched("ownerName");
-                }}
-                onBlur={() => handleTouched("ownerName")}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                  addressErrors.ownerName && touched.ownerName
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-                placeholder="Enter owner name"
-                required
-              />
-            </div>
-            {addressErrors.ownerName && touched.ownerName && (
-              <span className="text-xs text-red-600 mt-1 block">
-                {addressErrors.ownerName}
-              </span>
-            )}
+      {/* Owner Details (conditionally shown) */}
+      <div
+        className={`transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 gap-6 ${
+          sameAsContact
+            ? "max-h-0 opacity-0 overflow-hidden"
+            : "max-h-[2000px] opacity-100"
+        }`}
+      >
+        {/* Owner Name */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Owner Name *
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              value={formData.ownerName}
+              onChange={(e) => {
+                setFormData({ ...formData, ownerName: e.target.value });
+                handleTouched("ownerName");
+              }}
+              onBlur={() => handleTouched("ownerName")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.ownerName && touched.ownerName
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter owner name"
+              required
+            />
           </div>
+          {addressErrors.ownerName && touched.ownerName && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.ownerName}
+            </span>
+          )}
+        </div>
 
-          {/* Owner Phone */}
-          <div className="w-full">
-            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-              Owner Phone Number *
-            </label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="tel"
-                value={formData.ownerPhone}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    ownerPhone: e.target.value,
-                  });
-                  handleTouched("ownerPhone");
-                }}
-                onBlur={() => handleTouched("ownerPhone")}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                  addressErrors.ownerPhone && touched.ownerPhone
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-                placeholder="Enter phone number"
-                required
-              />
-            </div>
-            {addressErrors.ownerPhone && touched.ownerPhone && (
-              <span className="text-xs text-red-600 mt-1 block">
-                {addressErrors.ownerPhone}
-              </span>
-            )}
+        {/* Owner Phone */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Owner Phone Number *
+          </label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="tel"
+              value={formData.ownerPhone}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  ownerPhone: e.target.value,
+                });
+                handleTouched("ownerPhone");
+              }}
+              onBlur={() => handleTouched("ownerPhone")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.ownerPhone && touched.ownerPhone
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter phone number"
+              required
+            />
           </div>
+          {addressErrors.ownerPhone && touched.ownerPhone && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.ownerPhone}
+            </span>
+          )}
+        </div>
 
-          {/* Owner Email */}
-          <div className="w-full">
-            <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-              Owner Email Address *
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="email"
-                value={formData.ownerEmail}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    ownerEmail: e.target.value,
-                  });
-                  handleTouched("ownerEmail");
-                }}
-                onBlur={() => handleTouched("ownerEmail")}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
-                  addressErrors.ownerEmail && touched.ownerEmail
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-                placeholder="Enter email address"
-                required
-              />
-            </div>
-            {addressErrors.ownerEmail && touched.ownerEmail && (
-              <span className="text-xs text-red-600 mt-1 block">
-                {addressErrors.ownerEmail}
-              </span>
-            )}
+        {/* Owner Email */}
+        <div className="w-full">
+          <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            Owner Email Address *
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="email"
+              value={formData.ownerEmail}
+              onChange={(e) => {
+                setFormData({
+                  ...formData,
+                  ownerEmail: e.target.value,
+                });
+                handleTouched("ownerEmail");
+              }}
+              onBlur={() => handleTouched("ownerEmail")}
+              className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700 ${
+                addressErrors.ownerEmail && touched.ownerEmail
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+              placeholder="Enter email address"
+              required
+            />
           </div>
+          {addressErrors.ownerEmail && touched.ownerEmail && (
+            <span className="text-xs text-red-600 mt-1 block">
+              {addressErrors.ownerEmail}
+            </span>
+          )}
         </div>
       </div>
     </div>
