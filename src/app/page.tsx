@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Header from "./components/header";
+
 
 export default function Home() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
