@@ -54,91 +54,33 @@ export default function VenueOnboardingPage() {
 
   const [sameAsContact, setSameAsContact] = useState(false);
 
-  // const [formData, setFormData] = useState({
-  //   // Basic Details
-  //   venueName: "",
-  //   venueType: "",
-  //   sportsOffered: [] as string[],
-  //   description: "",
-  //   venueLogo: null as File | null,
-  //   is24HoursOpen: false,
-
-  //   // Address & Contact
-  //   shopNo: "",
-  //   floorTower: "",
-  //   areaSectorLocality: "",
-  //   latitude: "",
-  //   longitude: "",
-  //   city: "",
-  //   state: "",
-  //   landmark: "",
-  //   pincode: "",
-  //   fullAddress: "",
-
-  //   contactPersonName: "",
-  //   contactPhone: "",
-  //   contactEmail: "",
-  //   ownerName: "",
-  //   ownerPhone: "",
-  //   ownerEmail: "",
-  //   startTime: "",
-  //   endTime: "",
-  //   // Amenities
-  //   amenities: [] as string[],
-
-  //   availableDays: [] as string[],
-  //   declarationAgreed: false,
-
-  //   // Courts Array for multiple courts support
-  //   courts: [
-  //     {
-  //       courtName: "",
-  //       surfaceType: "",
-  //       courtSportType: "",
-  //       courtSlotDuration: "",
-  //       courtMaxPeople: "",
-  //       courtPricePerSlot: "",
-  //       courtImages: {
-  //         cover: null as File | null,
-  //         logo: null as File | null,
-  //         others: [] as File[],
-  //       },
-  //       courtPeakEnabled: false,
-  //       courtPeakDays: [] as string[],
-  //       courtPeakStart: "",
-  //       courtPeakEnd: "",
-  //       courtPeakPricePerSlot: "",
-  //     },
-  //   ],
-  // });
-
   const [formData, setFormData] = useState({
     // Basic Details
-    venueName: "test" + Math.floor(Math.random() * 1000),
-    venueType: "Turf",
+    venueName: "",
+    venueType: "",
     sportsOffered: [] as string[],
-    description: "edesc",
+    description: "",
     venueLogo: null as File | null,
     is24HoursOpen: false,
 
     // Address & Contact
-    shopNo: "w",
-    floorTower: "w",
-    areaSectorLocality: "w",
-    latitude: "12.9716",
-    longitude: "77.5946",
-    city: "Bangalore",
-    state: "Karnataka",
-    landmark: "Some Landmark",
-    pincode: "787878",
+    shopNo: "",
+    floorTower: "",
+    areaSectorLocality: "",
+    latitude: "",
+    longitude: "",
+    city: "",
+    state: "",
+    landmark: "",
+    pincode: "",
     fullAddress: "",
 
-    contactPersonName: "contact",
-    contactPhone: "8989898989",
-    contactEmail: "contact@gmail.com",
-    ownerName: "owner@gmail.com",
-    ownerPhone: "8989898989",
-    ownerEmail: "owner@gmail.com",
+    contactPersonName: "",
+    contactPhone: "",
+    contactEmail: "",
+    ownerName: "",
+    ownerPhone: "",
+    ownerEmail: "",
     startTime: "",
     endTime: "",
     // Amenities
@@ -150,8 +92,8 @@ export default function VenueOnboardingPage() {
     // Courts Array for multiple courts support
     courts: [
       {
-        courtName: "Court 1",
-        surfaceType: "Grass",
+        courtName: "",
+        surfaceType: "",
         courtSportType: "",
         courtSlotDuration: "",
         courtMaxPeople: "",
@@ -169,6 +111,64 @@ export default function VenueOnboardingPage() {
       },
     ],
   });
+
+  // const [formData, setFormData] = useState({
+  //   // Basic Details
+  //   venueName: "test" + Math.floor(Math.random() * 1000),
+  //   venueType: "Turf",
+  //   sportsOffered: [] as string[],
+  //   description: "edesc",
+  //   venueLogo: null as File | null,
+  //   is24HoursOpen: false,
+
+  //   // Address & Contact
+  //   shopNo: "w",
+  //   floorTower: "w",
+  //   areaSectorLocality: "w",
+  //   latitude: "12.9716",
+  //   longitude: "77.5946",
+  //   city: "Bangalore",
+  //   state: "Karnataka",
+  //   landmark: "Some Landmark",
+  //   pincode: "787878",
+  //   fullAddress: "",
+
+  //   contactPersonName: "contact",
+  //   contactPhone: "8989898989",
+  //   contactEmail: "contact@gmail.com",
+  //   ownerName: "owner@gmail.com",
+  //   ownerPhone: "8989898989",
+  //   ownerEmail: "owner@gmail.com",
+  //   startTime: "",
+  //   endTime: "",
+  //   // Amenities
+  //   amenities: [] as string[],
+
+  //   availableDays: [] as string[],
+  //   declarationAgreed: false,
+
+  //   // Courts Array for multiple courts support
+  //   courts: [
+  //     {
+  //       courtName: "Court 1",
+  //       surfaceType: "Grass",
+  //       courtSportType: "",
+  //       courtSlotDuration: "",
+  //       courtMaxPeople: "",
+  //       courtPricePerSlot: "",
+  //       courtImages: {
+  //         cover: null as File | null,
+  //         logo: null as File | null,
+  //         others: [] as File[],
+  //       },
+  //       courtPeakEnabled: false,
+  //       courtPeakDays: [] as string[],
+  //       courtPeakStart: "",
+  //       courtPeakEnd: "",
+  //       courtPeakPricePerSlot: "",
+  //     },
+  //   ],
+  // });
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
