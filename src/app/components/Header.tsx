@@ -21,19 +21,15 @@ export default function Header() {
     return (
         <header className="bg-white font-inter" style={{ boxShadow: "0 8px 32px 0 rgba(0,0,0,0.28), 0 1.5px 8px 0 rgba(0,0,0,0.12)" }}>
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-            {/* Logo */}
-         
-  
-    <img
-      src="/assets/ofside-logo.png"
-      alt="Ofside Logo"
-      width={120}
-      height={40}
-      
-    />
- 
-
-          
+            <Link href="/">
+                <Image
+                    src="/assets/ofside-logo.png"
+                    alt="Ofside Logo"
+                    width={120}
+                    height={40}
+                    priority
+                />
+            </Link>
             {/* Desktop Nav */}
             <div className="hidden md:flex space-x-4 items-center ">
                 {navLinks.map((link) =>

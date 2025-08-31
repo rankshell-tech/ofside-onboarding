@@ -2762,7 +2762,7 @@ export default function VenueOnboardingPage() {
                   List Your Sports Venue
                 </h1>
                 <p className="text-base text-center w-80 sm:w-100 sm:text-lg text-white max-w-2xl mx-auto md:mx-0 mb-2 sm:mb-6 font-medium">
-                  Join thousands of venue owners and start earning by listing
+                  Join Sports Venue owner’s Community and start earning by listing
                   your sports facility on{" "}
                   <span className="font-bold text-yellow-300">Ofside</span>
                 </p>

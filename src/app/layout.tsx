@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 
 import Header from "./components/Header";
+
 import "./globals.css";
+import Footer from "./components/Footer";
 
 // Initialize Inter font
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -54,9 +56,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable}  antialiased`}>
+      <body className={`${inter.variable} antialiased`}>
         <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );
