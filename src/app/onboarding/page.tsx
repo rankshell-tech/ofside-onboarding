@@ -918,15 +918,21 @@ export default function VenueOnboardingPage() {
 
     handleTouched("is24HoursOpen");
   };
+  // Fix: Reset courtsTouched when going back to step 0
+  useEffect(() => {
+    if (currentStep === 0) {
+      setCourtsTouched(
+        formData.courts.map(() =>
+          Object.fromEntries(courtFields.map((field) => [field, false]))
+        )
+      );
+    }
+  }, [currentStep, formData.courts.length]);
 
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Basic Details
-        return (
-          formData.venueName &&
-          formData.description &&
-          formData.availableDays.length > 0
-        );
+        return !!formData.venueName.trim() && !!formData.description.trim();
       case 1: // Address & Contact
         return (
           !!formData.shopNo.trim() &&
@@ -951,23 +957,23 @@ export default function VenueOnboardingPage() {
       case 3: // Court Details
         return formData.courts.every(
           (court) =>
-            court.courtName &&
-            court.courtSportType &&
-            court.courtSlotDuration &&
-            court.courtMaxPeople &&
-            court.courtPricePerSlot &&
+            !!court.courtName &&
+            !!court.courtSportType &&
+            !!court.courtSlotDuration &&
+            !!court.courtMaxPeople &&
+            !!court.courtPricePerSlot &&
             court.courtImages &&
-            court.courtImages.cover &&
-            court.courtImages.logo &&
+            !!court.courtImages.cover &&
+            !!court.courtImages.logo &&
             (!court.courtPeakEnabled ||
               (court.courtPeakDays &&
                 court.courtPeakDays.length > 0 &&
-                court.courtPeakStart &&
-                court.courtPeakEnd &&
-                court.courtPeakPricePerSlot))
+                !!court.courtPeakStart &&
+                !!court.courtPeakEnd &&
+                !!court.courtPeakPricePerSlot))
         );
       case 4: // Pricing & Availability
-        return formData.declarationAgreed;
+        return !!formData.declarationAgreed;
       default:
         return false;
     }
