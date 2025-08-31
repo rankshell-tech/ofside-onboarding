@@ -2735,7 +2735,7 @@ export default function VenueOnboardingPage() {
     <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  flex-1">
       <div className="min-h-screen ">
         <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
-          <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
+          <div style={{width: "auto"}} className=" lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
             {/* Background Video */}
             <video
               autoPlay
@@ -2780,7 +2780,7 @@ export default function VenueOnboardingPage() {
                       <span className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg p-2 mr-2">
                         <Check className="w-6 h-6 text-white" />
                       </span>
-                      <span className="text-sm sm:text-base md:text-lg font-semibold text-white drop-shadow">
+                      <span className="text-sm sm:text-base md:text-md font-semibold text-white drop-shadow">
                         {text}
                       </span>
                     </div>
