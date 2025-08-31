@@ -65,9 +65,9 @@ const TermsPage = () => (
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">VI. CANCELLATION POLICY</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">VI. REFUND POLICY</h2>
             <p>
-                Our Cancellation Policy is incorporated by reference and available here: <a href="/cancellation-policy" className="text-blue-600 underline">Cancellation Policy</a>.
+                Our Refund Policy is incorporated by reference and available here: <a href="/refund" className="text-blue-600 underline">Refund Policy</a>.
             </p>
         </SectionBox>
 
