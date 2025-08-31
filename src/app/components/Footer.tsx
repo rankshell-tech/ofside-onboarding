@@ -34,7 +34,7 @@ export default function Footer() {
             </a>
             <span className="mx-3 h-5 w-px bg-gray-300 inline-block align-middle" aria-hidden="true"></span>
             <p>
-                Designed & Developed by Rankshell | © {new Date().getFullYear()} Ofside. All rights reserved.
+                Designed & Developed by <a href="https://therankshell.com" target="_blank" rel="noopener noreferrer">Rankshell</a> | © {new Date().getFullYear()} Ofside. All rights reserved.
             </p>
             </div>
 
