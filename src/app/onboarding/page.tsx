@@ -112,64 +112,6 @@ export default function VenueOnboardingPage() {
     ],
   });
 
-  // const [formData, setFormData] = useState({
-  //   // Basic Details
-  //   venueName: "test" + Math.floor(Math.random() * 1000),
-  //   venueType: "Turf",
-  //   sportsOffered: [] as string[],
-  //   description: "edesc",
-  //   venueLogo: null as File | null,
-  //   is24HoursOpen: false,
-
-  //   // Address & Contact
-  //   shopNo: "w",
-  //   floorTower: "w",
-  //   areaSectorLocality: "w",
-  //   latitude: "12.9716",
-  //   longitude: "77.5946",
-  //   city: "Bangalore",
-  //   state: "Karnataka",
-  //   landmark: "Some Landmark",
-  //   pincode: "787878",
-  //   fullAddress: "",
-
-  //   contactPersonName: "contact",
-  //   contactPhone: "8989898989",
-  //   contactEmail: "contact@gmail.com",
-  //   ownerName: "owner@gmail.com",
-  //   ownerPhone: "8989898989",
-  //   ownerEmail: "owner@gmail.com",
-  //   startTime: "",
-  //   endTime: "",
-  //   // Amenities
-  //   amenities: [] as string[],
-
-  //   availableDays: [] as string[],
-  //   declarationAgreed: false,
-
-  //   // Courts Array for multiple courts support
-  //   courts: [
-  //     {
-  //       courtName: "Court 1",
-  //       surfaceType: "Grass",
-  //       courtSportType: "",
-  //       courtSlotDuration: "",
-  //       courtMaxPeople: "",
-  //       courtPricePerSlot: "",
-  //       courtImages: {
-  //         cover: null as File | null,
-  //         logo: null as File | null,
-  //         others: [] as File[],
-  //       },
-  //       courtPeakEnabled: false,
-  //       courtPeakDays: [] as string[],
-  //       courtPeakStart: "",
-  //       courtPeakEnd: "",
-  //       courtPeakPricePerSlot: "",
-  //     },
-  //   ],
-  // });
-
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,
@@ -934,14 +876,55 @@ export default function VenueOnboardingPage() {
     setLoading(false);
   };
 
+  // at the top of your component
+  const lastManualTimesRef = useRef<{ start: string; end: string }>({
+    start: formData.startTime,
+    end: formData.endTime,
+  });
+
+  const handle24HoursChange = (checked: boolean) => {
+    console.log("24 Hours Toggle:", checked);
+    setFormData((prev) => {
+      // Always update lastManualTimesRef with latest manual times if not 24h
+      if (!prev.is24HoursOpen && prev.startTime && prev.endTime) {
+        lastManualTimesRef.current = {
+          start: prev.startTime,
+          end: prev.endTime,
+        };
+      }
+      if (checked) {
+        // When 24 hours is checked, select all days
+        return {
+          ...prev,
+          is24HoursOpen: true,
+          startTime: "00:00",
+          endTime: "23:59",
+          availableDays: [...daysOfWeek],
+        };
+      } else {
+        // restore manual times (fallback to empty if not set)
+        const { start, end } = lastManualTimesRef.current || {
+          start: "",
+          end: "",
+        };
+        return {
+          ...prev,
+          is24HoursOpen: false,
+          startTime: start,
+          endTime: end,
+        };
+      }
+    });
+
+    handleTouched("is24HoursOpen");
+  };
+
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Basic Details
         return (
           formData.venueName &&
           formData.description &&
-          formData.startTime &&
-          formData.endTime &&
           formData.availableDays.length > 0
         );
       case 1: // Address & Contact
@@ -1174,36 +1157,30 @@ export default function VenueOnboardingPage() {
                     </span>
                   )}
               </div>
-
-              <div className="lg:col-span-2 flex align-middle mt-4 mb-2">
-                <label className="text-sm font-semibold text-gray-700 mr-3">
-                  Venue is open 24 hours?
+                <div className="lg:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Is your venue open 24 hours? *
                 </label>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <div className="flex items-center gap-4 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all">
                   <input
-                    type="checkbox"
-                    checked={formData.is24HoursOpen}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setFormData((prev) => ({
-                        ...prev,
-                        is24HoursOpen: checked,
-                        availableDays: checked ? [...daysOfWeek] : [],
-                      }));
-                      handleTouched("availableDays");
-                    }}
-                    className="sr-only peer"
+                  id="is24HoursOpen"
+                  type="checkbox"
+                  checked={formData.is24HoursOpen}
+                  onChange={(e) => handle24HoursChange(e.target.checked)}
+                  onBlur={() => handleTouched("is24HoursOpen")}
+                  className="w-5 h-5 text-red-500 border-gray-300 rounded focus:ring-red-500"
                   />
-                  <div
-                    className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full 
-              peer peer-checked:after:translate-x-full peer-checked:after:border-white 
-              after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white 
-              after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
-              peer-checked:bg-yellow-400"
-                  ></div>
-                  <span className="ml-3 text-sm font-medium text-gray-700"></span>
-                </label>
-              </div>
+                  <label
+                  htmlFor="is24HoursOpen"
+                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                  Yes, open 24 hours
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  If checked, your venue will be listed as open 24/7.
+                </p>
+                </div>
 
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col sm:flex-row gap-6">
@@ -1215,16 +1192,13 @@ export default function VenueOnboardingPage() {
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="time"
-                        value={
-                          formData.is24HoursOpen
-                            ? "00:00"
-                            : formData.startTime || "06:00"
-                        }
+                        value={formData.startTime}
+                        disabled={formData.is24HoursOpen}
                         onChange={(e) => {
-                          setFormData({
-                            ...formData,
-                            startTime: e.target.value,
-                          });
+                          const v = e.target.value;
+                          setFormData((p) => ({ ...p, startTime: v }));
+                          if (!formData.is24HoursOpen)
+                            lastManualTimesRef.current.start = v;
                           handleTouched("startTime");
                         }}
                         onBlur={() => handleTouched("startTime")}
@@ -1237,7 +1211,6 @@ export default function VenueOnboardingPage() {
                             : "border-gray-300"
                         }`}
                         required
-                        disabled={formData.is24HoursOpen}
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
@@ -1261,16 +1234,13 @@ export default function VenueOnboardingPage() {
                       <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <input
                         type="time"
-                        value={
-                          formData.is24HoursOpen
-                            ? "23:59"
-                            : formData.endTime || "22:00"
-                        }
+                        value={formData.endTime}
+                        disabled={formData.is24HoursOpen}
                         onChange={(e) => {
-                          setFormData({
-                            ...formData,
-                            endTime: e.target.value,
-                          });
+                          const v = e.target.value;
+                          setFormData((p) => ({ ...p, endTime: v }));
+                          if (!formData.is24HoursOpen)
+                            lastManualTimesRef.current.end = v;
                           handleTouched("endTime");
                         }}
                         onBlur={() => handleTouched("endTime")}
@@ -1283,7 +1253,6 @@ export default function VenueOnboardingPage() {
                             : "border-gray-300"
                         }`}
                         required
-                        disabled={formData.is24HoursOpen}
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
@@ -2308,18 +2277,17 @@ export default function VenueOnboardingPage() {
                         </span>
                       </div>
                     </div>
-                          {courtsErrors[idx]?.courtImages && (
-                    <span className="text-xs d-block text-red-600 mt-2 block">
-                      {courtsErrors[idx].courtImages}
-                    </span>
-                  )}
-                  <p className="text-sm d-inline p-2 text-black bg-yellow-100 mt-2 rounded">
-                    <span className="font-bold">Note:</span> Upload clear,
-                    high-quality images. Cover and logo are required. Other
-                    images are optional but recommended.
-                  </p>
+                    {courtsErrors[idx]?.courtImages && (
+                      <span className="text-xs d-block text-red-600 mt-2 block">
+                        {courtsErrors[idx].courtImages}
+                      </span>
+                    )}
+                    <p className="text-sm d-inline p-2 text-black bg-yellow-100 mt-2 rounded">
+                      <span className="font-bold">Note:</span> Upload clear,
+                      high-quality images. Cover and logo are required. Other
+                      images are optional but recommended.
+                    </p>
                   </div>
-            
 
                   {/* Sport Type */}
                   <div>
@@ -2735,7 +2703,10 @@ export default function VenueOnboardingPage() {
     <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  flex-1">
       <div className="min-h-screen ">
         <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
-          <div style={{width: "auto"}} className=" lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
+          <div
+            style={{ width: "auto" }}
+            className=" lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto"
+          >
             {/* Background Video */}
             <video
               autoPlay
@@ -2762,8 +2733,8 @@ export default function VenueOnboardingPage() {
                   List Your Sports Venue
                 </h1>
                 <p className="text-base text-center w-80 sm:w-100 sm:text-lg text-white max-w-2xl mx-auto md:mx-0 mb-2 sm:mb-6 font-medium">
-                  Join Sports Venue owner’s Community and start earning by listing
-                  your sports facility on{" "}
+                  Join Sports Venue owner’s Community and start earning by
+                  listing your sports facility on{" "}
                   <span className="font-bold text-yellow-300">Ofside</span>
                 </p>
                 {/* Enhanced Info with circled checks */}
