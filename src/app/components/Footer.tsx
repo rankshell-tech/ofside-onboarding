@@ -32,7 +32,7 @@ export default function Footer() {
                 </a>
                 <span className="hidden md:inline mx-3 h-5 w-px bg-gray-300 align-middle" aria-hidden="true"></span>
                 <p className="text-center md:text-left">
-                    Designed & Developed by <a href="https://therankshell.com" target="_blank" rel="noopener noreferrer">Rankshell</a> | © {new Date().getFullYear()} Ofside. All rights reserved.
+                    Designed & Developed by <a className="text-[#d2c912] hover:underline focus:underline transition-colors" href="https://therankshell.com" target="_blank" rel="noopener noreferrer">RANKSHELL MARKETING SOLUTIONS</a> | © {new Date().getFullYear()} Ofside. All rights reserved.
                 </p>
             </div>
 

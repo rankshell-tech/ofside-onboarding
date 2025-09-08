@@ -952,7 +952,7 @@ export default function VenueOnboardingPage() {
           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.ownerEmail)
         );
       case 2: // Amenities
-        return formData.amenities.length > 0; // Require at least 1 amenity
+        return true; // Require at least 1 amenity
 
       case 3: // Court Details
         return formData.courts.every(

@@ -13,7 +13,7 @@ const navLinks: NavLink[] = [
    
     { name: "Get Onboarded", href: "/onboarding" },
 //     { name: "Pricing", href: "#" },
-//     { name: "Contact", href: "#" },
+    { name: "Contact us", href: "/contact-us" },
 //     { name: "Get Started", href: "#", primary: true },
  ];
 
