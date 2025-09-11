@@ -9,10 +9,9 @@ const footerLinks = [
 
 export default function Footer() {
     return (
-        <footer className="flex flex-col md:flex-row items-center md:justify-between px-4 py-4 bg-gray-50 border-t border-gray-200 text-sm">
-            {/* Middle: Copyright */}
+        <footer className="flex flex-col md:flex-row items-center md:justify-between px-4 py-6 bg-gray-50 border-t border-gray-200 text-sm">
+            {/* Top section for mobile, left for desktop */}
             <div className="flex flex-col md:flex-row items-center w-full md:w-auto mb-4 md:mb-0">
-                {/* Left: Instagram Icon */}
                 <a
                     href="https://www.instagram.com/stories/ofsideapp/"
                     target="_blank"
@@ -21,8 +20,8 @@ export default function Footer() {
                     aria-label="Instagram"
                 >
                     <svg
-                        width="24"
-                        height="24"
+                        width="28"
+                        height="28"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                         className="mr-2"
@@ -31,23 +30,32 @@ export default function Footer() {
                     </svg>
                 </a>
                 <span className="hidden md:inline mx-3 h-5 w-px bg-gray-300 align-middle" aria-hidden="true"></span>
-                <p className="text-center md:text-left">
-                    Designed & Developed by <a className="text-[#d2c912] hover:underline focus:underline transition-colors" href="https://therankshell.com" target="_blank" rel="noopener noreferrer">RANKSHELL MARKETING SOLUTIONS</a> | © {new Date().getFullYear()} Ofside. All rights reserved.
+                <p className="text-center md:text-left text-gray-500">
+                    © {new Date().getFullYear()} Ofside. Designed by{" "}
+                    <a
+                        className="text-yellow-600 hover:underline transition-colors"
+                        href="https://therankshell.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        RANKSHELL
+                    </a>
+                    . All rights reserved.
                 </p>
             </div>
 
-            {/* Right: Links */}
-            <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-6 w-full md:w-auto">
+            {/* Links section */}
+            <div className="flex flex-wrap justify-center md:justify-end gap-x-3 gap-y-2 text-xs w-full md:w-auto">
                 {footerLinks.map((link, idx) => (
                     <React.Fragment key={link.label}>
                         <a
                             href={link.href}
-                            className="text-gray-700 hover:text-yellow-500 transition-colors"
+                            className="text-gray-600 hover:text-yellow-500 transition-colors px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
                         >
                             {link.label}
                         </a>
                         {idx < footerLinks.length - 1 && (
-                            <span className="mx-2 text-gray-400 select-none">•</span>
+                            <span className="mx-1 text-gray-400 select-none">•</span>
                         )}
                     </React.Fragment>
                 ))}

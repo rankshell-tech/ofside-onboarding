@@ -25,6 +25,7 @@ import {
   Car,
   Shield,
   Utensils,
+  Info,
 } from "lucide-react";
 import { useRef } from "react";
 import imageCompression from "browser-image-compression";
@@ -1132,29 +1133,26 @@ export default function VenueOnboardingPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select the operational days *
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                  {daysOfWeek.map((day) => (
-                    <div
-                      key={day}
-                      className="flex items-center space-x-2 p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
-                    >
-                      <input
-                        id={day}
-                        type="checkbox"
-                        checked={formData.availableDays.includes(day)}
-                        onChange={() => handleMultiSelect("availableDays", day)}
-                        onBlur={() => handleTouched("availableDays")}
-                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-                      />
-                      <label
-                        htmlFor={day}
-                        className="text-sm font-medium text-gray-700 cursor-pointer"
-                      >
-                        {day.slice(0, 3)}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                {daysOfWeek.map((day) => (
+    <label
+      key={day}
+      htmlFor={day}
+      className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
+    >
+      <input
+        id={day}
+        type="checkbox"
+        checked={formData.availableDays.includes(day)}
+        onChange={() => handleMultiSelect("availableDays", day)}
+        onBlur={() => handleTouched("availableDays")}
+        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+      />
+      <span className="text-sm font-medium text-gray-700">{day.slice(0, 3)}</span>
+    </label>
+                ))}
+              </div>
+
                 {errors.availableDays &&
                   touched.availableDays &&
                   formData.availableDays.length === 0 && (
@@ -1667,8 +1665,9 @@ export default function VenueOnboardingPage() {
                     {addressErrors.contactEmail}
                   </span>
                 )}
-                <div className="mt-2">
-                  <span className="inline-block text-sm bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded">
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="inline-flex items-center text-xs bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded gap-2">
+                    <Info className="w-4 h-4 text-yellow-500" />
                     Booking confirmation emails will be sent to this address
                   </span>
                 </div>
@@ -1859,7 +1858,7 @@ export default function VenueOnboardingPage() {
                   <label
                     htmlFor={`amenity-${amenity}`}
                     key={amenity}
-                    className={`flex flex-col items-center justify-center gap-2 p-4 border rounded-xl cursor-pointer transition-all
+                    className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
                       ${
                         checked
                           ? "bg-green-50 border-green-400 shadow"
@@ -2288,11 +2287,12 @@ export default function VenueOnboardingPage() {
                         {courtsErrors[idx].courtImages}
                       </span>
                     )}
-                    <p className="text-sm d-inline p-2 text-black bg-yellow-100 mt-2 rounded">
-                      <span className="font-bold">Note:</span> Upload clear,
-                      high-quality images. Cover and logo are required. Other
-                      images are optional but recommended.
-                    </p>
+                    <span className="inline-flex items-center text-xs bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded gap-2 mt-2">
+                      <Info className="w-4 h-4 text-yellow-500" />
+                      <span>
+                        <span className="font-bold">Note:</span> Upload clear, high-quality images. Cover and logo are required. Other images are optional but recommended.
+                      </span>
+                    </span>
                   </div>
 
                   {/* Sport Type */}
@@ -2371,40 +2371,44 @@ export default function VenueOnboardingPage() {
                   </div>
 
                   {/* How many in 1 slot */}
-                  <div>
+                    <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
                       Max Booking Per Slot *
                     </label>
                     <select
                       value={court.courtMaxPeople}
                       onChange={(e) => {
-                        handleCourtChange(
-                          idx,
-                          "courtMaxPeople",
-                          e.target.value
-                        );
+                      handleCourtChange(
+                        idx,
+                        "courtMaxPeople",
+                        e.target.value
+                      );
                       }}
                       onBlur={() => handleCourtTouched(idx, "courtMaxPeople")}
                       className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-                        courtsErrors[idx]?.courtMaxPeople
-                          ? "border-red-500"
-                          : "border-gray-300"
+                      courtsErrors[idx]?.courtMaxPeople
+                        ? "border-red-500"
+                        : "border-gray-300"
                       }`}
                       required
                     >
                       <option value="">Select max booking here</option>
                       {[...Array(20)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1}
-                        </option>
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1}
+                      </option>
                       ))}
                     </select>
                     {courtsErrors[idx]?.courtMaxPeople && (
                       <span className="text-xs text-red-600 mt-1 block">
-                        {courtsErrors[idx].courtMaxPeople}
+                      {courtsErrors[idx].courtMaxPeople}
                       </span>
                     )}
-                  </div>
+                    <span className="inline-flex items-center text-xs bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded gap-2 mt-2">
+                      <Info className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                      For some sports (like Archery), a single time slot may allow multiple bookings. This means more than one person can book and play in the same slot.
+                    </span>
+                    </div>
 
                   {/* Pricing Per Slot */}
                   <div>
@@ -2706,249 +2710,242 @@ export default function VenueOnboardingPage() {
   };
 
   return (
-    <div className="h-auto sm:h-screen sm:overflow-hidden flex flex-col  flex-1">
-      <div className="min-h-screen ">
-        <div className="flex sm:h-screen p-2 bg-white  flex-col lg:flex-row">
-          <div
-            style={{ width: "auto" }}
-            className=" lg:w-1/3 p-0 bg-theme-primary-light relative  flex flex-col h-auto md:min-h-[350px] sm:h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto"
-          >
-            {/* Background Video */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover z-2"
-              style={{ filter: "brightness(0.9)" }}
-            >
-              <source src={footballVideo} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            {/* Overlay for content */}
+    <div className="h-auto min-h-screen flex flex-col flex-1">
+      <div className="min-h-screen">
+      <div className="flex flex-col lg:flex-row bg-white p-2 sm:p-0 sm:min-h-screen">
+        {/* Left Side (Video + Info) */}
+        <div
+        
+        className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative flex flex-col h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto"
+        >
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-2"
+          style={{ filter: "brightness(0.9)" }}
+        >
+          <source src={footballVideo} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        {/* Overlay for content */}
+        <div className="relative z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full flex flex-col justify-center">
+          {/* Header and Info */}
+          <div className="flex flex-col items-center sm:mb-6 md:mb-0">
+          <h1 className="text-center text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-6 drop-shadow-lg tracking-tight">
+            List Your Sports Venue
+          </h1>
+          <p className="text-base text-center w-80 sm:w-100 sm:text-lg text-white max-w-2xl mx-auto md:mx-0 mb-2 sm:mb-6 font-medium">
+            Join Sports Venue owner’s Community and start earning by
+            listing your sports facility on{" "}
+            <span className="font-bold text-yellow-300">Ofside</span>
+          </p>
+          {/* Enhanced Info with circled checks */}
+          <div className="hidden md:block mt-4 sm:mt-8 space-y-4 sm:space-y-6 text-white">
+            {[
+            "Get discovered by thousands of sports enthusiasts in your city.",
+            "Easy booking management and hassle-free payments.",
+            "Dedicated support team to help you grow your business.",
+            ].map((text, idx) => (
             <div
-              className="
-                relative  z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full
-                flex flex-col justify-center
-                md:flex-col
-              "
+              key={idx}
+              className="flex justify-start items-center gap-3"
             >
-              {/* Header and Info */}
-              <div className="flex flex-col items-center  sm:mb-6 md:mb-0">
-                <h1 className="text-center text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-6 drop-shadow-lg tracking-tight">
-                  List Your Sports Venue
-                </h1>
-                <p className="text-base text-center w-80 sm:w-100 sm:text-lg text-white max-w-2xl mx-auto md:mx-0 mb-2 sm:mb-6 font-medium">
-                  Join Sports Venue owner’s Community and start earning by
-                  listing your sports facility on{" "}
-                  <span className="font-bold text-yellow-300">Ofside</span>
-                </p>
-                {/* Enhanced Info with circled checks */}
-                <div className="hidden md:block mt-4 sm:mt-8 space-y-4 sm:space-y-6 text-white">
-                  {[
-                    "Get discovered by thousands of sports enthusiasts in your city.",
-                    "Easy booking management and hassle-free payments.",
-                    "Dedicated support team to help you grow your business.",
-                  ].map((text, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-start items-center gap-3"
-                    >
-                      <span className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg p-2 mr-2">
-                        <Check className="w-6 h-6 text-white" />
-                      </span>
-                      <span className="text-sm sm:text-base md:text-md font-semibold text-white drop-shadow">
-                        {text}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                {/* Decorative divider */}
-                <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-400 rounded-full hidden sm:block mt-6 mb-2 mx-auto" />
-              </div>
-              {/* Contact/Help */}
-              <div className="mt-2 sm:mt-6 sm:mt-12 flex justify-center">
-                <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300">
-                  <span className="flex items-center gap-1">Need help?</span>
-                  <a
-                    href="mailto:play@ofside.in"
-                    className="underline text-black inline-flex items-center gap-1 font-medium"
-                  >
-                    <Mail className="inline-block w-4 h-4" /> Connect
-                  </a>
-                  <span>or</span>
-                  <a
-                    href="tel:+919811785330"
-                    className="underline text-black inline-flex items-center gap-1 font-medium"
-                  >
-                    <Phone className="inline-block w-4 h-4" /> Call us
-                  </a>
-                </span>
-              </div>
+              <span className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg p-2 mr-2">
+              <Check className="w-6 h-6 text-white" />
+              </span>
+              <span className="text-sm sm:text-base md:text-md font-semibold text-white drop-shadow">
+              {text}
+              </span>
             </div>
-            {/* Overlay for darkening video */}
-            <div className="absolute inset-0 bg-black bg-opacity-40 pointer-events-none z-0" />
+            ))}
           </div>
-
-          {/* Progress Indicator */}
-          <div
-            className="w-full lg:w-2/3 bg-gray-100 sm:overflow-y-auto p-2 sm:p-6"
-            ref={rightRef}
-          >
-            <div className="mb-12">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4 mt-2 sm:mt-0 sm:mb-8">
-                {steps.map((step, index) => (
-                  <React.Fragment key={index}>
-                    <div className="flex flex-col items-center min-hitew-[40px] sm:min-w-[70px]">
-                      <div
-                        className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 shadow transition-all duration-300
-            ${
-              index < currentStep
-                ? "bg-green-500 border-green-500 text-white"
-                : index === currentStep
-                ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
-                : "bg-white border-gray-300 text-gray-400"
-            }
-          `}
-                      >
-                        {index < currentStep ? (
-                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                        ) : (
-                          React.createElement(step.icon, {
-                            className: "w-4 h-4 sm:w-5 sm:h-5",
-                          })
-                        )}
-                      </div>
-
-                      {/* Step name only visible on sm and above */}
-                      <span
-                        className={`hidden sm:block mt-2 text-xs font-medium text-center transition-all duration-200 ${
-                          index === currentStep
-                            ? "text-black"
-                            : index < currentStep
-                            ? "text-green-600"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {step.title}
-                      </span>
-                    </div>
-
-                    {/* Progress bar between steps */}
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`flex-1 h-1 rounded transition-all duration-300 ${
-                          index < currentStep
-                            ? "bg-green-500"
-                            : index === currentStep
-                            ? "bg-gradient-to-r from-yellow-300 to-yellow-400"
-                            : "bg-gray-300"
-                        }`}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                {/* Step Header */}
-                <div
-                  className={`bg-gradient-to-r ${steps[currentStep].color} p-4 sm:px-8 sm:py-6`}
-                >
-                  <h2 className="text-xl sm:text-2xl font-bold text-black flex items-center">
-                    {React.createElement(steps[currentStep].icon, {
-                      className: "w-6 h-6 mr-3",
-                    })}
-                    {steps[currentStep].title}
-                  </h2>
-                </div>
-
-                {/* Step Content */}
-                <div className="p-4 sm:p-8 min-h-[400px]">
-                  {renderStepContent()}
-                </div>
-
-                {/* Navigation Buttons */}
-                <div
-                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
-                    currentStep === 4 ? "flex-col" : "flex-row"
-                  } items-center justify-center gap-2`}
-                >
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    disabled={currentStep === 0}
-                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
-                      currentStep === 0
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
-                    style={
-                      currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }
-                    }
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    <span>Back</span>
-                  </button>
-
-                  <div
-                    className="text-sm text-gray-500 flex-shrink-0 text-center"
-                    style={{ minWidth: 110 }}
-                  >
-                    Step {currentStep + 1} of {steps.length}
-                  </div>
-
-                  {currentStep === steps.length - 1 ? (
-                    <button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={!formData.declarationAgreed}
-                      className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg flex items-center space-x-3 w-full justify-center transition-all duration-200
-                        ${
-                          formData.declarationAgreed
-                            ? "hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105"
-                            : "opacity-60 cursor-not-allowed"
-                        }
-                      `}
-                      style={{
-                        fontSize: "1.15rem",
-                        letterSpacing: "0.02em",
-                        boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
-                        border: "2px solid #ffe100",
-                      }}
-                    >
-                      <Check className="w-5 h-5 mr-2" />
-                      <span>Submit for Review</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={nextStep}
-                      disabled={!isStepValid(currentStep)}
-                      className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${
-                        isStepValid(currentStep)
-                          ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
-                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      }`}
-                      style={{ maxWidth: 160 }}
-                    >
-                      <span>Next</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Help Text */}
-              <div className="text-center mt-8">
-                <p className="text-gray-600">
-                  Your venue will be reviewed within 24-48 hours and you will be
-                  notified via email.
-                </p>
-              </div>
-            </div>
+          {/* Decorative divider */}
+          <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-400 rounded-full hidden sm:block mt-6 mb-2 mx-auto" />
+          </div>
+          {/* Contact/Help */}
+          <div className="mt-2 sm:mt-6 sm:mt-12 flex justify-center">
+          <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300">
+            <span className="flex items-center gap-1">Need help?</span>
+            <a
+            href="mailto:play@ofside.in"
+            className="underline text-black inline-flex items-center gap-1 font-medium"
+            >
+            <Mail className="inline-block w-4 h-4" /> Connect
+            </a>
+            <span>or</span>
+            <a
+            href="tel:+919811785330"
+            className="underline text-black inline-flex items-center gap-1 font-medium"
+            >
+            <Phone className="inline-block w-4 h-4" /> Call us
+            </a>
+          </span>
           </div>
         </div>
+        {/* Overlay for darkening video */}
+        <div className="absolute inset-0 bg-black bg-opacity-40 pointer-events-none z-0" />
+        </div>
+
+        {/* Progress Indicator & Form */}
+        <div
+        className="w-full lg:w-2/3 bg-gray-100 overflow-y-auto p-2 sm:p-6 flex flex-col"
+        ref={rightRef}
+        >
+        <div className="mb-12">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 mt-2 sm:mt-0 sm:mb-8">
+          {steps.map((step, index) => (
+            <React.Fragment key={index}>
+            <div className="flex flex-col items-center min-w-[40px] sm:min-w-[70px]">
+              <div
+              className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 shadow transition-all duration-300
+        ${
+          index < currentStep
+          ? "bg-green-500 border-green-500 text-white"
+          : index === currentStep
+          ? `bg-gradient-to-r ${step.color} border-transparent text-black scale-110 ring-2 ring-yellow-200`
+          : "bg-white border-gray-300 text-gray-400"
+        }
+        `}
+              >
+              {index < currentStep ? (
+                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                React.createElement(step.icon, {
+                className: "w-4 h-4 sm:w-5 sm:h-5",
+                })
+              )}
+              </div>
+              {/* Step name only visible on sm and above */}
+              <span
+              className={`hidden sm:block mt-2 text-xs font-medium text-center transition-all duration-200 ${
+                index === currentStep
+                ? "text-black"
+                : index < currentStep
+                ? "text-green-600"
+                : "text-gray-400"
+              }`}
+              >
+              {step.title}
+              </span>
+            </div>
+            {/* Progress bar between steps */}
+            {index < steps.length - 1 && (
+              <div
+              className={`flex-1 h-1 rounded transition-all duration-300 ${
+                index < currentStep
+                ? "bg-green-500"
+                : index === currentStep
+                ? "bg-gradient-to-r from-yellow-300 to-yellow-400"
+                : "bg-gray-300"
+              }`}
+              />
+            )}
+            </React.Fragment>
+          ))}
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          {/* Step Header */}
+          <div
+            className={`bg-gradient-to-r ${steps[currentStep].color} p-4 sm:px-8 sm:py-6`}
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-black flex items-center">
+            {React.createElement(steps[currentStep].icon, {
+              className: "w-6 h-6 mr-3",
+            })}
+            {steps[currentStep].title}
+            </h2>
+          </div>
+
+          {/* Step Content */}
+          <div className="p-4 sm:p-8 min-h-[400px]">
+            {renderStepContent()}
+          </div>
+
+          {/* Navigation Buttons */}
+          <div
+            className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
+            currentStep === 4 ? "flex-col" : "flex-row"
+            } items-center justify-center gap-2`}
+          >
+            <button
+            type="button"
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
+              currentStep === 0
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+            } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
+            style={
+              currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }
+            }
+            >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Back</span>
+            </button>
+
+            <div
+            className="text-sm text-gray-500 flex-shrink-0 text-center"
+            style={{ minWidth: 110 }}
+            >
+            Step {currentStep + 1} of {steps.length}
+            </div>
+
+            {currentStep === steps.length - 1 ? (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!formData.declarationAgreed}
+              className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg flex items-center space-x-3 w-full justify-center transition-all duration-200
+              ${
+                formData.declarationAgreed
+                ? "hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105"
+                : "opacity-60 cursor-not-allowed"
+              }
+              `}
+              style={{
+              fontSize: "1.15rem",
+              letterSpacing: "0.02em",
+              boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
+              border: "2px solid #ffe100",
+              }}
+            >
+              <Check className="w-5 h-5 mr-2" />
+              <span>Submit for Review</span>
+            </button>
+            ) : (
+            <button
+              type="button"
+              onClick={nextStep}
+              disabled={!isStepValid(currentStep)}
+              className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${
+              isStepValid(currentStep)
+                ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+              style={{ maxWidth: 160 }}
+            >
+              <span>Next</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            )}
+          </div>
+          </div>
+
+          {/* Help Text */}
+          <div className="text-center mt-8">
+          <p className="text-gray-600">
+            Your venue will be reviewed within 24-48 hours and you will be
+            notified via email.
+          </p>
+          </div>
+        </div>
+        </div>
+      </div>
       </div>
     </div>
   );
