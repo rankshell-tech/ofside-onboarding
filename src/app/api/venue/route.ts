@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import Venue from '@/models/Venue';
 import userModel from '@/models/User';
 import { connectToDB } from '@/lib/mongo';
+import { appendWithRetries } from "@/lib/googleSheets"; // <-- new
 
 export async function POST(req: NextRequest) {
   try {
@@ -152,6 +153,43 @@ export async function POST(req: NextRequest) {
   
     const newVenue = new Venue(venueData);
     await newVenue.save();
+
+// --- Google Sheets sync (best-effort) ---
+try {
+  if (!process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS) {
+    throw new Error("GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set");
+  }
+
+  const row = [
+    newVenue._id.toString(),                 // A: Venue ID
+    newVenue.name || "",                     // B: Venue name
+    newVenue.venueType || "",                // C: Venue type
+    Array.isArray(newVenue.sportsOffered)
+      ? newVenue.sportsOffered.join(", ")
+      : newVenue.sportsOffered || "",        // D: Sports
+    newVenue.city || "",                     // E: City
+    newVenue.pincode || "",                  // F: Pincode
+    newVenue.contactPersonName || "",        // G: Contact name
+    newVenue.contactPhone || "",             // H: Contact phone
+    newVenue.contactEmail || "",             // I: Contact email
+    newVenue.ownerName || "",                // J: Owner name
+    newVenue.ownerPhone || "",               // K: Owner phone
+    newVenue.ownerEmail || "",               // L: Owner email
+    newVenue.courts?.length ?? 0,            // M: # courts
+    (newVenue.createdAt || new Date()).toISOString(), // N: createdAt
+  ];
+
+  // Append to sheet named "Venues", columns A:N
+  await appendWithRetries(
+    process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
+    "Venues!A:N",
+    row
+  );
+} catch (sheetErr) {
+  console.error("❌ Failed to append venue to Google Sheets:", sheetErr);
+  // Optional: log to DB for retry later
+}
+
 
     return new Response(JSON.stringify({
       success: true,
