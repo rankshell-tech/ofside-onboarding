@@ -2716,7 +2716,7 @@ export default function VenueOnboardingPage() {
             setPaymentLoading(true);
             try {
               const res = await createCashfreeOrder({
-            amount: 1999,
+            amount: 1,
             name:
               process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
                 ? "Ofside Venue Listing"
