@@ -36,6 +36,7 @@ const footballVideo = "./assets/football-playing-vertical.mp4";
 // Extend the Window interface to include Cashfree
 
 import { Libraries } from "@googlemaps/js-api-loader";
+import HumorousLoader from "../components/HumorousLoader";
 
 const libraries: Libraries = ["places"];
 
@@ -1026,36 +1027,12 @@ export default function VenueOnboardingPage() {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
-        <div className="flex flex-col items-center">
-          <svg
-            className="animate-spin h-16 w-16 text-yellow-400 mb-6"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            />
-          </svg>
-          <span className="text-lg font-semibold text-yellow-700">
-            Submitting your venue...
-          </span>
-        </div>
-      </div>
-    );
-  }
+if (loading) {
+  return (
+<HumorousLoader/>
+  );
+}
+
 
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
@@ -2712,69 +2689,74 @@ export default function VenueOnboardingPage() {
           )}
           <div className="mt-8 flex flex-col items-center">
             <button
-          onClick={async () => {
-            setPaymentLoading(true);
-            try {
-              const res = await createCashfreeOrder({
-            amount: 1,
-            name:
-              process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
-                ? "Ofside Venue Listing"
-                : "Ofside Venue Listing [Test]",
-            email: formData.contactEmail,
-            phone: formData.contactPhone,
-              });
+              onClick={async () => {
+              setPaymentLoading(true);
 
-              if (res.success) {
-            await initiatePayment(res.sessionId);
-              } else {
-            alert(
-              "Payment failed: " +
-                (res.error || "Try again later.")
-            );
+              // Start handleSubmit in background (do NOT await)
+              handleSubmit(new Event("submit") as unknown as React.FormEvent);
+
+              try {
+                // Start payment immediately, don't wait for handleSubmit to finish
+                const res = await createCashfreeOrder({
+                amount: 1,
+                name:
+                  process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
+                  ? "Ofside Venue Listing"
+                  : "Ofside Venue Listing [Test]",
+                email: formData.contactEmail,
+                phone: formData.contactPhone,
+                });
+
+                if (res.success) {
+                await initiatePayment(res.sessionId);
+                } else {
+                alert(
+                  "Payment failed: " +
+                  (res.error || "Try again later.")
+                );
+                }
+              } catch (err: any) {
+                alert("Payment error: " + err.message);
               }
-            } catch (err: any) {
-              alert("Payment error: " + err.message);
-            }
-            setPaymentLoading(false);
-          }}
-          className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
-            ${!formData.declarationAgreed || paymentLoading ? "opacity-60 cursor-not-allowed" : ""}
-          `}
-          style={{
-            fontSize: "1.15rem",
-            letterSpacing: "0.02em",
-            boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
-            border: "2px solid #ffe100",
-          }}
-          disabled={!formData.declarationAgreed || paymentLoading}
+              setPaymentLoading(false);
+              }}
+              className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
+              ${!formData.declarationAgreed || paymentLoading ? "opacity-60 cursor-not-allowed" : ""}
+              `}
+              style={{
+              fontSize: "1.15rem",
+              letterSpacing: "0.02em",
+              boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
+              border: "2px solid #ffe100",
+              }}
+              disabled={!formData.declarationAgreed || paymentLoading}
             >
-          {paymentLoading ? (
-            <svg
-              className="animate-spin h-5 w-5 text-yellow-500 mr-2"
-              viewBox="0 0 24 24"
-            >
-              <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            fill="none"
-              />
-              <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
-            </svg>
-          ) : (
-            <Check className="w-5 h-5" />
-          )}
-          {paymentLoading
-            ? "Processing..."
-            : "Pay ₹1999 & Submit for Review"}
+              {paymentLoading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-yellow-500 mr-2"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+                />
+                <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+              ) : (
+              <Check className="w-5 h-5" />
+              )}
+              {paymentLoading
+              ? "Processing..."
+              : "Pay ₹1999 & Submit for Review"}
             </button>
             <span className="text-xs text-gray-500 mt-2">
           Payment is required to complete your onboarding.

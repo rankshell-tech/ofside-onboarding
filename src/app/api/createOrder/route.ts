@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       },
       order_meta: {
         // return_url: `https://ofside.com/pgappsdemos/return.php?order_id=${orderId}`,
-         return_url: `https://ofside.in/`,
+         return_url: `https://ofside.in/thank-you`,
       },
       order_note: "Venue onboarding payment",
     };
