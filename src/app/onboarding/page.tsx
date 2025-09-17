@@ -909,12 +909,13 @@ export default function VenueOnboardingPage() {
       }
       if (checked) {
         // When 24 hours is checked, select all days
+    
         return {
           ...prev,
           is24HoursOpen: true,
           startTime: "00:00",
           endTime: "23:59",
-          availableDays: [...daysOfWeek],
+          availableDays: checked ? [...daysOfWeek] : [],
         };
       } else {
         // restore manual times (fallback to empty if not set)
@@ -1143,40 +1144,44 @@ export default function VenueOnboardingPage() {
                     </span>
                   )}
               </div>
-              <div className="lg:col-span-2">
+                <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select the operational days *
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
                   {daysOfWeek.map((day) => (
-                    <label
-                      key={day}
-                      htmlFor={day}
-                      className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
-                    >
-                      <input
-                        id={day}
-                        type="checkbox"
-                        checked={formData.availableDays.includes(day)}
-                        onChange={() => handleMultiSelect("availableDays", day)}
-                        onBlur={() => handleTouched("availableDays")}
-                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        {day.slice(0, 3)}
-                      </span>
-                    </label>
+                  <label
+                    key={day}
+                    htmlFor={day}
+                    className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
+                  >
+                    <input
+                    id={day}
+                    type="checkbox"
+                    checked={formData.availableDays.includes(day)}
+                    onChange={() => handleMultiSelect("availableDays", day)}
+                    onBlur={() => handleTouched("availableDays")}
+                    className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                    {day.slice(0, 3)}
+                    </span>
+                  </label>
                   ))}
                 </div>
-
+                {formData.is24HoursOpen && (
+                  <span className="text-xs text-green-700 mt-2 block">
+                  All days are selected as your venue is open 24 hours.
+                  </span>
+                )}
                 {errors.availableDays &&
                   touched.availableDays &&
                   formData.availableDays.length === 0 && (
-                    <span className="text-xs text-red-600 mt-1 block">
-                      {errors.availableDays}
-                    </span>
+                  <span className="text-xs text-red-600 mt-1 block">
+                    {errors.availableDays}
+                  </span>
                   )}
-              </div>
+                </div>
               <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Is your venue open 24 hours? *
@@ -2638,143 +2643,144 @@ export default function VenueOnboardingPage() {
       case 4: // Declaration
         return (
           <div className="space-y-8">
-            <div className="col-span-2">
-              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-                Declaration & Consent
-              </h3>
-              <div className="mb-4">
-                <span className="text-gray-800">
-                  I hereby certify that I am an authorized representative of{" "}
-                  <span className="font-semibold">
-                    {formData.venueName || "[Venue Name]"}
-                  </span>
-                  , and that all information provided in the Ofside onboarding
-                  form is true, complete, and accurate to the best of my
-                  knowledge. I understand that Ofside (powered by Rankshell –
-                  India’s ultimate sports ecosystem) will rely on these details
-                  to list and promote my venue.
-                </span>
-              </div>
-              <div className="mb-4">
-                <strong className="font-semibold text-gray-700">
-                  Details Provided:
-                </strong>
-                <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
-                  <li>Brand / Venue Name, Contact Number &amp; Email</li>
-                  <li>Owner’s Name &amp; Contact Details</li>
-                  <li>Venue Location &amp; Full Address</li>
-                  <li>Amenities Available</li>
-                  <li>Operational Days &amp; Timings</li>
-                  <li>Sports Offered</li>
-                  <li>Facility Images for Each Sport</li>
-                </ul>
-              </div>
-              <div className="mb-4">
-                <span className="text-gray-800">
-                  I understand that this declaration constitutes my formal
-                  consent and will be used to activate and manage my venue
-                  listing on the Ofside platform. I acknowledge that any false
-                  or misleading information may result in removal from the
-                  platform or other remedial action by Ofside.
-                </span>
-              </div>
-              <div className="flex items-center mt-6">
-                <input
-                  type="checkbox"
-                  id="declaration"
-                  className={`w-5 h-5 accent-black mr-2 ${
-                    declarationErrors.declarationAgreed ? "border-red-500" : ""
-                  }`}
-                  checked={formData.declarationAgreed}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationAgreed: e.target.checked,
-                    }))
-                  }
-                />
-                <label
-                  htmlFor="declaration"
-                  className="font-semibold text-gray-900"
-                >
-                  I agree and confirm the accuracy of the above information.
-                </label>
-              </div>
-              {declarationErrors.declarationAgreed && (
-                <span className="text-xs text-red-600 mt-2 block">
-                  {declarationErrors.declarationAgreed}
-                </span>
-              )}
-              {(
-                <div className="mt-8 flex flex-col items-center">
-                    <button
-                      onClick={async () => {
-                        setPaymentLoading(true);
-                        try {
-                          const res = await createCashfreeOrder({
-                            amount: 1999,
-                            name: process.env.NEXT_PUBLIC_CASHFREE_ENV == "production" ? "Ofside Venue Listing" : "Ofside Venue Listing [Test]",
-                            email: formData.contactEmail,
-                            phone: formData.contactPhone,
-                          });
+        <div className="col-span-2">
+          <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+            Declaration & Consent
+          </h3>
+          <div className="mb-4">
+            <span className="text-gray-800">
+          I hereby certify that I am an authorized representative of{" "}
+          <span className="font-semibold">
+            {formData.venueName || "[Venue Name]"}
+          </span>
+          , and that all information provided in the Ofside onboarding
+          form is true, complete, and accurate to the best of my
+          knowledge. I understand that Ofside (powered by Rankshell –
+          India’s ultimate sports ecosystem) will rely on these details
+          to list and promote my venue.
+            </span>
+          </div>
+          <div className="mb-4">
+            <strong className="font-semibold text-gray-700">
+          Details Provided:
+            </strong>
+            <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
+          <li>Brand / Venue Name, Contact Number &amp; Email</li>
+          <li>Owner’s Name &amp; Contact Details</li>
+          <li>Venue Location &amp; Full Address</li>
+          <li>Amenities Available</li>
+          <li>Operational Days &amp; Timings</li>
+          <li>Sports Offered</li>
+          <li>Facility Images for Each Sport</li>
+            </ul>
+          </div>
+          <div className="mb-4">
+            <span className="text-gray-800">
+          I understand that this declaration constitutes my formal
+          consent and will be used to activate and manage my venue
+          listing on the Ofside platform. I acknowledge that any false
+          or misleading information may result in removal from the
+          platform or other remedial action by Ofside.
+            </span>
+          </div>
+          <div className="flex items-center mt-6">
+            <input
+          type="checkbox"
+          id="declaration"
+          className={`w-5 h-5 accent-black mr-2 ${
+            declarationErrors.declarationAgreed ? "border-red-500" : ""
+          }`}
+          checked={formData.declarationAgreed}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              declarationAgreed: e.target.checked,
+            }))
+          }
+            />
+            <label
+          htmlFor="declaration"
+          className="font-semibold text-gray-900"
+            >
+          I agree and confirm the accuracy of the above information.
+            </label>
+          </div>
+          {declarationErrors.declarationAgreed && (
+            <span className="text-xs text-red-600 mt-2 block">
+          {declarationErrors.declarationAgreed}
+            </span>
+          )}
+          <div className="mt-8 flex flex-col items-center">
+            <button
+          onClick={async () => {
+            setPaymentLoading(true);
+            try {
+              const res = await createCashfreeOrder({
+            amount: 1999,
+            name:
+              process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
+                ? "Ofside Venue Listing"
+                : "Ofside Venue Listing [Test]",
+            email: formData.contactEmail,
+            phone: formData.contactPhone,
+              });
 
-                          if (res.success) {
-                            await initiatePayment(res.sessionId);
-                          } else {
-                            alert("Payment failed: " + (res.error || "Try again later."));
-                          }
-                        } catch (err: any) {
-                          alert("Payment error: " + err.message);
-                        }
-                        setPaymentLoading(false);
-                      }}
-                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2"
-                      style={{
-                        fontSize: "1.15rem",
-                        letterSpacing: "0.02em",
-                        boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
-                        border: "2px solid #ffe100",
-                      }}
-                      disabled={paymentLoading}
-                    >
-                      {paymentLoading ? (
-                        <svg
-                          className="animate-spin h-5 w-5 text-yellow-500 mr-2"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                            fill="none"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                          />
-                        </svg>
-                      ) : (
-                        <Check className="w-5 h-5" />
-                      )}
-                      {paymentLoading ? "Processing..." : "Pay ₹1999 & Agree"}
-                    </button>
-                  <span className="text-xs text-gray-500 mt-2">
-                    Payment is required to complete your onboarding.
-                  </span>
-                </div>
-              )}
-              {/* {formData.declarationAgreed && (
-                <div className="mt-8 flex flex-col items-center">
-                  <span className="text-green-600 font-semibold text-lg">
-                    Payment successful. You can now submit your application.
-                  </span>
-                </div>
-              )} */}
-            </div>
+              if (res.success) {
+            await initiatePayment(res.sessionId);
+              } else {
+            alert(
+              "Payment failed: " +
+                (res.error || "Try again later.")
+            );
+              }
+            } catch (err: any) {
+              alert("Payment error: " + err.message);
+            }
+            setPaymentLoading(false);
+          }}
+          className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
+            ${!formData.declarationAgreed || paymentLoading ? "opacity-60 cursor-not-allowed" : ""}
+          `}
+          style={{
+            fontSize: "1.15rem",
+            letterSpacing: "0.02em",
+            boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
+            border: "2px solid #ffe100",
+          }}
+          disabled={!formData.declarationAgreed || paymentLoading}
+            >
+          {paymentLoading ? (
+            <svg
+              className="animate-spin h-5 w-5 text-yellow-500 mr-2"
+              viewBox="0 0 24 24"
+            >
+              <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+            fill="none"
+              />
+              <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          ) : (
+            <Check className="w-5 h-5" />
+          )}
+          {paymentLoading
+            ? "Processing..."
+            : "Pay ₹1999 & Submit for Review"}
+            </button>
+            <span className="text-xs text-gray-500 mt-2">
+          Payment is required to complete your onboarding.
+            </span>
+          </div>
+        </div>
           </div>
         );
 
@@ -2966,29 +2972,7 @@ export default function VenueOnboardingPage() {
                     Step {currentStep + 1} of {steps.length}
                   </div>
 
-                  {currentStep === steps.length - 1 ? (
-                    <button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={!formData.declarationAgreed}
-                      className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg flex items-center space-x-3 w-full justify-center transition-all duration-200
-              ${
-                formData.declarationAgreed
-                  ? "hover:from-[#e6cb00] hover:to-[#e6d43f] hover:shadow-xl transform hover:scale-105"
-                  : "opacity-60 cursor-not-allowed"
-              }
-              `}
-                      style={{
-                        fontSize: "1.15rem",
-                        letterSpacing: "0.02em",
-                        boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
-                        border: "2px solid #ffe100",
-                      }}
-                    >
-                      <Check className="w-5 h-5 mr-2" />
-                      <span>Submit for Review</span>
-                    </button>
-                  ) : (
+                  {currentStep !== steps.length - 1 && (
                     <button
                       type="button"
                       onClick={nextStep}
