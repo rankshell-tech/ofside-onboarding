@@ -1,28 +1,28 @@
 import { NextResponse } from "next/server";
 import { Cashfree, CFEnvironment } from "cashfree-pg";
 
-const CASHFREE_ENV =
-  process.env.CASHFREE_ENV === "production"
+const NEXT_PUBLIC_CASHFREE_ENV =
+  process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
     ? CFEnvironment.PRODUCTION
     : CFEnvironment.SANDBOX;
 
 const CASHFREE_APP_ID =
-  process.env.CASHFREE_ENV === "production"
+  process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
     ? process.env.CASHFREE_APP_ID!
     : process.env.CASHFREE_APP_ID_TEST!;
 
 const CASHFREE_SECRET_KEY =
-  process.env.CASHFREE_ENV === "production"
+  process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
     ? process.env.CASHFREE_SECRET_KEY!
     : process.env.CASHFREE_SECRET_KEY_TEST!;
 
     const CASHFREE_BASE =
-  process.env.CASHFREE_ENV === "production"
+  process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
     ? "https://api.cashfree.com/pg"
     : "https://sandbox.cashfree.com/pg";
 
 const cashfree = new Cashfree(
-  CASHFREE_ENV,
+  NEXT_PUBLIC_CASHFREE_ENV,
   CASHFREE_APP_ID,
   CASHFREE_SECRET_KEY
 );

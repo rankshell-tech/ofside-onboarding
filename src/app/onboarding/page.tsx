@@ -2713,7 +2713,7 @@ export default function VenueOnboardingPage() {
                         try {
                           const res = await createCashfreeOrder({
                             amount: 1999,
-                            name: process.env.NEXT_PUBLIC_CASHFREE_ENV === "production" ? "Ofside Venue Listing" : "Ofside Venue Listing [Test]",
+                            name: process.env.NEXT_PUBLIC_CASHFREE_ENV == "production" ? "Ofside Venue Listing" : "Ofside Venue Listing [Test]",
                             email: formData.contactEmail,
                             phone: formData.contactPhone,
                           });
