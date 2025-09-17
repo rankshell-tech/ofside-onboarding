@@ -29,14 +29,11 @@ import {
 } from "lucide-react";
 import { useRef } from "react";
 import imageCompression from "browser-image-compression";
+import { createCashfreeOrder } from "@/utils/api";
+import { initiatePayment } from "@/utils/cashfree";
 const footballVideo = "./assets/football-playing-vertical.mp4";
 
 // Extend the Window interface to include Cashfree
-declare global {
-  interface Window {
-    Cashfree?: any;
-  }
-}
 
 import { Libraries } from "@googlemaps/js-api-loader";
 
@@ -179,46 +176,35 @@ export default function VenueOnboardingPage() {
 
   // Validation logic
   const declarationErrors: Record<string, string> = {};
+  
   // Cashfree payment integration
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-  // Cashfree API credentials (test keys)
-  // Cashfree API credentials (test keys)
-  const CASHFREE_APP_ID =
-    process.env.CASHFREE_ENV === "production"
-      ? process.env.CASHFREE_APP_ID
-      : process.env.CASHFREE_APP_ID_TEST;
 
-  const CASHFREE_SECRET_KEY =
-    process.env.CASHFREE_ENV === "production"
-      ? process.env.CASHFREE_SECRET_KEY
-      : process.env.CASHFREE_SECRET_KEY_TEST;
 
-  const CASHFREE_BASE =
-    process.env.CASHFREE_ENV === "production"
-      ? "https://api.cashfree.com/pg"
-      : "https://sandbox.cashfree.com/pg";
+ 
 
   // Handler for payment
-  async function createCashfreeOrder({
-    amount,
-    email,
-    phone,
-  }: {
-    amount: number;
-    email: string;
-    phone: string;
-  }) {
-    const res = await fetch("/api/createOrder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, email, phone }),
-    });
+  // async function createCashfreeOrder({
+  //   amount,
+  //   email,
+  //   phone,
+  // }: {
+  //   amount: number;
+  //   email: string;
+  //   phone: string;
+  // }) {
+  //   const res = await fetch("/api/createOrder", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ amount, email, phone }),
+  //   });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    return data; // contains { success, sessionId, orderId }
-  }
+  //   const data = await res.json();
+  //   if (!res.ok) throw new Error(data.error);
+  //   return data; // contains { success, sessionId, orderId }
+  // }
+
 
   const handlePlaceSelect = async (placeId: string) => {
     if (!placeId || !window.google?.maps?.places) return;
@@ -2726,8 +2712,12 @@ export default function VenueOnboardingPage() {
                     declarationErrors.declarationAgreed ? "border-red-500" : ""
                   }`}
                   checked={formData.declarationAgreed}
-                  disabled
-                  readOnly
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declarationAgreed: e.target.checked,
+                    }))
+                  }
                 />
                 <label
                   htmlFor="declaration"
@@ -2741,115 +2731,74 @@ export default function VenueOnboardingPage() {
                   {declarationErrors.declarationAgreed}
                 </span>
               )}
-              {!formData.declarationAgreed && (
+              {(
                 <div className="mt-8 flex flex-col items-center">
-                  <button
-                    type="button"
-                 onClick={async () => {
-  setPaymentLoading(true);
-  try {
-    const res = await createCashfreeOrder({
-      amount: 1999,
-      email: formData.contactEmail,
-      phone: formData.contactPhone,
-    });
+                    <button
+                      onClick={async () => {
+                        setPaymentLoading(true);
+                        try {
+                          const res = await createCashfreeOrder({
+                            amount: 1999,
+                            email: formData.contactEmail,
+                            phone: formData.contactPhone,
+                          });
 
-    if (res.success) {
-      // Load Cashfree SDK dynamically
-      const cashfreeScriptUrl =
-        process.env.CASHFREE_ENV === "production"
-          ? "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.prod.js"
-          : "https://sdk.cashfree.com/js/ui/2.0.0/cashfree.sandbox.js";
-
-      async function loadCashfreeScript() {
-        if (typeof window.Cashfree !== "undefined") return;
-        await new Promise<void>((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = cashfreeScriptUrl;
-          script.async = true;
-          script.onload = () => resolve();
-          script.onerror = () =>
-            reject(new Error("Failed to load Cashfree script"));
-          document.body.appendChild(script);
-        });
-      }
-
-      await loadCashfreeScript();
-
-      // Initialize Cashfree
-      const cashfree = new (window as any).Cashfree({
-        mode:
-          process.env.CASHFREE_ENV === "production"
-            ? "production"
-            : "sandbox",
-      });
-
-      console.log("Cashfree object:", cashfree);
-
-      // Open checkout modal
-      cashfree.checkout({
-        paymentSessionId: res.sessionId,
-        redirectTarget: "_modal", // opens inside modal
-        onSuccess: () => {
-          setFormData((prev: any) => ({
-            ...prev,
-            declarationAgreed: true,
-          }));
-          alert("✅ Payment successful!");
-        },
-        onFailure: () => {
-          alert("❌ Payment failed or cancelled.");
-        },
-      });
-    } else {
-      alert("Payment failed: " + (res.error || "Try again later."));
-    }
-  } catch (err: any) {
-    alert("Payment error: " + err.message);
-  } finally {
-    setPaymentLoading(false);
-  }
-}}
-
-
-                    disabled={paymentLoading}
-                    className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 text-lg flex items-center gap-2"
-                  >
-                    {paymentLoading && (
-                      <svg
-                        className="animate-spin h-5 w-5 text-yellow-500 mr-2"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                        />
-                      </svg>
-                    )}
-                    Pay ₹1999 & Agree
-                  </button>
+                          if (res.success) {
+                            await initiatePayment(res.sessionId);
+                          } else {
+                            alert("Payment failed: " + (res.error || "Try again later."));
+                          }
+                        } catch (err: any) {
+                          alert("Payment error: " + err.message);
+                        }
+                        setPaymentLoading(false);
+                      }}
+                      className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2"
+                      style={{
+                        fontSize: "1.15rem",
+                        letterSpacing: "0.02em",
+                        boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
+                        border: "2px solid #ffe100",
+                      }}
+                      disabled={paymentLoading}
+                    >
+                      {paymentLoading ? (
+                        <svg
+                          className="animate-spin h-5 w-5 text-yellow-500 mr-2"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
+                        </svg>
+                      ) : (
+                        <Check className="w-5 h-5" />
+                      )}
+                      {paymentLoading ? "Processing..." : "Pay ₹1999 & Agree"}
+                    </button>
                   <span className="text-xs text-gray-500 mt-2">
                     Payment is required to complete your onboarding.
                   </span>
                 </div>
               )}
-              {formData.declarationAgreed && (
+              {/* {formData.declarationAgreed && (
                 <div className="mt-8 flex flex-col items-center">
                   <span className="text-green-600 font-semibold text-lg">
                     Payment successful. You can now submit your application.
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         );
@@ -3097,3 +3046,7 @@ export default function VenueOnboardingPage() {
     </div>
   );
 }
+  function load(arg0: { mode: string; }): { checkout: (arg0: { paymentSessionId: string; redirectTarget: string; }) => void; } | PromiseLike<{ checkout: (arg0: { paymentSessionId: string; redirectTarget: string; }) => void; }> {
+    throw new Error("Function not implemented.");
+  }
+

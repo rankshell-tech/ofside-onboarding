@@ -1,6 +1,10 @@
-// src/app/api/createOrder/route.ts
-
 import { NextResponse } from "next/server";
+import { Cashfree, CFEnvironment } from "cashfree-pg";
+
+const CASHFREE_ENV =
+  process.env.CASHFREE_ENV === "production"
+    ? CFEnvironment.PRODUCTION
+    : CFEnvironment.SANDBOX;
 
 const CASHFREE_APP_ID =
   process.env.CASHFREE_ENV === "production"
@@ -12,10 +16,11 @@ const CASHFREE_SECRET_KEY =
     ? process.env.CASHFREE_SECRET_KEY!
     : process.env.CASHFREE_SECRET_KEY_TEST!;
 
-const CASHFREE_BASE =
-  process.env.CASHFREE_ENV === "production"
-    ? "https://api.cashfree.com/pg"
-    : "https://sandbox.cashfree.com/pg";
+const cashfree = new Cashfree(
+  CASHFREE_ENV,
+  CASHFREE_APP_ID,
+  CASHFREE_SECRET_KEY
+);
 
 export async function POST(req: Request) {
   try {
@@ -28,38 +33,26 @@ export async function POST(req: Request) {
       );
     }
 
-    const orderPayload = {
-      order_id: `order_${Date.now()}`,
+    const orderId = `order_${Date.now()}`;
+    const request = {
+      order_id: orderId,
       order_amount: amount,
       order_currency: "INR",
       customer_details: {
         customer_id: `cust_${Date.now()}`,
+        customer_name: "",
         customer_email: email,
         customer_phone: phone,
+      },
+      order_meta: {
+        // return_url: `https://ofside.com/pgappsdemos/return.php?order_id=${orderId}`,
+         return_url: `https://ofside.in/`,
       },
       order_note: "Venue onboarding payment",
     };
 
-    const res = await fetch(`${CASHFREE_BASE}/orders`, {
-      method: "POST",
-      headers: {
-        "x-api-version": "2023-08-01",
-        "Content-Type": "application/json",
-        "x-client-id": CASHFREE_APP_ID,
-        "x-client-secret": CASHFREE_SECRET_KEY,
-      },
-      body: JSON.stringify(orderPayload),
-    });
-
-    if (!res.ok) {
-      const errTxt = await res.text();
-      return NextResponse.json(
-        { error: `Cashfree API error: ${res.status} - ${errTxt}` },
-        { status: res.status }
-      );
-    }
-
-    const data = await res.json();
+    const response = await cashfree.PGCreateOrder(request);
+    const data = response.data;
 
     return NextResponse.json({
       success: true,
@@ -67,8 +60,13 @@ export async function POST(req: Request) {
       orderId: data.order_id,
       raw: data,
     });
-  } catch (err: unknown) {
-    console.error("Cashfree createOrder error:", err);
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    const errMsg =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Unknown error occurred";
+    console.error("Cashfree createOrder error:", errMsg);
+    return NextResponse.json({ error: errMsg }, { status: 500 });
   }
 }
