@@ -19,6 +19,6 @@ export async function initiatePayment(paymentSessionId: string) {
 
     sdk.checkout({
         paymentSessionId,
-        redirectTarget: "_self", // "_self" for redirect
+        redirectTarget: "_modal", // "_self" for redirect
     });
 }
