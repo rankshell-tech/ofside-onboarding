@@ -16,6 +16,11 @@ const CASHFREE_SECRET_KEY =
     ? process.env.CASHFREE_SECRET_KEY!
     : process.env.CASHFREE_SECRET_KEY_TEST!;
 
+    const CASHFREE_BASE =
+  process.env.CASHFREE_ENV === "production"
+    ? "https://api.cashfree.com/pg"
+    : "https://sandbox.cashfree.com/pg";
+
 const cashfree = new Cashfree(
   CASHFREE_ENV,
   CASHFREE_APP_ID,

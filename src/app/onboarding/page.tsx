@@ -180,32 +180,6 @@ export default function VenueOnboardingPage() {
   // Cashfree payment integration
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-
-
- 
-
-  // Handler for payment
-  // async function createCashfreeOrder({
-  //   amount,
-  //   email,
-  //   phone,
-  // }: {
-  //   amount: number;
-  //   email: string;
-  //   phone: string;
-  // }) {
-  //   const res = await fetch("/api/createOrder", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ amount, email, phone }),
-  //   });
-
-  //   const data = await res.json();
-  //   if (!res.ok) throw new Error(data.error);
-  //   return data; // contains { success, sessionId, orderId }
-  // }
-
-
   const handlePlaceSelect = async (placeId: string) => {
     if (!placeId || !window.google?.maps?.places) return;
 
@@ -2739,6 +2713,7 @@ export default function VenueOnboardingPage() {
                         try {
                           const res = await createCashfreeOrder({
                             amount: 1999,
+                            name: formData.ownerName || formData.contactPersonName,
                             email: formData.contactEmail,
                             phone: formData.contactPhone,
                           });
