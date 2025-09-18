@@ -177,7 +177,7 @@ export default function VenueOnboardingPage() {
 
   // Validation logic
   const declarationErrors: Record<string, string> = {};
-  
+
   // Cashfree payment integration
   const [paymentLoading, setPaymentLoading] = useState(false);
 
@@ -650,15 +650,65 @@ export default function VenueOnboardingPage() {
   ];
 
   const venueTypes = ["Turf", "Stadium", "Court", "Ground", "Complex"];
-  const sportsOptions = [
-    "Football",
-    "Cricket",
-    "Basketball",
-    "Tennis",
-    "Badminton",
-    "Volleyball",
-    "Swimming",
-    "Hockey",
+
+  // Categorised sports options for grouped display (e.g. multi-select)
+  const sportsCategories = [
+    {
+      label: "Football",
+      options: [
+        "Football (Standard)",
+        "Futsal / Turf Football",
+      ],
+    },
+    {
+      label: "Cricket",
+      options: [
+        "Cricket (Open Ground)",
+        "Box Cricket",
+        "Cricket Nets",
+      ],
+    },
+    {
+      label: "Racquet Sports",
+      options: [
+        "Badminton",
+        "Tennis",
+        "Table Tennis",
+        "Squash",
+        "Pickleball",
+      ],
+    },
+    {
+      label: "Court & Team Sports",
+      options: [
+        "Basketball",
+        "Volleyball",
+      ],
+    },
+    {
+      label: "Fitness & Recreation",
+      options: [
+        "Swimming",
+        "Yoga",
+        "Gymnastics",
+        "Skating",
+      ],
+    },
+    {
+      label: "Indoor & Leisure",
+      options: [
+        "Bowling",
+        "Billiards / Pool",
+      ],
+    },
+    {
+      label: "Adventure & Outdoor",
+      options: [
+        "Golf",
+        "Archery",
+        "Go Karting",
+      ],
+    },
   ];
   const amenitiesOptions = [
     "WiFi",
@@ -671,7 +721,7 @@ export default function VenueOnboardingPage() {
     "Bike/Car Parking",
     "Mobile Charging",
     "Showers/Steam",
-    "Match.refree",
+    "Match Referee",
     "Warm-up track",
     "Rental Equipment",
     "First Aid",
@@ -910,7 +960,7 @@ export default function VenueOnboardingPage() {
       }
       if (checked) {
         // When 24 hours is checked, select all days
-    
+
         return {
           ...prev,
           is24HoursOpen: true,
@@ -1027,12 +1077,9 @@ export default function VenueOnboardingPage() {
     );
   }
 
-if (loading) {
-  return (
-<HumorousLoader/>
-  );
-}
-
+  if (loading) {
+    return <HumorousLoader />;
+  }
 
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
@@ -1121,44 +1168,44 @@ if (loading) {
                     </span>
                   )}
               </div>
-                <div className="lg:col-span-2">
+              <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select the operational days *
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
                   {daysOfWeek.map((day) => (
-                  <label
-                    key={day}
-                    htmlFor={day}
-                    className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
-                  >
-                    <input
-                    id={day}
-                    type="checkbox"
-                    checked={formData.availableDays.includes(day)}
-                    onChange={() => handleMultiSelect("availableDays", day)}
-                    onBlur={() => handleTouched("availableDays")}
-                    className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                    {day.slice(0, 3)}
-                    </span>
-                  </label>
+                    <label
+                      key={day}
+                      htmlFor={day}
+                      className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
+                    >
+                      <input
+                        id={day}
+                        type="checkbox"
+                        checked={formData.availableDays.includes(day)}
+                        onChange={() => handleMultiSelect("availableDays", day)}
+                        onBlur={() => handleTouched("availableDays")}
+                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        {day.slice(0, 3)}
+                      </span>
+                    </label>
                   ))}
                 </div>
                 {formData.is24HoursOpen && (
                   <span className="text-xs text-green-700 mt-2 block">
-                  All days are selected as your venue is open 24 hours.
+                    All days are selected as your venue is open 24 hours.
                   </span>
                 )}
                 {errors.availableDays &&
                   touched.availableDays &&
                   formData.availableDays.length === 0 && (
-                  <span className="text-xs text-red-600 mt-1 block">
-                    {errors.availableDays}
-                  </span>
+                    <span className="text-xs text-red-600 mt-1 block">
+                      {errors.availableDays}
+                    </span>
                   )}
-                </div>
+              </div>
               <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Is your venue open 24 hours? *
@@ -1186,13 +1233,32 @@ if (loading) {
 
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col sm:flex-row gap-6">
+                  {/* Start Time */}
                   <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label
+                      htmlFor="startTimeInput"
+                      className="block text-sm font-semibold text-gray-700 mb-3 cursor-pointer"
+                    >
                       Start Time *
                     </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+                    <div
+                      className={`relative w-full`}
+                      onClick={() => {
+                        const input = document.getElementById("startTimeInput");
+                        if (input && !formData.is24HoursOpen) {
+                          (input as HTMLInputElement).showPicker?.(); // modern browsers
+                          (input as HTMLInputElement).focus(); // fallback
+                        }
+                      }}
+                      role="button"
+                      aria-label="Select start time"
+                      style={{ userSelect: "none" }}
+                    >
+                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+
                       <input
+                        id="startTimeInput"
                         type="time"
                         value={formData.startTime}
                         disabled={formData.is24HoursOpen}
@@ -1211,13 +1277,20 @@ if (loading) {
                           !formData.startTime?.trim()
                             ? "border-red-500"
                             : "border-gray-300"
+                        } ${
+                          formData.is24HoursOpen
+                            ? "bg-gray-100 cursor-not-allowed"
+                            : "cursor-pointer"
                         }`}
                         required
+                        readOnly={formData.is24HoursOpen}
                       />
                     </div>
+
                     <p className="text-xs text-gray-500 mt-2">
                       Venue opening time (e.g., 06:00)
                     </p>
+
                     {errors.startTime &&
                       touched.startTime &&
                       !formData.is24HoursOpen &&
@@ -1228,47 +1301,73 @@ if (loading) {
                       )}
                   </div>
 
-                  <div className="flex-1">
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      End Time *
-                    </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="time"
-                        value={formData.endTime}
-                        disabled={formData.is24HoursOpen}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setFormData((p) => ({ ...p, endTime: v }));
-                          if (!formData.is24HoursOpen)
-                            lastManualTimesRef.current.end = v;
-                          handleTouched("endTime");
-                        }}
-                        onBlur={() => handleTouched("endTime")}
-                        className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
-                          errors.endTime &&
-                          touched.endTime &&
-                          !formData.is24HoursOpen &&
-                          !formData.endTime?.trim()
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        }`}
-                        required
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Venue closing time (e.g., 22:00)
-                    </p>
-                    {errors.endTime &&
-                      touched.endTime &&
-                      !formData.is24HoursOpen &&
-                      !formData.endTime?.trim() && (
-                        <span className="text-xs text-red-600 mt-1 block">
-                          {errors.endTime}
-                        </span>
-                      )}
-                  </div>
+                  {/* End Time */}
+           <div className="flex-1">
+  <label
+    htmlFor="endTimeInput"
+    className="block text-sm font-semibold text-gray-700 mb-3 cursor-pointer"
+  >
+    End Time *
+  </label>
+
+  <div
+    className="relative w-full"
+    onClick={() => {
+      const input = document.getElementById("endTimeInput");
+      if (input && !formData.is24HoursOpen) {
+        (input as HTMLInputElement).showPicker?.(); // open native time picker if supported
+        (input as HTMLInputElement).focus(); // fallback
+      }
+    }}
+    role="button"
+    aria-label="Select end time"
+    style={{ userSelect: "none" }}
+  >
+    <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+
+    <input
+      id="endTimeInput"
+      type="time"
+      value={formData.endTime}
+      disabled={formData.is24HoursOpen}
+      onChange={(e) => {
+        const v = e.target.value;
+        setFormData((p) => ({ ...p, endTime: v }));
+        if (!formData.is24HoursOpen) lastManualTimesRef.current.end = v;
+        handleTouched("endTime");
+      }}
+      onBlur={() => handleTouched("endTime")}
+      className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-gray-700 ${
+        errors.endTime &&
+        touched.endTime &&
+        !formData.is24HoursOpen &&
+        !formData.endTime?.trim()
+          ? "border-red-500"
+          : "border-gray-300"
+      } ${
+        formData.is24HoursOpen
+          ? "bg-gray-100 cursor-not-allowed"
+          : "cursor-pointer"
+      }`}
+      required
+      readOnly={formData.is24HoursOpen}
+    />
+  </div>
+
+  <p className="text-xs text-gray-500 mt-2">
+    Venue closing time (e.g., 22:00)
+  </p>
+
+  {errors.endTime &&
+    touched.endTime &&
+    !formData.is24HoursOpen &&
+    !formData.endTime?.trim() && (
+      <span className="text-xs text-red-600 mt-1 block">
+        {errors.endTime}
+      </span>
+    )}
+</div>
+
                 </div>
                 <div>
                   <p className="text-sm text-gray-700 mb-6">
@@ -1840,7 +1939,7 @@ if (loading) {
                   "Bike/Car Parking": Car || MapPin,
                   "Mobile Charging": Phone,
                   "Showers/Steam": Droplets,
-                  "Match.refree": Check,
+                  "Match Referee": User,
                   "Warm-up track": Clock,
                   "Rental Equipment": Plus,
                   "First Aid": Shield || X,
@@ -2138,147 +2237,124 @@ if (loading) {
                         </span>
                       </div>
                       {/* Other Images (single box, multiple files) */}
-                      <div className="flex flex-col items-center w-40 flex-1 min-w-[140px]">
-                        <span className="text-xs text-gray-500 font-semibold mb-2">
-                          Other Images
-                        </span>
-                        <div
-                          className={`relative border-2 border-dashed rounded-xl w-full min-h-[112px] flex items-center justify-center transition-all duration-200 bg-gray-50 hover:bg-orange-50 ${
-                            courtsErrors[idx]?.courtImages &&
-                            court.courtImages.others.length === 0
-                              ? "border-red-500"
-                              : "border-gray-300 hover:border-orange-400"
-                          }`}
-                          style={{ minHeight: 112, maxWidth: 180 }}
-                        >
-                          {court.courtImages.others &&
-                          court.courtImages.others.length > 0 ? (
-                            <div className="flex flex-wrap gap-2 justify-center items-center w-full h-full p-1">
-                              {court.courtImages.others.map((file, oIdx) => (
-                                <div
-                                  key={oIdx}
-                                  className="relative w-12 h-12 rounded overflow-hidden shadow border border-gray-200 bg-white"
-                                >
-                                  <Image
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Other ${oIdx + 1}`}
-                                    className="w-full h-full object-cover"
-                                    width={48}
-                                    height={48}
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleRemoveCourtImage(idx, oIdx + 2)
-                                    }
-                                    onBlur={() =>
-                                      handleCourtTouched(idx, "courtImages")
-                                    }
-                                    className="absolute -top-1 -right-1 bg-white text-red-600 border border-red-200 rounded-full p-0.5 shadow hover:bg-red-500 hover:text-white transition"
-                                    title="Remove"
-                                    style={{ fontSize: 10 }}
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
-                              {court.courtImages.others.length < 3 && (
-                                <label className="w-12 h-12 flex items-center justify-center cursor-pointer rounded border border-dashed border-gray-300 bg-white hover:bg-orange-50 transition">
-                                  <Camera className="w-6 h-6 text-gray-300" />
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={(e) => {
-                                      if (
-                                        e.target.files &&
-                                        e.target.files.length > 0
-                                      ) {
-                                        // Only update others images
-                                        const filesArr = Array.from(
-                                          e.target.files
-                                        ).slice(
-                                          0,
-                                          3 - court.courtImages.others.length
-                                        );
-                                        setFormData((prev) => {
-                                          const updatedCourts = prev.courts.map(
-                                            (courtItem, i) =>
-                                              i === idx
-                                                ? {
-                                                    ...courtItem,
-                                                    courtImages: {
-                                                      ...courtItem.courtImages,
-                                                      others: [
-                                                        ...courtItem.courtImages
-                                                          .others,
-                                                        ...filesArr,
-                                                      ].slice(0, 3),
-                                                    },
-                                                  }
-                                                : courtItem
-                                          );
-                                          return {
-                                            ...prev,
-                                            courts: updatedCourts,
-                                          };
-                                        });
-                                      }
-                                    }}
-                                    onBlur={() =>
-                                      handleCourtTouched(idx, "courtImages")
-                                    }
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                    style={{ width: "100%", height: "100%" }}
-                                  />
-                                </label>
-                              )}
-                            </div>
-                          ) : (
-                            <>
-                              <Camera className="w-8 h-8 text-gray-300" />
-                              <input
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={(e) => {
-                                  if (
-                                    e.target.files &&
-                                    e.target.files.length > 0
-                                  ) {
-                                    const filesArr = Array.from(
-                                      e.target.files
-                                    ).slice(0, 3);
-                                    setFormData((prev) => {
-                                      const updatedCourts = prev.courts.map(
-                                        (courtItem, i) =>
-                                          i === idx
-                                            ? {
-                                                ...courtItem,
-                                                courtImages: {
-                                                  ...courtItem.courtImages,
-                                                  others: filesArr,
-                                                },
-                                              }
-                                            : courtItem
-                                      );
-                                      return { ...prev, courts: updatedCourts };
-                                    });
-                                  }
-                                }}
-                                onBlur={() =>
-                                  handleCourtTouched(idx, "courtImages")
-                                }
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                style={{ width: "100%", height: "100%" }}
-                              />
-                            </>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-500 text-center mt-1">
-                          Up to 3 images
-                        </span>
-                      </div>
+                    <div className="flex flex-col items-center flex-1 min-w-[140px]">
+  <span className="text-xs text-gray-500 font-semibold mb-2">
+    Other Images
+  </span>
+  <div
+    className={`relative border-2 border-dashed rounded-xl w-full min-h-[112px] flex items-center justify-center transition-all duration-200 bg-gray-50 hover:bg-orange-50 ${
+      courtsErrors[idx]?.courtImages && court.courtImages.others.length === 0
+        ? "border-red-500"
+        : "border-gray-300 hover:border-orange-400"
+    }`}
+    style={{ minHeight: 112 }}
+  >
+    {court.courtImages.others && court.courtImages.others.length > 0 ? (
+      <div className="flex flex-wrap gap-2 justify-start items-center w-full h-full p-1">
+        {court.courtImages.others.map((file, oIdx) => (
+          <div
+            key={oIdx}
+            className="relative w-24 h-24 rounded overflow-hidden shadow border border-gray-200 bg-white flex items-center justify-center"
+          >
+            <Image
+              src={URL.createObjectURL(file)}
+              alt={`Other ${oIdx + 1}`}
+              fill
+              className="object-contain" // ✅ full image visible
+              sizes="48px"
+            />
+            <button
+              type="button"
+              onClick={() => handleRemoveCourtImage(idx, oIdx + 2)}
+              onBlur={() => handleCourtTouched(idx, "courtImages")}
+              className="absolute -top-1 -right-1 bg-white text-red-600 border border-red-200 rounded-full p-0.5 shadow hover:bg-red-500 hover:text-white transition"
+              title="Remove"
+              style={{ fontSize: 10 }}
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        ))}
+
+        {court.courtImages.others.length < 3 && (
+          <label className="w-12 h-12 flex items-center justify-center cursor-pointer rounded border border-dashed border-gray-300 bg-white hover:bg-orange-50 transition relative">
+            <Camera className="w-6 h-6 text-gray-300" />
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  // Only update others images
+                  const filesArr = Array.from(e.target.files).slice(
+                    0,
+                    3 - court.courtImages.others.length
+                  );
+                  setFormData((prev) => {
+                    const updatedCourts = prev.courts.map((courtItem, i) =>
+                      i === idx
+                        ? {
+                            ...courtItem,
+                            courtImages: {
+                              ...courtItem.courtImages,
+                              others: [
+                                ...courtItem.courtImages.others,
+                                ...filesArr,
+                              ].slice(0, 3),
+                            },
+                          }
+                        : courtItem
+                    );
+                    return {
+                      ...prev,
+                      courts: updatedCourts,
+                    };
+                  });
+                }
+              }}
+              onBlur={() => handleCourtTouched(idx, "courtImages")}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+            />
+          </label>
+        )}
+      </div>
+    ) : (
+      <>
+        <Camera className="w-8 h-8 text-gray-300" />
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              const filesArr = Array.from(e.target.files).slice(0, 3);
+              setFormData((prev) => {
+                const updatedCourts = prev.courts.map((courtItem, i) =>
+                  i === idx
+                    ? {
+                        ...courtItem,
+                        courtImages: {
+                          ...courtItem.courtImages,
+                          others: filesArr,
+                        },
+                      }
+                    : courtItem
+                );
+                return { ...prev, courts: updatedCourts };
+              });
+            }
+          }}
+          onBlur={() => handleCourtTouched(idx, "courtImages")}
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+      </>
+    )}
+  </div>
+  <span className="text-xs text-gray-500 text-center mt-1">
+    Up to 3 images
+  </span>
+</div>
+
                     </div>
                     {courtsErrors[idx]?.courtImages && (
                       <span className="text-xs d-block text-red-600 mt-2 block">
@@ -2318,10 +2394,14 @@ if (loading) {
                       required
                     >
                       <option value="">Select sport type</option>
-                      {sportsOptions.map((sport) => (
-                        <option key={sport} value={sport}>
-                          {sport}
-                        </option>
+                      {sportsCategories.map((category) => (
+                        <optgroup key={category.label} label={category.label}>
+                          {category.options.map((sport) => (
+                            <option key={sport} value={sport}>
+                              {sport}
+                            </option>
+                          ))}
+                        </optgroup>
                       ))}
                     </select>
                     {courtsErrors[idx]?.courtSportType && (
@@ -2620,149 +2700,154 @@ if (loading) {
       case 4: // Declaration
         return (
           <div className="space-y-8">
-        <div className="col-span-2">
-          <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-            Declaration & Consent
-          </h3>
-          <div className="mb-4">
-            <span className="text-gray-800">
-          I hereby certify that I am an authorized representative of{" "}
-          <span className="font-semibold">
-            {formData.venueName || "[Venue Name]"}
-          </span>
-          , and that all information provided in the Ofside onboarding
-          form is true, complete, and accurate to the best of my
-          knowledge. I understand that Ofside (powered by Rankshell –
-          India’s ultimate sports ecosystem) will rely on these details
-          to list and promote my venue.
-            </span>
-          </div>
-          <div className="mb-4">
-            <strong className="font-semibold text-gray-700">
-          Details Provided:
-            </strong>
-            <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
-          <li>Brand / Venue Name, Contact Number &amp; Email</li>
-          <li>Owner’s Name &amp; Contact Details</li>
-          <li>Venue Location &amp; Full Address</li>
-          <li>Amenities Available</li>
-          <li>Operational Days &amp; Timings</li>
-          <li>Sports Offered</li>
-          <li>Facility Images for Each Sport</li>
-            </ul>
-          </div>
-          <div className="mb-4">
-            <span className="text-gray-800">
-          I understand that this declaration constitutes my formal
-          consent and will be used to activate and manage my venue
-          listing on the Ofside platform. I acknowledge that any false
-          or misleading information may result in removal from the
-          platform or other remedial action by Ofside.
-            </span>
-          </div>
-          <div className="flex items-center mt-6">
-            <input
-          type="checkbox"
-          id="declaration"
-          className={`w-5 h-5 accent-black mr-2 ${
-            declarationErrors.declarationAgreed ? "border-red-500" : ""
-          }`}
-          checked={formData.declarationAgreed}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              declarationAgreed: e.target.checked,
-            }))
-          }
-            />
-            <label
-          htmlFor="declaration"
-          className="font-semibold text-gray-900"
-            >
-          I agree and confirm the accuracy of the above information.
-            </label>
-          </div>
-          {declarationErrors.declarationAgreed && (
-            <span className="text-xs text-red-600 mt-2 block">
-          {declarationErrors.declarationAgreed}
-            </span>
-          )}
-          <div className="mt-8 flex flex-col items-center">
-            <button
-              onClick={async () => {
-              setPaymentLoading(true);
-
-              // Start handleSubmit in background (do NOT await)
-              handleSubmit(new Event("submit") as unknown as React.FormEvent);
-
-              try {
-                // Start payment immediately, don't wait for handleSubmit to finish
-                const res = await createCashfreeOrder({
-                amount: 1,
-                name:
-                  process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
-                  ? "Ofside Venue Listing"
-                  : "Ofside Venue Listing [Test]",
-                email: formData.contactEmail,
-                phone: formData.contactPhone,
-                });
-
-                if (res.success) {
-                await initiatePayment(res.sessionId);
-                } else {
-                alert(
-                  "Payment failed: " +
-                  (res.error || "Try again later.")
-                );
-                }
-              } catch (err: any) {
-                alert("Payment error: " + err.message);
-              }
-              setPaymentLoading(false);
-              }}
-              className={`bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
-              ${!formData.declarationAgreed || paymentLoading ? "opacity-60 cursor-not-allowed" : ""}
-              `}
-              style={{
-              fontSize: "1.15rem",
-              letterSpacing: "0.02em",
-              boxShadow: "0 4px 16px 0 rgba(255,225,0,0.10)",
-              border: "2px solid #ffe100",
-              }}
-              disabled={!formData.declarationAgreed || paymentLoading}
-            >
-              {paymentLoading ? (
-              <svg
-                className="animate-spin h-5 w-5 text-yellow-500 mr-2"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
+            <div className="col-span-2">
+              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+                Declaration & Consent
+              </h3>
+              <div className="mb-4">
+                <span className="text-gray-800">
+                  I hereby certify that I am an authorized representative of{" "}
+                  <span className="font-semibold">
+                    {formData.venueName || "[Venue Name]"}
+                  </span>
+                  , and that all information provided in the Ofside onboarding
+                  form is true, complete, and accurate to the best of my
+                  knowledge. I understand that Ofside (powered by Rankshell –
+                  India’s ultimate sports ecosystem) will rely on these details
+                  to list and promote my venue.
+                </span>
+              </div>
+              <div className="mb-4">
+                <strong className="font-semibold text-gray-700">
+                  Details Provided:
+                </strong>
+                <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
+                  <li>Brand / Venue Name, Contact Number &amp; Email</li>
+                  <li>Owner’s Name &amp; Contact Details</li>
+                  <li>Venue Location &amp; Full Address</li>
+                  <li>Amenities Available</li>
+                  <li>Operational Days &amp; Timings</li>
+                  <li>Sports Offered</li>
+                  <li>Facility Images for Each Sport</li>
+                </ul>
+              </div>
+              <div className="mb-4">
+                <span className="text-gray-800">
+                  I understand that this declaration constitutes my formal
+                  consent and will be used to activate and manage my venue
+                  listing on the Ofside platform. I acknowledge that any false
+                  or misleading information may result in removal from the
+                  platform or other remedial action by Ofside.
+                </span>
+              </div>
+              <div className="flex items-center mt-6">
+                <input
+                  type="checkbox"
+                  id="declaration"
+                  className={`w-5 h-5 accent-black mr-2 ${
+                    declarationErrors.declarationAgreed ? "border-red-500" : ""
+                  }`}
+                  checked={formData.declarationAgreed}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declarationAgreed: e.target.checked,
+                    }))
+                  }
                 />
-                <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-              ) : (
-              <Check className="w-5 h-5" />
+                <label
+                  htmlFor="declaration"
+                  className="font-semibold text-gray-900"
+                >
+                  I agree and confirm the accuracy of the above information.
+                </label>
+              </div>
+              {declarationErrors.declarationAgreed && (
+                <span className="text-xs text-red-600 mt-2 block">
+                  {declarationErrors.declarationAgreed}
+                </span>
               )}
-              {paymentLoading
-              ? "Processing..."
-              : "Pay ₹1999 & Submit for Review"}
-            </button>
-            <span className="text-xs text-gray-500 mt-2">
-          Payment is required to complete your onboarding.
-            </span>
-          </div>
-        </div>
+              <div className="mt-8 flex flex-col items-center">
+                <button
+                  onClick={async () => {
+                    setPaymentLoading(true);
+
+                    // Start handleSubmit in background (do NOT await)
+                    handleSubmit(
+                      new Event("submit") as unknown as React.FormEvent
+                    );
+
+                    try {
+                      // Start payment immediately, don't wait for handleSubmit to finish
+                      const res = await createCashfreeOrder({
+                        amount: 1,
+                        name:
+                          process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
+                            ? "Ofside Venue Listing"
+                            : "Ofside Venue Listing [Test]",
+                        email: formData.contactEmail,
+                        phone: formData.contactPhone,
+                      });
+
+                      if (res.success) {
+                        await initiatePayment(res.sessionId);
+                      } else {
+                        alert(
+                          "Payment failed: " + (res.error || "Try again later.")
+                        );
+                      }
+                    } catch (err: any) {
+                      alert("Payment error: " + err.message);
+                    }
+                    setPaymentLoading(false);
+                  }}
+                  className={`bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
+                ${
+                  !formData.declarationAgreed || paymentLoading
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
+                }
+                `}
+                  style={{
+                    fontSize: "1.15rem",
+                    letterSpacing: "0.02em",
+                    boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+                    border: "2px solid #00bf63",
+                  }}
+                  disabled={!formData.declarationAgreed || paymentLoading}
+                >
+                  {paymentLoading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-yellow-500 mr-2"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                  ) : (
+                    <Check className="w-5 h-5" />
+                  )}
+                  {paymentLoading
+                    ? "Processing..."
+                    : "Pay ₹1,999 & Submit for Review"}
+                </button>
+                <span className="text-xs text-gray-500 mt-2">
+                  Payment is required to complete your onboarding.
+                </span>
+              </div>
+            </div>
           </div>
         );
 
@@ -2776,7 +2861,7 @@ if (loading) {
       <div className="min-h-screen">
         <div className="flex flex-col lg:flex-row bg-white p-2 sm:p-0 sm:min-h-screen">
           {/* Left Side (Video + Info) */}
-          <div className="w-full lg:w-1/3 p-0 bg-theme-primary-light relative flex flex-col h-[350px] sm:h-[400px] md:h-[500px] lg:h-auto">
+          <div className="w-full lg:w-1/2 xl:w-1/3 p-0 bg-theme-primary-light relative flex flex-col ">
             {/* Background Video */}
             <video
               autoPlay
@@ -2790,7 +2875,7 @@ if (loading) {
               Your browser does not support the video tag.
             </video>
             {/* Overlay for content */}
-            <div className="relative z-4 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full flex flex-col justify-center">
+            <div className="relative z-4 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-12 h-full flex flex-col justify-start">
               {/* Header and Info */}
               <div className="flex flex-col items-center sm:mb-6 md:mb-0">
                 <h1 className="text-center text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-6 drop-shadow-lg tracking-tight">
@@ -2850,7 +2935,7 @@ if (loading) {
 
           {/* Progress Indicator & Form */}
           <div
-            className="w-full lg:w-2/3 bg-gray-100 overflow-y-auto p-2 sm:p-6 flex flex-col"
+            className="w-full lg:w-1/2 xl:w-2/3 bg-gray-100 overflow-y-auto p-2 sm:p-6 flex flex-col"
             ref={rightRef}
           >
             <div className="mb-12">
@@ -2987,7 +3072,18 @@ if (loading) {
     </div>
   );
 }
-  function load(arg0: { mode: string; }): { checkout: (arg0: { paymentSessionId: string; redirectTarget: string; }) => void; } | PromiseLike<{ checkout: (arg0: { paymentSessionId: string; redirectTarget: string; }) => void; }> {
-    throw new Error("Function not implemented.");
-  }
-
+function load(arg0: { mode: string }):
+  | {
+      checkout: (arg0: {
+        paymentSessionId: string;
+        redirectTarget: string;
+      }) => void;
+    }
+  | PromiseLike<{
+      checkout: (arg0: {
+        paymentSessionId: string;
+        redirectTarget: string;
+      }) => void;
+    }> {
+  throw new Error("Function not implemented.");
+}

@@ -1,22 +1,52 @@
 'use client';
 import { useEffect, useState } from "react";
 
-
 export default function Home() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const isMobile = window.innerWidth <= 768;
     setVideoSrc(isMobile ? "/assets/ofside-mobile.mp4" : "/assets/ofside.mp4");
+
+    // Show popup only if not closed in this session
+    if (!sessionStorage.getItem("onboardingBannerClosed")) {
+      setShowPopup(true);
+    }
   }, []);
+
+  const handleClose = () => {
+    setShowPopup(false);
+    sessionStorage.setItem("onboardingBannerClosed", "true");
+  };
 
   return (
     <>
- 
+      {showPopup && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center">
+          {/* Blurred, semi-transparent background */}
+          <div className="absolute inset-0 backdrop-blur-sm bg-white/10 z-0"></div>
+            <div className="relative mt-12 bg-[#e4d800] rounded-lg shadow-lg max-w-md w-full z-10 flex justify-center items-center" style={{ height: '90vh' }}>
+            <button
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
+              onClick={handleClose}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <img
+              src="/assets/onboarding_banner.PNG"
+              alt="Onboarding Banner"
+              className="h-full w-auto rounded object-contain"
+              style={{ maxHeight: '100%', maxWidth: '100%' }}
+            />
+            </div>
+        </div>
+      )}
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         {videoSrc && (
           <video
-            className="rounded-lg shadow-lg w-full  h-auto z-0"
+            className="rounded-lg shadow-lg w-full h-auto z-0"
             autoPlay
             loop
             muted
