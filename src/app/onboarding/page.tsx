@@ -26,6 +26,14 @@ import {
   Shield,
   Utensils,
   Info,
+  ShieldPlus,
+  GraduationCap,
+  Package,
+  BatteryCharging,
+  ShowerHead,
+  Leaf,
+  ShieldCheck,
+  Lock,
 } from "lucide-react";
 import { useRef } from "react";
 import imageCompression from "browser-image-compression";
@@ -37,6 +45,7 @@ const footballVideo = "./assets/football-playing-vertical.mp4";
 
 import { Libraries } from "@googlemaps/js-api-loader";
 import HumorousLoader from "../components/HumorousLoader";
+import { MdChair } from "react-icons/md";
 
 const libraries: Libraries = ["places"];
 
@@ -647,6 +656,11 @@ export default function VenueOnboardingPage() {
       color: "from-[#ffe100] to-[#ffed4e]",
     },
     { title: "Declaration", icon: Check, color: "from-[#ffe100] to-[#ffed4e]" },
+    {
+      title: "Review & Pay",
+      icon: DollarSign,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
   ];
 
   const venueTypes = ["Turf", "Stadium", "Court", "Ground", "Complex"];
@@ -1034,14 +1048,17 @@ export default function VenueOnboardingPage() {
             !!court.courtImages.logo &&
             (!court.courtPeakEnabled ||
               (court.courtPeakDays &&
-                court.courtPeakDays.length > 0 &&
-                !!court.courtPeakStart &&
-                !!court.courtPeakEnd &&
-                !!court.courtPeakPricePerSlot))
+          court.courtPeakDays.length > 0 &&
+          !!court.courtPeakStart &&
+          !!court.courtPeakEnd &&
+          !!court.courtPeakPricePerSlot))
         );
-      case 4: // Pricing & Availability
+            case 4: // Pricing & Availability
         return !!formData.declarationAgreed;
-      default:
+            case 5: // Review & Pay
+        // Always allow, as this is the final review/payment step
+        return true;
+            default:
         return false;
     }
   };
@@ -1929,24 +1946,24 @@ export default function VenueOnboardingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {amenitiesOptions.map((amenity) => {
                 const amenityIcons: Record<string, React.ElementType> = {
-                  WiFi: Wifi || Upload,
+                  WiFi: Wifi,
                   "Flood lights": Lightbulb,
                   "Washroom / Restroom": Droplets,
                   "Changing Room": User,
                   "Drinking Water": Droplets,
-                  "Artificial Grass": Building,
-                  "Natural Grass": Building,
-                  "Bike/Car Parking": Car || MapPin,
-                  "Mobile Charging": Phone,
-                  "Showers/Steam": Droplets,
-                  "Match Referee": User,
-                  "Warm-up track": Clock,
-                  "Rental Equipment": Plus,
-                  "First Aid": Shield || X,
-                  "Locker Room": User,
-                  "Seating Area": ChevronRight,
-                  Cafeteria: Utensils || DollarSign,
-                  Coaching: Dumbbell || ChevronLeft,
+                  "Artificial Grass": Leaf,
+                  "Natural Grass": Leaf,
+                  "Bike/Car Parking": Car,
+                  "Mobile Charging": BatteryCharging,
+                  "Showers/Steam": ShowerHead,
+                  "Match Referee": ShieldCheck,
+                  "Warm-up track": Dumbbell,
+                  "Rental Equipment": Package,
+                  "First Aid": ShieldPlus,
+                  "Locker Room": Lock,
+                  "Seating Area": MdChair, // Use Chair icon for seating area
+                  Cafeteria: Utensils,
+                  Coaching: GraduationCap,
                 };
                 const Icon = amenityIcons[amenity] || Plus;
                 const checked = formData.amenities.includes(amenity);
@@ -2394,15 +2411,35 @@ export default function VenueOnboardingPage() {
                       required
                     >
                       <option value="">Select sport type</option>
-                      {sportsCategories.map((category) => (
-                        <optgroup key={category.label} label={category.label}>
+                        {sportsCategories.map((category) => (
+                        <optgroup
+                          key={category.label}
+                          label={category.label}
+                          style={{
+                          fontSize: "1.15em",
+                          color: "#222222",
+                          fontWeight: 800,
+                          background: "#f3f4f6",
+                          letterSpacing: "0.02em",
+                          padding: "6px 0",
+                          }}
+                        >
                           {category.options.map((sport) => (
-                            <option key={sport} value={sport}>
-                              {sport}
-                            </option>
+                          <option
+                            key={sport}
+                            value={sport}
+                            style={{
+                            fontSize: "1em",
+                            color: "#444",
+                            fontWeight: 500,
+                            background: "#fff",
+                            }}
+                          >
+                            {sport}
+                          </option>
                           ))}
                         </optgroup>
-                      ))}
+                        ))}
                     </select>
                     {courtsErrors[idx]?.courtSportType && (
                       <span className="text-xs text-red-600 mt-1 block">
@@ -2700,154 +2737,422 @@ export default function VenueOnboardingPage() {
       case 4: // Declaration
         return (
           <div className="space-y-8">
-            <div className="col-span-2">
-              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-                Declaration & Consent
-              </h3>
-              <div className="mb-4">
-                <span className="text-gray-800">
-                  I hereby certify that I am an authorized representative of{" "}
-                  <span className="font-semibold">
-                    {formData.venueName || "[Venue Name]"}
-                  </span>
-                  , and that all information provided in the Ofside onboarding
-                  form is true, complete, and accurate to the best of my
-                  knowledge. I understand that Ofside (powered by Rankshell –
-                  India’s ultimate sports ecosystem) will rely on these details
-                  to list and promote my venue.
-                </span>
-              </div>
-              <div className="mb-4">
-                <strong className="font-semibold text-gray-700">
-                  Details Provided:
-                </strong>
-                <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
-                  <li>Brand / Venue Name, Contact Number &amp; Email</li>
-                  <li>Owner’s Name &amp; Contact Details</li>
-                  <li>Venue Location &amp; Full Address</li>
-                  <li>Amenities Available</li>
-                  <li>Operational Days &amp; Timings</li>
-                  <li>Sports Offered</li>
-                  <li>Facility Images for Each Sport</li>
-                </ul>
-              </div>
-              <div className="mb-4">
-                <span className="text-gray-800">
-                  I understand that this declaration constitutes my formal
-                  consent and will be used to activate and manage my venue
-                  listing on the Ofside platform. I acknowledge that any false
-                  or misleading information may result in removal from the
-                  platform or other remedial action by Ofside.
-                </span>
-              </div>
-              <div className="flex items-center mt-6">
-                <input
-                  type="checkbox"
-                  id="declaration"
-                  className={`w-5 h-5 accent-black mr-2 ${
-                    declarationErrors.declarationAgreed ? "border-red-500" : ""
-                  }`}
-                  checked={formData.declarationAgreed}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationAgreed: e.target.checked,
-                    }))
-                  }
-                />
-                <label
-                  htmlFor="declaration"
-                  className="font-semibold text-gray-900"
-                >
-                  I agree and confirm the accuracy of the above information.
-                </label>
-              </div>
-              {declarationErrors.declarationAgreed && (
-                <span className="text-xs text-red-600 mt-2 block">
-                  {declarationErrors.declarationAgreed}
-                </span>
-              )}
-              <div className="mt-8 flex flex-col items-center">
-                <button
-                  onClick={async () => {
-                    setPaymentLoading(true);
+        <div className="col-span-2">
+          <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+            Declaration & Consent
+          </h3>
+          <div className="mb-4">
+            <span className="text-gray-800">
+          I hereby certify that I am an authorized representative of{" "}
+          <span className="font-semibold">
+            {formData.venueName || "[Venue Name]"}
+          </span>
+          , and that all information provided in the Ofside onboarding
+          form is true, complete, and accurate to the best of my
+          knowledge. I understand that Ofside (powered by Rankshell –
+          India’s ultimate sports ecosystem) will rely on these details
+          to list and promote my venue.
+            </span>
+          </div>
+          <div className="mb-4">
+            <strong className="font-semibold text-gray-700">
+          Details Provided:
+            </strong>
+            <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
+          <li>Brand / Venue Name, Contact Number &amp; Email</li>
+          <li>Owner’s Name &amp; Contact Details</li>
+          <li>Venue Location &amp; Full Address</li>
+          <li>Amenities Available</li>
+          <li>Operational Days &amp; Timings</li>
+          <li>Sports Offered</li>
+          <li>Facility Images for Each Sport</li>
+            </ul>
+          </div>
+          <div className="mb-4">
+            <span className="text-gray-800">
+          I understand that this declaration constitutes my formal
+          consent and will be used to activate and manage my venue
+          listing on the Ofside platform. I acknowledge that any false
+          or misleading information may result in removal from the
+          platform or other remedial action by Ofside.
+            </span>
+          </div>
+          <div className="flex items-center mt-6">
+            <input
+          type="checkbox"
+          id="declaration"
+          className={`w-5 h-5 accent-black mr-2 ${
+            declarationErrors.declarationAgreed ? "border-red-500" : ""
+          }`}
+          checked={formData.declarationAgreed}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              declarationAgreed: e.target.checked,
+            }))
+          }
+            />
+            <label
+          htmlFor="declaration"
+          className="font-semibold text-gray-900"
+            >
+          I agree and confirm the accuracy of the above information.
+            </label>
+          </div>
+          {declarationErrors.declarationAgreed && (
+            <span className="text-xs text-red-600 mt-2 block">
+          {declarationErrors.declarationAgreed}
+            </span>
+          )}
+          <div className="mt-8 flex flex-col items-center w-full">
+            <button
+          type="button"
+          onClick={nextStep}
+          className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
+            ${
+              !formData.declarationAgreed
+            ? "opacity-60 cursor-not-allowed"
+            : ""
+            }
+          `}
+          style={{
+            fontSize: "1.05rem",
+            letterSpacing: "0.02em",
+            boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+            border: "2px solid #00bf63",
+          }}
+          disabled={!formData.declarationAgreed}
+            >
+          <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
+            <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
+              <Check className="w-5 h-5 text-green-600" />
+            </span>
+            <span className="flex-1 text-center sm:text-left">
+              Review & Pay
+            </span>
+          </span>
+            </button>
+            <span className="text-xs text-gray-500 mt-2 text-center w-full">
+          Please review your details before payment.
+            </span>
+          </div>
+        </div>
+          </div>
+        );
 
-                    // Start handleSubmit in background (do NOT await)
-                    handleSubmit(
-                      new Event("submit") as unknown as React.FormEvent
-                    );
+      case 5: // Review & Pay
+        // Helper to get label for venue type
+        const getVenueTypeLabel = (type: string) => {
+          return venueTypes.includes(type) ? type : <span className="italic text-gray-400">Not specified</span>;
+        };
 
-                    try {
-                      // Start payment immediately, don't wait for handleSubmit to finish
-                      const res = await createCashfreeOrder({
-                        amount: 1,
-                        name:
-                          process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
-                            ? "Ofside Venue Listing"
-                            : "Ofside Venue Listing [Test]",
-                        email: formData.contactEmail,
-                        phone: formData.contactPhone,
-                      });
+        // Helper to get sports offered display
+        const getSportsOfferedDisplay = (sports: string[]) => {
+          if (!sports || sports.length === 0) {
+        return <span className="italic text-gray-400">None selected</span>;
+          }
+          return sports.join(", ");
+        };
 
-                      if (res.success) {
-                        await initiatePayment(res.sessionId);
-                      } else {
-                        alert(
-                          "Payment failed: " + (res.error || "Try again later.")
-                        );
-                      }
-                    } catch (err: any) {
-                      alert("Payment error: " + err.message);
-                    }
-                    setPaymentLoading(false);
-                  }}
-                  className={`bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-lg flex items-center gap-2
-                ${
-                  !formData.declarationAgreed || paymentLoading
-                    ? "opacity-60 cursor-not-allowed"
-                    : ""
-                }
-                `}
-                  style={{
-                    fontSize: "1.15rem",
-                    letterSpacing: "0.02em",
-                    boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
-                    border: "2px solid #00bf63",
-                  }}
-                  disabled={!formData.declarationAgreed || paymentLoading}
-                >
-                  {paymentLoading ? (
-                    <svg
-                      className="animate-spin h-5 w-5 text-yellow-500 mr-2"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
-                    </svg>
-                  ) : (
-                    <Check className="w-5 h-5" />
-                  )}
-                  {paymentLoading
-                    ? "Processing..."
-                    : "Pay ₹1,999 & Submit for Review"}
-                </button>
-                <span className="text-xs text-gray-500 mt-2">
-                  Payment is required to complete your onboarding.
-                </span>
+        // Helper to get amenities display
+        const getAmenitiesDisplay = (amenities: string[]) => {
+          if (!amenities || amenities.length === 0) {
+        return <span className="italic text-gray-400">None selected</span>;
+          }
+          return amenities.map((amenity, i) => (
+        <span
+          key={i}
+          className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium border border-green-200"
+        >
+          {amenity}
+        </span>
+          ));
+        };
+
+        return (
+          <div className="space-y-10">
+        <div className="col-span-2">
+          <h3 className="text-2xl font-bold text-gray-800 text-center mb-6">
+            <span className="inline-flex items-center gap-2">
+          <Check className="w-7 h-7 text-green-600" />
+          Review Your Details
+            </span>
+          </h3>
+          <div className="mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 shadow border border-yellow-200">
+            <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
+              <Building className="w-5 h-5 text-yellow-500" />
+              Venue Details
+            </h4>
+            <div className="text-gray-700 text-sm space-y-2">
+              <div>
+            <span className="font-medium">Venue Name:</span>{" "}
+            {formData.venueName || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Description:</span>{" "}
+            {formData.description || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Venue Type:</span>{" "}
+            {getVenueTypeLabel(formData.venueType)}
+              </div>
+              <div>
+            <span className="font-medium">Sports Offered:</span>{" "}
+            {getSportsOfferedDisplay(formData.sportsOffered)}
+              </div>
+              <div>
+            <span className="font-medium">Operational Days:</span>{" "}
+            {formData.availableDays.length
+              ? formData.availableDays.join(", ")
+              : <span className="italic text-gray-400">None selected</span>}
+              </div>
+              <div>
+            <span className="font-medium">Timings:</span>{" "}
+            {formData.is24HoursOpen
+              ? "24 Hours"
+              : formData.startTime && formData.endTime
+              ? `${formData.startTime} - ${formData.endTime}`
+              : <span className="italic text-gray-400">Not specified</span>}
               </div>
             </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 shadow border border-blue-200">
+            <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-blue-500" />
+              Contact & Address
+            </h4>
+            <div className="text-gray-700 text-sm space-y-2">
+              <div>
+            <span className="font-medium">Contact Person:</span>{" "}
+            {formData.contactPersonName || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Contact Phone:</span>{" "}
+            {formData.contactPhone || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Contact Email:</span>{" "}
+            {formData.contactEmail || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Owner Name:</span>{" "}
+            {formData.ownerName || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Owner Phone:</span>{" "}
+            {formData.ownerPhone || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Owner Email:</span>{" "}
+            {formData.ownerEmail || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Address:</span>{" "}
+            {[formData.shopNo, formData.floorTower, formData.areaSectorLocality, formData.city, formData.state, formData.pincode]
+              .filter(Boolean)
+              .join(", ") || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+            <span className="font-medium">Landmark:</span>{" "}
+            {formData.landmark || <span className="italic text-gray-400">None</span>}
+              </div>
+            </div>
+          </div>
+            </div>
+          </div>
+          <div className="mb-8">
+            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
+          <Wifi className="w-5 h-5 text-green-500" />
+          Amenities
+            </h4>
+            <div className="flex flex-wrap gap-2">
+          {getAmenitiesDisplay(formData.amenities)}
+            </div>
+          </div>
+          <div className="mb-8">
+            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
+          <Dumbbell className="w-5 h-5 text-orange-500" />
+          Courts
+            </h4>
+            <div className="space-y-4">
+          {formData.courts.map((court, idx) => (
+            <div
+              key={idx}
+              className="border rounded-xl p-4 bg-white shadow flex flex-col md:flex-row gap-6"
+            >
+              <div className="flex-1">
+            <div className="font-semibold text-gray-700 mb-1">
+              Court {idx + 1}: {court.courtName || <span className="italic text-gray-400">Not specified</span>}
+            </div>
+            <div className="text-gray-700 text-sm space-y-1">
+              <div>
+                <span className="font-medium">Sport:</span> {court.courtSportType || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+                <span className="font-medium">Surface:</span> {court.surfaceType || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+                <span className="font-medium">Slot Duration:</span> {court.courtSlotDuration || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+                <span className="font-medium">Max Booking/Slot:</span> {court.courtMaxPeople || <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+                <span className="font-medium">Price/Slot:</span> {court.courtPricePerSlot ? `₹${court.courtPricePerSlot}` : <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              {court.courtPeakEnabled && (
+                <div className="mt-2 bg-orange-50 border border-orange-200 rounded p-2">
+              <div>
+                <span className="font-medium">Peak Days:</span> {court.courtPeakDays.length ? court.courtPeakDays.join(", ") : <span className="italic text-gray-400">None</span>}
+              </div>
+              <div>
+                <span className="font-medium">Peak Hours:</span> {court.courtPeakStart && court.courtPeakEnd ? `${court.courtPeakStart} - ${court.courtPeakEnd}` : <span className="italic text-gray-400">Not specified</span>}
+              </div>
+              <div>
+                <span className="font-medium">Peak Price/Slot:</span> {court.courtPeakPricePerSlot ? `₹${court.courtPeakPricePerSlot}` : <span className="italic text-gray-400">Not specified</span>}
+              </div>
+                </div>
+              )}
+            </div>
+              </div>
+              <div className="flex flex-row flex-wrap gap-2 items-center">
+            {court.courtImages.cover && (
+              <Image
+                src={
+              typeof court.courtImages.cover === "string"
+                ? court.courtImages.cover
+                : URL.createObjectURL(court.courtImages.cover)
+                }
+                alt="Cover"
+                width={60}
+                height={60}
+                className="rounded object-cover border"
+              />
+            )}
+            {court.courtImages.logo && (
+              <Image
+                src={
+              typeof court.courtImages.logo === "string"
+                ? court.courtImages.logo
+                : URL.createObjectURL(court.courtImages.logo)
+                }
+                alt="Logo"
+                width={60}
+                height={60}
+                className="rounded object-cover border"
+              />
+            )}
+            {court.courtImages.others &&
+              court.courtImages.others.map((img, i) => (
+                <Image
+              key={i}
+              src={
+                typeof img === "string"
+                  ? img
+                  : URL.createObjectURL(img)
+              }
+              alt={`Other ${i + 1}`}
+              width={60}
+              height={60}
+              className="rounded object-cover border"
+                />
+              ))}
+              </div>
+            </div>
+          ))}
+            </div>
+          </div>
+          <div className="mt-10 flex flex-col items-center w-full">
+            <button
+          onClick={async () => {
+            setPaymentLoading(true);
+
+            // Start handleSubmit in background (do NOT await)
+            handleSubmit(new Event("submit") as unknown as React.FormEvent);
+
+            try {
+              // Start payment immediately, don't wait for handleSubmit to finish
+              const res = await createCashfreeOrder({
+            amount: 1,
+            name:
+              process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
+                ? "Ofside Venue Listing"
+                : "Ofside Venue Listing [Test]",
+            email: formData.contactEmail,
+            phone: formData.contactPhone,
+              });
+
+              if (res.success) {
+            await initiatePayment(res.sessionId);
+              } else {
+            alert(
+              "Payment failed: " + (res.error || "Try again later.")
+            );
+              }
+            } catch (err: any) {
+              alert("Payment error: " + err.message);
+            }
+            setPaymentLoading(false);
+          }}
+          className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
+            ${
+              paymentLoading
+            ? "opacity-60 cursor-not-allowed"
+            : ""
+            }
+          `}
+          style={{
+            fontSize: "1.05rem",
+            letterSpacing: "0.02em",
+            boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+            border: "2px solid #00bf63",
+          }}
+          disabled={paymentLoading}
+            >
+          <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
+            {paymentLoading ? (
+              <svg
+            className="animate-spin h-5 w-5 text-white mr-2"
+            viewBox="0 0 24 24"
+            fill="white"
+              >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="white"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="white"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+              </svg>
+            ) : (
+              <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
+            <Check className="w-5 h-5 text-green-600" />
+              </span>
+            )}
+            <span className="flex-1 text-center sm:text-left">
+              {paymentLoading
+            ? "Processing..."
+            : "Pay ₹1,999 & Submit for Review"}
+            </span>
+          </span>
+            </button>
+            <span className="text-xs text-gray-500 mt-3 text-center w-full">
+          Payment is required to complete your onboarding.<br />
+          <span className="text-green-700 font-semibold">
+            Secure payment powered by Cashfree.
+          </span>
+            </span>
+          </div>
+        </div>
           </div>
         );
 
@@ -3012,7 +3317,7 @@ export default function VenueOnboardingPage() {
                 {/* Navigation Buttons */}
                 <div
                   className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
-                    currentStep === 4 ? "flex-col" : "flex-row"
+                    currentStep === 5 ? "flex-col" : "flex-row"
                   } items-center justify-center gap-2`}
                 >
                   <button
@@ -3023,9 +3328,9 @@ export default function VenueOnboardingPage() {
                       currentStep === 0
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
+                    } ${currentStep === 5 ? "w-full" : "w-full sm:w-auto"}`}
                     style={
-                      currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }
+                      currentStep === 5 ? { width: "100%" } : { maxWidth: 160 }
                     }
                   >
                     <ChevronLeft className="w-4 h-4" />

@@ -26,7 +26,7 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex items-start justify-center">
           {/* Blurred, semi-transparent background */}
           <div className="absolute inset-0 backdrop-blur-sm bg-white/10 z-0"></div>
-            <div className="relative mt-12 bg-[#e4d800] rounded-lg shadow-lg max-w-md w-full z-10 flex justify-center items-center" style={{ height: '90vh' }}>
+            <div className="relative mt-12 bg-[#e4d800] rounded-lg shadow-lg  z-10 flex justify-center items-center" style={{ width:"400px", maxWidth:"100%"}}>
             <button
               className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
               onClick={handleClose}
@@ -37,8 +37,8 @@ export default function Home() {
             <img
               src="/assets/onboarding_banner.PNG"
               alt="Onboarding Banner"
-              className="h-full w-auto rounded object-contain"
-              style={{ maxHeight: '100%', maxWidth: '100%' }}
+              className="rounded object-contain"
+            
             />
             </div>
         </div>
