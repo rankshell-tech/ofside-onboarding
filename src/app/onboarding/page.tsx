@@ -41,6 +41,25 @@ import { createCashfreeOrder } from "@/utils/api";
 import { initiatePayment } from "@/utils/cashfree";
 const footballVideo = "./assets/football-playing-vertical.mp4";
 
+interface ImageJob {
+  file: File;
+  courtIndex: number;
+  imageType: "cover" | "logo" | "others";
+  otherIndex?: number;
+}
+
+interface UploadResult {
+  job: ImageJob;
+  url: string | null;
+  error?: string;
+}
+
+interface UploadProgress {
+  total: number;
+  completed: number;
+  currentFile: string;
+}
+
 // Extend the Window interface to include Cashfree
 
 import { Libraries } from "@googlemaps/js-api-loader";
@@ -802,54 +821,86 @@ export default function VenueOnboardingPage() {
     }
   };
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
+const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
     const fileName = `${Date.now()}-${file.name}`;
 
     try {
+      // Get signed URL
       const res = await fetch(
-        `/api/upload?fileName=${encodeURIComponent(fileName)}&fileType=${
-          file.type
-        }`
+        `/api/upload?fileName=${encodeURIComponent(fileName)}&fileType=${file.type}`
       );
+      
+      if (!res.ok) throw new Error("Failed to get signed URL");
+      
       const { url, success } = await res.json();
-
       if (!success || !url) throw new Error("Failed to get signed URL");
 
+      // Upload to S3
       const uploadRes = await fetch(url, {
         method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
+        headers: { "Content-Type": file.type },
         body: file,
       });
 
       if (!uploadRes.ok) throw new Error("Upload failed");
 
-      // Use hardcoded or public ENV var (not process.env in browser)
-      const publicUrl = `https://ofside-venue-images.s3.ap-south-1.amazonaws.com/${fileName}`;
-      return publicUrl;
+      return `https://ofside-venue-images.s3.ap-south-1.amazonaws.com/${fileName}`;
     } catch (err) {
       console.error("Image upload failed:", err);
-      return null;
+      throw new Error(
+        `Failed to upload ${file.name}: ${
+          err && typeof err === "object" && "message" in err
+            ? (err as { message: string }).message
+            : String(err)
+        }`
+      );
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const uploadAllImages = async (allImageJobs: ImageJob[]): Promise<UploadResult[]> => {
+    const totalJobs = allImageJobs.length;
+    const results: UploadResult[] = [];
 
-    // Step 1: Prepare all image upload jobs for each court
-    type ImageJob = {
-      file: File;
-      courtIndex: number;
-      imageType: "cover" | "logo" | "others";
-      otherIndex?: number;
-    };
+    for (let i = 0; i < totalJobs; i++) {
+      const job = allImageJobs[i];
+      
+      setUploadProgress({
+        total: totalJobs,
+        completed: i,
+        currentFile: job.file.name
+      });
 
+      try {
+        const compressed = await compressImage(job.file);
+        const url = await uploadImageAndGetUrl(compressed);
+        results.push({ job, url });
+      } catch (err) {
+        results.push({ 
+          job, 
+          url: null, 
+          error: typeof err === "object" && err !== null && "message" in err ? (err as { message: string }).message : String(err)
+        });
+        
+        // Optionally: continue with other uploads or break here
+        // For critical images, you might want to stop the process
+        if (job.imageType === 'cover') {
+          throw new Error(`Critical image upload failed: ${job.file.name}`);
+        }
+      }
+    }
+
+    setUploadProgress(null);
+    return results;
+  };
+
+  const handleImageUpload = async (formData: any): Promise<any> => {
+    // Prepare all image upload jobs
     const allImageJobs: ImageJob[] = [];
 
-    formData.courts.forEach((court, i) => {
+    formData.courts.forEach((court: any, i: number) => {
       if (court.courtImages.cover) {
         allImageJobs.push({
           file: court.courtImages.cover,
@@ -865,7 +916,7 @@ export default function VenueOnboardingPage() {
         });
       }
       if (Array.isArray(court.courtImages.others)) {
-        court.courtImages.others.forEach((file, idx) => {
+        court.courtImages.others.forEach((file: File, idx: number) => {
           allImageJobs.push({
             file,
             courtIndex: i,
@@ -876,85 +927,109 @@ export default function VenueOnboardingPage() {
       }
     });
 
-    // Step 2: Compress and upload all images in parallel
-    const uploadResults = await Promise.allSettled(
-      allImageJobs.map(async (job) => {
-        const compressed = await compressImage(job.file);
-        const url = await uploadImageAndGetUrl(compressed);
-        return { ...job, url };
-      })
+    if (allImageJobs.length === 0) {
+      return formData; // No images to upload
+    }
+
+    // Upload all images with progress tracking
+    const uploadResults = await uploadAllImages(allImageJobs);
+
+    // Check for critical errors
+    const criticalErrors = uploadResults.filter(
+      result => !result.url && result.job.imageType === 'cover'
     );
 
-    // Step 3: Map uploaded URLs back to courtImages structure
-    const updatedCourts = formData.courts.map((court, i) => {
-      // Find uploaded cover
+    if (criticalErrors.length > 0) {
+      throw new Error('Failed to upload critical images. Please try again.');
+    }
+
+    // Map uploaded URLs back to courtImages structure
+    const updatedCourts = formData.courts.map((court: any, i: number) => {
       const coverResult = uploadResults.find(
-        (r) =>
-          r.status === "fulfilled" &&
-          r.value.courtIndex === i &&
-          r.value.imageType === "cover" &&
-          r.value.url
-      ) as PromiseFulfilledResult<any> | undefined;
-
-      // Find uploaded logo
+        r => r.job.courtIndex === i && r.job.imageType === "cover"
+      );
       const logoResult = uploadResults.find(
-        (r) =>
-          r.status === "fulfilled" &&
-          r.value.courtIndex === i &&
-          r.value.imageType === "logo" &&
-          r.value.url
-      ) as PromiseFulfilledResult<any> | undefined;
-
-      // Find uploaded others (array)
+        r => r.job.courtIndex === i && r.job.imageType === "logo"
+      );
       const othersResults = uploadResults
-        .filter(
-          (r) =>
-            r.status === "fulfilled" &&
-            r.value.courtIndex === i &&
-            r.value.imageType === "others" &&
-            r.value.url
-        )
-        .sort((a, b) =>
-          a.status === "fulfilled" && b.status === "fulfilled"
-            ? (a.value.otherIndex ?? 0) - (b.value.otherIndex ?? 0)
-            : 0
-        ) as PromiseFulfilledResult<any>[];
+        .filter(r => r.job.courtIndex === i && r.job.imageType === "others")
+        .sort((a, b) => (a.job.otherIndex ?? 0) - (b.job.otherIndex ?? 0));
 
       return {
         ...court,
         courtImages: {
-          cover: coverResult?.value.url ?? null,
-          logo: logoResult?.value.url ?? null,
-          others: othersResults.map((r) => r.value.url) as string[],
+          cover: coverResult?.url || null,
+          logo: logoResult?.url || null,
+          others: othersResults.map(r => r.url).filter(Boolean) as string[],
         },
       };
     });
 
-    // Step 4: Prepare final payload (replace courtImages with URLs)
-    const payload = {
+    return {
       ...formData,
       courts: updatedCourts,
     };
-
-    // Step 5: Submit the form data (replace with your API endpoint)
-    try {
-      const res = await fetch("/api/venue", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Submission failed");
-
-      setShowSuccessPopup(true);
-    } catch (err) {
-      alert("Submission failed. Please try again.");
-      setLoading(false);
-    }
-    setLoading(false);
   };
+const submitVenueData = async (payload: any) => {
+  const res = await fetch("/api/venue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const responseData = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(responseData.message || `Submission failed with status ${res.status}`);
+  }
+
+  // Ensure the response has the expected structure
+  if (!responseData.success && responseData.success !== undefined) {
+    throw new Error(responseData.message || 'Venue submission was not successful');
+  }
+
+  return responseData;
+};
+
+
+const handleSubmit = async (e: React.FormEvent, formData: any) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+
+  try {
+    // Step 1: Upload images first with progress feedback
+    const payloadWithUrls = await handleImageUpload(formData);
+
+    // Step 2: Submit venue data and wait for confirmation
+    const submissionResult = await submitVenueData(payloadWithUrls);
+    
+    // Step 3: Verify the venue was saved successfully before payment
+    if (!submissionResult.success) {
+      throw new Error('Failed to save venue data. Please try again.');
+    }
+
+    if (!submissionResult.venueId) {
+      throw new Error('Venue ID not received from server. Cannot proceed to payment.');
+    }
+
+    // Step 4: Only redirect to payment if venue was saved successfully
+    initiatePayment(submissionResult.venueId);
+
+  } catch (err) {
+    const errorMessage = err && typeof err === "object" && "message" in err
+      ? (err as { message: string }).message
+      : "An error occurred during submission";
+    
+    setError(errorMessage);
+    setLoading(false);
+    
+    // Log the error for debugging
+    console.error('Submission error:', err);
+  }
+};
+
+
 
   // at the top of your component
   const lastManualTimesRef = useRef<{ start: string; end: string }>({
@@ -3070,7 +3145,14 @@ export default function VenueOnboardingPage() {
             setPaymentLoading(true);
 
             // Start handleSubmit in background (do NOT await)
-            handleSubmit(new Event("submit") as unknown as React.FormEvent);
+            handleSubmit({ preventDefault: () => {} } as React.FormEvent, formData).catch((err) => {
+              console.error("Submission error:", err);
+              alert(
+                "Submission failed: " +
+              (err.message || "Please try again later.")
+              );
+              setPaymentLoading(false);
+            });
 
             try {
               // Start payment immediately, don't wait for handleSubmit to finish
