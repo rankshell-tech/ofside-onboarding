@@ -91,7 +91,6 @@ export default function VenueOnboardingPage() {
   // const [formData, setFormData] = useState({
   //   // Basic Details
   //   venueName: "",
-  //   venueType: "",
   //   sportsOffered: [] as string[],
   //   description: "",
   //   venueLogo: null as File | null,
@@ -149,7 +148,6 @@ export default function VenueOnboardingPage() {
   const [formData, setFormData] = useState({
     // Basic Details
     venueName: "venue test",
-    venueType: "",
     sportsOffered: ["football", "basketball"],
     description: "description test",
     venueLogo: null as File | null,
@@ -681,6 +679,22 @@ export default function VenueOnboardingPage() {
   };
 
   type CourtArrayField = "courtPeakDays";
+
+const handleAmenitySelect = (amenity: string) => {
+  setFormData(prev => {
+    const updated = prev.amenities.includes(amenity)
+      ? prev.amenities.filter(item => item !== amenity)
+      : [...prev.amenities, amenity];
+
+    console.log("Before:", prev.amenities, "After:", updated);
+    return {
+      ...prev,
+      amenities: updated,
+    };
+  });
+};
+
+
   const handleCourtMultiSelect = (
     idx: number,
     field: CourtArrayField,
@@ -817,7 +831,7 @@ export default function VenueOnboardingPage() {
     },
   ];
 
-  const venueTypes = ["Turf", "Stadium", "Court", "Ground", "Complex"];
+
 
   // Categorised sports options for grouped display (e.g. multi-select)
   const sportsCategories = [
@@ -891,25 +905,25 @@ export default function VenueOnboardingPage() {
 
   type MultiSelectField = "sportsOffered" | "amenities" | "availableDays";
 
-  const handleMultiSelect = (field: MultiSelectField, value: string) => {
-    setFormData((prev) => {
-      const arr = (prev[field] as string[]) || [];
-      console.log("Before:", prev[field]);
-      console.log("Toggling:", value);
-      console.log(
-        "After:",
-        arr.includes(value)
-          ? arr.filter((item) => item !== value)
-          : [...arr, value]
-      );
-      return {
-        ...prev,
-        [field]: arr.includes(value)
-          ? arr.filter((item) => item !== value)
-          : [...arr, value],
-      };
-    });
-  };
+const handleMultiSelect = (field: MultiSelectField, value: string) => {
+  console.log("🛠️ handleMultiSelect called with:", field, value);
+  
+  setFormData(prev => {
+    const currentArray = Array.isArray(prev[field]) ? [...prev[field]] : [];
+    const updatedArray = currentArray.includes(value)
+      ? currentArray.filter(item => item !== value)
+      : [...currentArray, value];
+    
+    console.log("🛠️ Returning new state with amenities:", updatedArray);
+    
+    return {
+      ...prev, // CRITICAL: This preserves all other fields
+      [field]: updatedArray,
+    };
+  });
+};
+
+
   const nextStep = () => {
     // Try to scroll the main container to top (for both mobile and desktop)
     if ("scrollBehavior" in document.documentElement.style) {
@@ -1189,7 +1203,7 @@ export default function VenueOnboardingPage() {
           /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.ownerEmail)
         );
       case 2: // Amenities
-        return true; // Require at least 1 amenity
+        return formData.amenities && formData.amenities.length > 0;
 
       case 3: // Court Details
         return formData.courts.every(
@@ -2090,85 +2104,73 @@ export default function VenueOnboardingPage() {
           </div>
         );
 
-      case 2: // Amenities
-        // Validation logic
-        const amenitiesErrors: Record<string, string> = {};
-        if (formData.amenities.length === 0) {
-          amenitiesErrors.amenities = "Select at least one amenity.";
-        }
+case 2: // Amenities
+  // Validation logic
+  const amenitiesErrors: Record<string, string> = {};
+  if (formData.amenities.length === 0) {
+    amenitiesErrors.amenities = "Select at least one amenity.";
+  }
 
-        return (
-          <div className="space-y-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {amenitiesOptions.map((amenity) => {
-                const amenityIcons: Record<string, React.ElementType> = {
-                  WiFi: Wifi,
-                  "Flood lights": Lightbulb,
-                  "Washroom / Restroom": Droplets,
-                  "Changing Room": User,
-                  "Drinking Water": Droplets,
-                  "Artificial Grass": Leaf,
-                  "Natural Grass": Leaf,
-                  "Bike/Car Parking": Car,
-                  "Mobile Charging": BatteryCharging,
-                  "Showers/Steam": ShowerHead,
-                  "Match Referee": ShieldCheck,
-                  "Warm-up track": Dumbbell,
-                  "Rental Equipment": Package,
-                  "First Aid": ShieldPlus,
-                  "Locker Room": Lock,
-                  "Seating Area": MdChair, // Use Chair icon for seating area
-                  Cafeteria: Utensils,
-                  Coaching: GraduationCap,
-                };
-                const Icon = amenityIcons[amenity] || Plus;
-                const checked = formData.amenities.includes(amenity);
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {amenitiesOptions.map((amenity) => {
+          const amenityIcons: Record<string, React.ElementType> = {
+            WiFi: Wifi,
+            "Flood lights": Lightbulb,
+            "Washroom / Restroom": Droplets,
+            "Changing Room": User,
+            "Drinking Water": Droplets,
+            "Artificial Grass": Leaf,
+            "Natural Grass": Leaf,
+            "Bike/Car Parking": Car,
+            "Mobile Charging": BatteryCharging,
+            "Showers/Steam": ShowerHead,
+            "Match Referee": ShieldCheck,
+            "Warm-up track": Dumbbell,
+            "Rental Equipment": Package,
+            "First Aid": ShieldPlus,
+            "Locker Room": Lock,
+            "Seating Area": MdChair,
+            Cafeteria: Utensils,
+            Coaching: GraduationCap,
+          };
+          const Icon = amenityIcons[amenity] || Plus;
+          const checked = formData.amenities.includes(amenity);
 
-                return (
-                  <label
-                    htmlFor={`amenity-${amenity}`}
-                    key={amenity}
-                    className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
-                      ${
-                        checked
-                          ? "bg-green-50 border-green-400 shadow"
-                          : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
-                      }
-                    `}
-                    style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
-                  >
-                    <Icon
-                      className={`w-8 h-8 ${
-                        checked ? "text-green-600" : "text-gray-400"
-                      }`}
-                    />
-                    <span className="text-xs font-medium text-center text-gray-700">
-                      {amenity}
-                    </span>
-                    <input
-                      id={`amenity-${amenity}`}
-                      type="checkbox"
-                      checked={checked}
-                      value={amenity}
-                      onChange={() => {
-                        handleMultiSelect("amenities", amenity);
-                        handleTouched("amenities");
-                      }}
-                      className="mt-1 accent-green-500"
-                      style={{ width: 20, height: 20 }}
-                    />
-                  </label>
-                );
-              })}
-            </div>
-            {amenitiesErrors.amenities && formData.amenities.length < 1 && (
-              <span className="text-xs text-red-600 mt-2 block text-center">
-                {amenitiesErrors.amenities}
+          return (
+            <label
+              key={amenity}
+              className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
+                ${checked
+                  ? "bg-green-50 border-green-400 shadow"
+                  : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
+                }
+              `}
+              style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
+            >
+              <Icon className={`w-8 h-8 ${checked ? "text-green-600" : "text-gray-400"}`} />
+              <span className="text-xs font-medium text-center text-gray-700">
+                {amenity}
               </span>
-            )}
-          </div>
-        );
-
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => handleMultiSelect("amenities", amenity)}
+                className="mt-1 accent-green-500"
+                style={{ width: 20, height: 20 }}
+              />
+            </label>
+          );
+        })}
+      </div>
+      {amenitiesErrors.amenities && formData.amenities.length < 1 && (
+        <span className="text-xs text-red-600 mt-2 block text-center">
+          {amenitiesErrors.amenities}
+        </span>
+      )}
+    </div>
+  );
       case 3: // Court Details
         // Multiple courts support
 
@@ -3019,14 +3021,6 @@ export default function VenueOnboardingPage() {
         );
 
       case 5: // Review & Pay
-        // Helper to get label for venue type
-        const getVenueTypeLabel = (type: string) => {
-          return venueTypes.includes(type) ? (
-            type
-          ) : (
-            <span className="italic text-gray-400">Not specified</span>
-          );
-        };
 
         // Helper to get sports offered display
         const getSportsOfferedDisplay = (sports: string[]) => {
@@ -3084,10 +3078,7 @@ export default function VenueOnboardingPage() {
                           </span>
                         )}
                       </div>
-                      <div>
-                        <span className="font-medium">Venue Type:</span>{" "}
-                        {getVenueTypeLabel(formData.venueType)}
-                      </div>
+                
                       <div>
                         <span className="font-medium">Sports Offered:</span>{" "}
                         {getSportsOfferedDisplay(formData.sportsOffered)}
