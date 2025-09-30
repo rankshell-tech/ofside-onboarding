@@ -3094,126 +3094,183 @@ case 2: // Amenities
         return (
           <div className="space-y-10">
             <div className="col-span-2">
-              <h3 className="text-xl font-bold text-gray-800 text-center mb-4 flex items-center justify-center gap-2">
-                <Check className="w-6 h-6 text-green-600" />
-                Review Your Details
+              <h3 className="text-2xl font-bold text-gray-800 text-center mb-6">
+                <span className="inline-flex items-center gap-2">
+                  <Check className="w-7 h-7 text-green-600" />
+                  Review Your Details
+                </span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {/* Venue Details */}
-                <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building className="w-4 h-4 text-yellow-500" />
-                    <span className="font-semibold text-gray-900 text-base">Venue</span>
+              <div className="mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 shadow border border-yellow-200">
+                    <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
+                      <Building className="w-5 h-5 text-yellow-500" />
+                      Venue Details
+                    </h4>
+                    <div className="text-gray-700 text-sm space-y-2">
+                      <div>
+                        <span className="font-medium">Venue Name:</span>{" "}
+                        {formData.venueName || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Description:</span>{" "}
+                        {formData.description || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                
+                      <div>
+                        <span className="font-medium">Sports Offered:</span>{" "}
+                        {getSportsOfferedDisplay(formData.sportsOffered)}
+                      </div>
+                      <div>
+                        <span className="font-medium">Operational Days:</span>{" "}
+                        {formData.availableDays.length ? (
+                          formData.availableDays.join(", ")
+                        ) : (
+                          <span className="italic text-gray-400">
+                            None selected
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Timings:</span>{" "}
+                        {formData.is24HoursOpen ? (
+                          "24 Hours"
+                        ) : formData.startTime && formData.endTime ? (
+                          `${formData.startTime} - ${formData.endTime}`
+                        ) : (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <ul className="text-gray-700 text-sm space-y-1">
-                    <li>
-                      <span className="font-medium">Name:</span>{" "}
-                      {formData.venueName || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Description:</span>{" "}
-                      {formData.description || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Sports:</span>{" "}
-                      {getSportsOfferedDisplay(formData.sportsOffered)}
-                    </li>
-                    <li>
-                      <span className="font-medium">Days:</span>{" "}
-                      {formData.availableDays.length
-                        ? formData.availableDays.join(", ")
-                        : <span className="italic text-gray-400">None</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Timings:</span>{" "}
-                      {formData.is24HoursOpen
-                        ? "24 Hours"
-                        : formData.startTime && formData.endTime
-                        ? `${formData.startTime} - ${formData.endTime}`
-                        : <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                  </ul>
-                </div>
-                {/* Contact & Address */}
-                <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="w-4 h-4 text-blue-500" />
-                    <span className="font-semibold text-gray-900 text-base">Contact & Address</span>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 shadow border border-blue-200">
+                    <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-blue-500" />
+                      Contact & Address
+                    </h4>
+                    <div className="text-gray-700 text-sm space-y-2">
+                      <div>
+                        <span className="font-medium">Contact Person Name:</span>{" "}
+                        {formData.contactPersonName || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Contact Person Phone:</span>{" "}
+                        {formData.contactPhone || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Contact Person Email:</span>{" "}
+                        {formData.contactEmail || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Owner Name:</span>{" "}
+                        {formData.ownerName || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Owner Phone:</span>{" "}
+                        {formData.ownerPhone || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Owner Email:</span>{" "}
+                        {formData.ownerEmail || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Address:</span>{" "}
+                        {[
+                          formData.shopNo,
+                          formData.floorTower,
+                          formData.areaSectorLocality,
+                          formData.city,
+                          formData.state,
+                          formData.pincode,
+                        ]
+                          .filter(Boolean)
+                          .join(", ") || (
+                          <span className="italic text-gray-400">
+                            Not specified
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">Landmark:</span>{" "}
+                        {formData.landmark || (
+                          <span className="italic text-gray-400">None</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <ul className="text-gray-700 text-sm space-y-1">
-                    <li>
-                      <span className="font-medium">Contact Name:</span>{" "}
-                      {formData.contactPersonName || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Contact Phone:</span>{" "}
-                      {formData.contactPhone || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Contact Email:</span>{" "}
-                      {formData.contactEmail || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Owner Name:</span>{" "}
-                      {formData.ownerName || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Owner Phone:</span>{" "}
-                      {formData.ownerPhone || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Owner Email:</span>{" "}
-                      {formData.ownerEmail || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Address:</span>{" "}
-                      {[
-                        formData.shopNo,
-                        formData.floorTower,
-                        formData.areaSectorLocality,
-                        formData.city,
-                        formData.state,
-                        formData.pincode,
-                      ].filter(Boolean).join(", ") || <span className="italic text-gray-400">Not specified</span>}
-                    </li>
-                    <li>
-                      <span className="font-medium">Landmark:</span>{" "}
-                      {formData.landmark || <span className="italic text-gray-400">None</span>}
-                    </li>
-                  </ul>
                 </div>
               </div>
-              {/* Amenities */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <Wifi className="w-4 h-4 text-green-500" />
-                  <span className="font-semibold text-gray-900 text-base">Amenities</span>
-                </div>
+              <div className="mb-8">
+                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
+                  <Wifi className="w-5 h-5 text-green-500" />
+                  Amenities
+                </h4>
                 <div className="flex flex-wrap gap-2">
                   {getAmenitiesDisplay(formData.amenities)}
                 </div>
               </div>
-              {/* Courts */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Dumbbell className="w-4 h-4 text-orange-500" />
-                  <span className="font-semibold text-gray-900 text-base">Courts</span>
-                </div>
-                <div className="space-y-2">
+              <div className="mb-8">
+                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
+                  <Dumbbell className="w-5 h-5 text-orange-500" />
+                  Courts
+                </h4>
+                <div className="space-y-4">
                   {formData.courts.map((court, idx) => (
                     <div
                       key={idx}
-                      className="border rounded-lg p-3 bg-gray-50 shadow-sm flex flex-col md:flex-row gap-4"
+                      className="border rounded-xl p-4 bg-white shadow flex flex-col md:flex-row gap-6"
                     >
                       <div className="flex-1">
                         <div className="font-semibold text-gray-700 mb-1">
                           Court {idx + 1}:{" "}
-                          {court.courtName || <span className="italic text-gray-400">Not specified</span>}
+                          {court.courtName || (
+                            <span className="italic text-gray-400">
+                              Not specified
+                            </span>
+                          )}
                         </div>
-                        <div className="text-gray-700 text-xs space-y-0.5">
+                        <div className="text-gray-700 text-sm space-y-1">
                           <div>
                             <span className="font-medium">Sport:</span>{" "}
-                            {court.courtSportType || <span className="italic text-gray-400">Not specified</span>}
+                            {court.courtSportType || (
+                              <span className="italic text-gray-400">
+                                Not specified
+                              </span>
+                            )}
                           </div>
                           <div>
                             <span className="font-medium">Surface:</span>{" "}
@@ -3314,14 +3371,38 @@ case 2: // Amenities
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
               {/* Option 1 – Revenue Share */}
-              <label
-                className={`flex-1 cursor-pointer border rounded-xl p-5 transition-all ${
+              <div
+                className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
                   formData.revenueModel === "revenue_share"
-                    ? "border-green-500 bg-green-50 shadow"
-                    : "border-gray-200 bg-white hover:border-green-400"
+                    ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100 shadow-lg scale-[1.03]"
+                    : "border-gray-200 bg-white hover:border-green-400 hover:bg-green-50/40"
                 }`}
+                tabIndex={0}
+                role="button"
+                aria-pressed={formData.revenueModel === "revenue_share"}
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    revenueModel: "revenue_share",
+                  }))
+                }
+                onKeyDown={e => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    setFormData((prev) => ({
+                      ...prev,
+                      revenueModel: "revenue_share",
+                    }));
+                  }
+                }}
               >
-                <div className="flex items-center mb-2">
+                {formData.revenueModel === "revenue_share" && (
+                  <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                    Selected
+                  </span>
+                )}
+                <div className="flex items-center mb-3 gap-3">
+                 
                   <input
                     type="radio"
                     name="revenueModel"
@@ -3333,25 +3414,56 @@ case 2: // Amenities
                         revenueModel: "revenue_share",
                       }))
                     }
-                    className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 mr-3"
+                    className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 accent-green-600"
+                    style={{ pointerEvents: "none" }}
+                    tabIndex={-1}
                   />
-                  <span className="font-semibold text-lg text-gray-900">
-                    Option 1 – Revenue Share
+                  <span className="font-semibold text-lg text-gray-900 ml-2">
+                    Revenue Share
                   </span>
                 </div>
-                <div className="text-gray-700 text-sm pl-8">
-                  Flat commission of <span className="font-bold">6% per booking + GST</span> will be charged on every confirmed booking.
-                </div>
-              </label>
+                <ul className="text-gray-700 text-sm pl-11 space-y-1">
+                  <li>
+                    <span className="font-bold text-green-700">6% per booking + GST</span> commission on every confirmed booking.
+                  </li>
+                  <li>
+                    <span className="inline-block mt-1 text-xs text-gray-500">No upfront fees</span>
+                  </li>
+                </ul>
+              </div>
               {/* Option 2 – Introductory Plan */}
-              <label
-                className={`flex-1 cursor-pointer border rounded-xl p-5 transition-all ${
+              <div
+                className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
                   formData.revenueModel === "intro_plan"
-                    ? "border-yellow-500 bg-yellow-100 shadow"
-                    : "border-gray-200 bg-white hover:border-yellow-400"
+                    ? "border-yellow-500 bg-gradient-to-br from-yellow-100 to-yellow-50 shadow-lg scale-[1.03]"
+                    : "border-gray-200 bg-white hover:border-yellow-400 hover:bg-yellow-50/40"
                 }`}
+                tabIndex={0}
+                role="button"
+                aria-pressed={formData.revenueModel === "intro_plan"}
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    revenueModel: "intro_plan",
+                  }))
+                }
+                onKeyDown={e => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    setFormData((prev) => ({
+                      ...prev,
+                      revenueModel: "intro_plan",
+                    }));
+                  }
+                }}
               >
-                <div className="flex items-center mb-2">
+                {formData.revenueModel === "intro_plan" && (
+                  <span className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                    Selected
+                  </span>
+                )}
+                <div className="flex items-center mb-3 gap-3">
+               
                   <input
                     type="radio"
                     name="revenueModel"
@@ -3363,18 +3475,26 @@ case 2: // Amenities
                         revenueModel: "intro_plan",
                       }))
                     }
-                    className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 mr-3"
+                    className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 accent-yellow-500"
+                    style={{ pointerEvents: "none" }}
+                    tabIndex={-1}
                   />
-                  <span className="font-semibold text-lg text-gray-900">
-                    Option 2 – Introductory Plan
+                  <span className="font-semibold text-lg text-gray-900 ml-2">
+                    Introductory Plan
                   </span>
                 </div>
-                <div className="text-gray-700 text-sm pl-8">
-                  One-time setup fee of <span className="font-bold">INR 2,990</span> (covering the first 3 months).<br />
-                  <span className="font-bold">No commission</span> in months 1–3.<br />
-                  From month 4 onward, <span className="font-bold">6% per booking + GST</span> will be charged.
-                </div>
-              </label>
+                <ul className="text-gray-700 text-sm pl-11 space-y-1">
+                  <li>
+                    <span className="font-bold text-yellow-700">INR 2,990</span> one-time setup fee (first 3 months)
+                  </li>
+                  <li>
+                    <span className="font-bold text-yellow-700">No commission</span> in months 1–3
+                  </li>
+                  <li>
+                    <span className="font-bold text-yellow-700">6% per booking + GST</span> from month 4 onward
+                  </li>
+                </ul>
+              </div>
             </div>
             <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
               <div className="flex items-start gap-2 mt-2">
