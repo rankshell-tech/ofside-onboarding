@@ -95,6 +95,7 @@ export default function VenueOnboardingPage() {
   //   description: "",
   //   venueLogo: null as File | null,
   //   is24HoursOpen: false,
+  // revenueModel: "",
 
   //   // Address & Contact
   //   shopNo: "",
@@ -121,6 +122,8 @@ export default function VenueOnboardingPage() {
 
   //   availableDays: [] as string[],
   //   declarationAgreed: false,
+  // declarationConsent: false,
+  // declarationAgree: false,
 
   //   // Courts Array for multiple courts support
   //   courts: [
@@ -152,7 +155,7 @@ export default function VenueOnboardingPage() {
     description: "description test",
     venueLogo: null as File | null,
     is24HoursOpen: false,
-
+    revenueModel: "revenue_share",
     // Address & Contact
     shopNo: "",
     floorTower: "",
@@ -173,6 +176,8 @@ export default function VenueOnboardingPage() {
     ownerEmail: "jane.doe@example.com",
     startTime: "",
     endTime: "",
+      declarationConsent: false,
+  declarationAgree: false, 
     // Amenities
     amenities: [] as string[],
 
@@ -1360,25 +1365,44 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
                   Select the operational days *
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                  {daysOfWeek.map((day) => (
-                    <label
-                      key={day}
-                      htmlFor={day}
-                      className="flex items-center justify-center space-x-2 w-full p-3 border border-gray-200 rounded-xl hover:bg-red-50 hover:border-red-300 cursor-pointer transition-all"
-                    >
-                      <input
-                        id={day}
-                        type="checkbox"
-                        checked={formData.availableDays.includes(day)}
-                        onChange={() => handleMultiSelect("availableDays", day)}
-                        onBlur={() => handleTouched("availableDays")}
-                        className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        {day.slice(0, 3)}
-                      </span>
-                    </label>
-                  ))}
+                  {daysOfWeek.map((day) => {
+                    const isChecked = formData.availableDays.includes(day);
+                    return (
+                      <div
+                        key={day}
+                        className={`flex items-center justify-center space-x-2 w-full p-3 border rounded-xl cursor-pointer transition-all
+                          ${isChecked
+                            ? "bg-red-50 border-red-300"
+                            : "border-gray-200 hover:bg-red-50 hover:border-red-300"
+                          }
+                        `}
+                        tabIndex={0}
+                        role="checkbox"
+                        aria-checked={isChecked}
+                        onClick={() => handleMultiSelect("availableDays", day)}
+                        onKeyDown={e => {
+                          if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            handleMultiSelect("availableDays", day);
+                          }
+                        }}
+                      >
+                        <input
+                          id={day}
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleMultiSelect("availableDays", day)}
+                          onBlur={() => handleTouched("availableDays")}
+                          className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
+                          tabIndex={-1}
+                          style={{ pointerEvents: "none" }}
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          {day.slice(0, 3)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
                 {formData.is24HoursOpen && (
                   <span className="text-xs text-green-700 mt-2 block">
@@ -1582,9 +1606,9 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
         if (!formData.contactPersonName.trim())
           addressErrors.contactPersonName = "Contact person name is required.";
         if (!formData.contactPhone.trim())
-          addressErrors.contactPhone = "Contact phone is required.";
+          addressErrors.contactPhone = "Contact person phone is required.";
         if (!formData.contactEmail.trim())
-          addressErrors.contactEmail = "Contact email is required.";
+          addressErrors.contactEmail = "Contact person email is required.";
         if (!formData.ownerName.trim())
           addressErrors.ownerName = "Owner name is required.";
         if (!formData.ownerPhone.trim())
@@ -2137,30 +2161,52 @@ case 2: // Amenities
           };
           const Icon = amenityIcons[amenity] || Plus;
           const checked = formData.amenities.includes(amenity);
-
+          const isSelected = formData.amenities.includes(amenity);
           return (
-            <label
-              key={amenity}
-              className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
-                ${checked
-                  ? "bg-green-50 border-green-400 shadow"
-                  : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
-                }
-              `}
-              style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
-            >
-              <Icon className={`w-8 h-8 ${checked ? "text-green-600" : "text-gray-400"}`} />
-              <span className="text-xs font-medium text-center text-gray-700">
-                {amenity}
-              </span>
+           
+
+            <div
+            key={amenity}
+            className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
+              ${isSelected
+                ? "bg-green-50 border-green-400 shadow"
+                : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
+              }
+            `}
+            style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
+            onClick={() => handleMultiSelect("amenities", amenity)}
+            tabIndex={0}
+            role="checkbox"
+            aria-checked={isSelected}
+            onKeyDown={e => {
+              if (e.key === " " || e.key === "Enter") {
+                e.preventDefault();
+                handleMultiSelect("amenities", amenity);
+              }
+            }}
+          >
+            <Icon
+              className={`w-8 h-8 ${isSelected ? "text-green-600" : "text-gray-400"}`}
+            />
+            <span className="text-xs font-medium text-center text-gray-700">
+              {amenity}
+            </span>
+          
+            {/* Checkbox */}
+            <div className="mt-1 flex items-center justify-center" style={{ width: 20, height: 20 }}>
               <input
                 type="checkbox"
-                checked={checked}
+                checked={isSelected}
+                onClick={(e) => e.stopPropagation()}  // 🛑 stops parent div toggle
                 onChange={() => handleMultiSelect("amenities", amenity)}
-                className="mt-1 accent-green-500"
+                className="accent-green-500 cursor-pointer"
                 style={{ width: 20, height: 20 }}
+                tabIndex={-1}
               />
-            </label>
+            </div>
+          </div>
+            
+           
           );
         })}
       </div>
@@ -2986,7 +3032,7 @@ case 2: // Amenities
                   {declarationErrors.declarationAgreed}
                 </span>
               )}
-              <div className="mt-8 flex flex-col items-center w-full">
+              {/* <div className="mt-8 flex flex-col items-center w-full">
                 <button
                   type="button"
                   onClick={nextStep}
@@ -3015,7 +3061,7 @@ case 2: // Amenities
                 <span className="text-xs text-gray-500 mt-2 text-center w-full">
                   Please review your details before payment.
                 </span>
-              </div>
+              </div> */}
             </div>
           </div>
         );
@@ -3114,7 +3160,7 @@ case 2: // Amenities
                     </h4>
                     <div className="text-gray-700 text-sm space-y-2">
                       <div>
-                        <span className="font-medium">Contact Person:</span>{" "}
+                        <span className="font-medium">Contact Person Name:</span>{" "}
                         {formData.contactPersonName || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3122,7 +3168,7 @@ case 2: // Amenities
                         )}
                       </div>
                       <div>
-                        <span className="font-medium">Contact Phone:</span>{" "}
+                        <span className="font-medium">Contact Person Phone:</span>{" "}
                         {formData.contactPhone || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3130,7 +3176,7 @@ case 2: // Amenities
                         )}
                       </div>
                       <div>
-                        <span className="font-medium">Contact Email:</span>{" "}
+                        <span className="font-medium">Contact Person Email:</span>{" "}
                         {formData.contactEmail || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3347,63 +3393,188 @@ case 2: // Amenities
                   ))}
                 </div>
               </div>
-              <div className="mt-10 flex flex-col items-center w-full">
-                <button
-                  onClick={handleStartPaymentProcess}
-                  className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
-            ${paymentLoading ? "opacity-60 cursor-not-allowed" : ""}
-          `}
-                  style={{
-                    fontSize: "1.05rem",
-                    letterSpacing: "0.02em",
-                    boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
-                    border: "2px solid #00bf63",
-                  }}
-                  disabled={paymentLoading}
-                >
-                  <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
-                    {paymentLoading ? (
-                      <svg
-                        className="animate-spin h-5 w-5 text-white mr-2"
-                        viewBox="0 0 24 24"
-                        fill="white"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="white"
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="white"
-                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                        />
-                      </svg>
-                    ) : (
-                      <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
-                        <Check className="w-5 h-5 text-green-600" />
-                      </span>
-                    )}
-                    <span className="flex-1 text-center sm:text-left">
-                      {paymentLoading
-                        ? "Processing..."
-                        : "Pay ₹1,999 & Submit for Review"}
-                    </span>
+     
+            </div>
+          <div className="mt-10 w-full  mx-auto bg-yellow-50 border border-yellow-200 rounded-2xl p-6 shadow space-y-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Select your preferred Venue Listing revenue model:
+            </h3>
+            <p className="text-gray-700 mb-4">
+              Please select the best monetization model for your sports venue. You can choose to continue with the same listing revenue model for all your venues.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6">
+              {/* Option 1 – Revenue Share */}
+              <label
+                className={`flex-1 cursor-pointer border rounded-xl p-5 transition-all ${
+                  formData.revenueModel === "revenue_share"
+                    ? "border-green-500 bg-green-50 shadow"
+                    : "border-gray-200 bg-white hover:border-green-400"
+                }`}
+              >
+                <div className="flex items-center mb-2">
+                  <input
+                    type="radio"
+                    name="revenueModel"
+                    value="revenue_share"
+                    checked={formData.revenueModel === "revenue_share"}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        revenueModel: "revenue_share",
+                      }))
+                    }
+                    className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 mr-3"
+                  />
+                  <span className="font-semibold text-lg text-gray-900">
+                    Option 1 – Revenue Share
                   </span>
-                </button>
-                <span className="text-xs text-gray-500 mt-3 text-center w-full">
-                  Payment is required to complete your onboarding.
-                  <br />
-                  <span className="text-green-700 font-semibold">
-                    Secure payment powered by Cashfree.
+                </div>
+                <div className="text-gray-700 text-sm pl-8">
+                  Flat commission of <span className="font-bold">6% per booking + GST</span> will be charged on every confirmed booking.
+                </div>
+              </label>
+              {/* Option 2 – Introductory Plan */}
+              <label
+                className={`flex-1 cursor-pointer border rounded-xl p-5 transition-all ${
+                  formData.revenueModel === "intro_plan"
+                    ? "border-yellow-500 bg-yellow-100 shadow"
+                    : "border-gray-200 bg-white hover:border-yellow-400"
+                }`}
+              >
+                <div className="flex items-center mb-2">
+                  <input
+                    type="radio"
+                    name="revenueModel"
+                    value="intro_plan"
+                    checked={formData.revenueModel === "intro_plan"}
+                    onChange={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        revenueModel: "intro_plan",
+                      }))
+                    }
+                    className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 mr-3"
+                  />
+                  <span className="font-semibold text-lg text-gray-900">
+                    Option 2 – Introductory Plan
                   </span>
-                </span>
+                </div>
+                <div className="text-gray-700 text-sm pl-8">
+                  One-time setup fee of <span className="font-bold">INR 2,990</span> (covering the first 3 months).<br />
+                  <span className="font-bold">No commission</span> in months 1–3.<br />
+                  From month 4 onward, <span className="font-bold">6% per booking + GST</span> will be charged.
+                </div>
+              </label>
+            </div>
+            <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
+              <div className="flex items-start gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="declarationConsent"
+                  className="size-5 accent-black mr-2"
+                  checked={formData.declarationConsent || false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declarationConsent: e.target.checked,
+                    }))
+                  }
+                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
+                />
+                <label htmlFor="declarationConsent" className="text-gray-700 text-sm font-medium">
+                  I understand that this declaration constitutes my formal consent to onboard and activate my venue on the Ofside platform under the above-selected commercial model. I further acknowledge that any false or misleading information may result in suspension or removal of my venue listing at Ofside’s discretion.
+                </label>
+              </div>
+              <div className="mt-4 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="declarationAgree"
+                  className="size-5 accent-black mr-2"
+                  checked={formData.declarationAgree || false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declarationAgree: e.target.checked,
+                    }))
+                  }
+                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
+                />
+                <label htmlFor="declarationAgree" className="text-sm text-gray-900 font-medium">
+                  I agree, confirm the accuracy of the above information, and accept the selected revenue model terms.
+                </label>
               </div>
             </div>
+          </div>
+
+          <div className="mt-10 flex flex-col items-center w-full">
+            <button
+              onClick={handleStartPaymentProcess}
+              className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
+            ${
+              paymentLoading ||
+              !formData.declarationAgree ||
+              !formData.declarationConsent
+                ? "opacity-60 cursor-not-allowed"
+                : ""
+            }
+          `}
+              style={{
+                fontSize: "1.05rem",
+                letterSpacing: "0.02em",
+                boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+                border: "2px solid #00bf63",
+              }}
+              disabled={
+                paymentLoading ||
+                !formData.declarationAgree ||
+                !formData.declarationConsent
+              }
+            >
+              <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
+                {paymentLoading ? (
+                  <svg
+                    className="animate-spin h-5 w-5 text-white mr-2"
+                    viewBox="0 0 24 24"
+                    fill="white"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="white"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="white"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                ) : (
+                  <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
+                    <Check className="w-5 h-5 text-green-600" />
+                  </span>
+                )}
+                <span className="flex-1 text-center sm:text-left">
+                  {paymentLoading
+                    ? "Processing..."
+                    : "Pay ₹1,999 & Submit for Review"}
+                </span>
+              </span>
+            </button>
+            <span className="text-xs text-gray-500 mt-3 text-center w-full">
+              Payment is required to complete your onboarding.
+              <br />
+              <span className="text-green-700 font-semibold">
+                Secure payment powered by Cashfree.
+              </span>
+            </span>
+          </div>
+
+
+            
           </div>
         );
 
