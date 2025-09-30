@@ -3094,259 +3094,170 @@ case 2: // Amenities
         return (
           <div className="space-y-10">
             <div className="col-span-2">
-              <h3 className="text-2xl font-bold text-gray-800 text-center mb-6">
-                <span className="inline-flex items-center gap-2">
-                  <Check className="w-7 h-7 text-green-600" />
-                  Review Your Details
-                </span>
+              <h3 className="text-xl font-bold text-gray-800 text-center mb-4 flex items-center justify-center gap-2">
+                <Check className="w-6 h-6 text-green-600" />
+                Review Your Details
               </h3>
-              <div className="mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 shadow border border-yellow-200">
-                    <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
-                      <Building className="w-5 h-5 text-yellow-500" />
-                      Venue Details
-                    </h4>
-                    <div className="text-gray-700 text-sm space-y-2">
-                      <div>
-                        <span className="font-medium">Venue Name:</span>{" "}
-                        {formData.venueName || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Description:</span>{" "}
-                        {formData.description || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                
-                      <div>
-                        <span className="font-medium">Sports Offered:</span>{" "}
-                        {getSportsOfferedDisplay(formData.sportsOffered)}
-                      </div>
-                      <div>
-                        <span className="font-medium">Operational Days:</span>{" "}
-                        {formData.availableDays.length ? (
-                          formData.availableDays.join(", ")
-                        ) : (
-                          <span className="italic text-gray-400">
-                            None selected
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Timings:</span>{" "}
-                        {formData.is24HoursOpen ? (
-                          "24 Hours"
-                        ) : formData.startTime && formData.endTime ? (
-                          `${formData.startTime} - ${formData.endTime}`
-                        ) : (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Venue Details */}
+                <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building className="w-4 h-4 text-yellow-500" />
+                    <span className="font-semibold text-gray-900 text-base">Venue</span>
                   </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 shadow border border-blue-200">
-                    <h4 className="font-semibold text-gray-900 mb-3 text-lg flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-blue-500" />
-                      Contact & Address
-                    </h4>
-                    <div className="text-gray-700 text-sm space-y-2">
-                      <div>
-                        <span className="font-medium">Contact Person Name:</span>{" "}
-                        {formData.contactPersonName || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Contact Person Phone:</span>{" "}
-                        {formData.contactPhone || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Contact Person Email:</span>{" "}
-                        {formData.contactEmail || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Owner Name:</span>{" "}
-                        {formData.ownerName || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Owner Phone:</span>{" "}
-                        {formData.ownerPhone || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Owner Email:</span>{" "}
-                        {formData.ownerEmail || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Address:</span>{" "}
-                        {[
-                          formData.shopNo,
-                          formData.floorTower,
-                          formData.areaSectorLocality,
-                          formData.city,
-                          formData.state,
-                          formData.pincode,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") || (
-                          <span className="italic text-gray-400">
-                            Not specified
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-medium">Landmark:</span>{" "}
-                        {formData.landmark || (
-                          <span className="italic text-gray-400">None</span>
-                        )}
-                      </div>
-                    </div>
+                  <ul className="text-gray-700 text-sm space-y-1">
+                    <li>
+                      <span className="font-medium">Name:</span>{" "}
+                      {formData.venueName || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Description:</span>{" "}
+                      {formData.description || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Sports:</span>{" "}
+                      {getSportsOfferedDisplay(formData.sportsOffered)}
+                    </li>
+                    <li>
+                      <span className="font-medium">Days:</span>{" "}
+                      {formData.availableDays.length
+                        ? formData.availableDays.join(", ")
+                        : <span className="italic text-gray-400">None</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Timings:</span>{" "}
+                      {formData.is24HoursOpen
+                        ? "24 Hours"
+                        : formData.startTime && formData.endTime
+                        ? `${formData.startTime} - ${formData.endTime}`
+                        : <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                  </ul>
+                </div>
+                {/* Contact & Address */}
+                <div className="bg-white rounded-lg p-4 shadow border border-gray-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4 text-blue-500" />
+                    <span className="font-semibold text-gray-900 text-base">Contact & Address</span>
                   </div>
+                  <ul className="text-gray-700 text-sm space-y-1">
+                    <li>
+                      <span className="font-medium">Contact Name:</span>{" "}
+                      {formData.contactPersonName || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Contact Phone:</span>{" "}
+                      {formData.contactPhone || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Contact Email:</span>{" "}
+                      {formData.contactEmail || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Owner Name:</span>{" "}
+                      {formData.ownerName || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Owner Phone:</span>{" "}
+                      {formData.ownerPhone || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Owner Email:</span>{" "}
+                      {formData.ownerEmail || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Address:</span>{" "}
+                      {[
+                        formData.shopNo,
+                        formData.floorTower,
+                        formData.areaSectorLocality,
+                        formData.city,
+                        formData.state,
+                        formData.pincode,
+                      ].filter(Boolean).join(", ") || <span className="italic text-gray-400">Not specified</span>}
+                    </li>
+                    <li>
+                      <span className="font-medium">Landmark:</span>{" "}
+                      {formData.landmark || <span className="italic text-gray-400">None</span>}
+                    </li>
+                  </ul>
                 </div>
               </div>
-              <div className="mb-8">
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
-                  <Wifi className="w-5 h-5 text-green-500" />
-                  Amenities
-                </h4>
+              {/* Amenities */}
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wifi className="w-4 h-4 text-green-500" />
+                  <span className="font-semibold text-gray-900 text-base">Amenities</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {getAmenitiesDisplay(formData.amenities)}
                 </div>
               </div>
-              <div className="mb-8">
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-lg">
-                  <Dumbbell className="w-5 h-5 text-orange-500" />
-                  Courts
-                </h4>
-                <div className="space-y-4">
+              {/* Courts */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Dumbbell className="w-4 h-4 text-orange-500" />
+                  <span className="font-semibold text-gray-900 text-base">Courts</span>
+                </div>
+                <div className="space-y-2">
                   {formData.courts.map((court, idx) => (
                     <div
                       key={idx}
-                      className="border rounded-xl p-4 bg-white shadow flex flex-col md:flex-row gap-6"
+                      className="border rounded-lg p-3 bg-gray-50 shadow-sm flex flex-col md:flex-row gap-4"
                     >
                       <div className="flex-1">
                         <div className="font-semibold text-gray-700 mb-1">
                           Court {idx + 1}:{" "}
-                          {court.courtName || (
-                            <span className="italic text-gray-400">
-                              Not specified
-                            </span>
-                          )}
+                          {court.courtName || <span className="italic text-gray-400">Not specified</span>}
                         </div>
-                        <div className="text-gray-700 text-sm space-y-1">
+                        <div className="text-gray-700 text-xs space-y-0.5">
                           <div>
                             <span className="font-medium">Sport:</span>{" "}
-                            {court.courtSportType || (
-                              <span className="italic text-gray-400">
-                                Not specified
-                              </span>
-                            )}
+                            {court.courtSportType || <span className="italic text-gray-400">Not specified</span>}
                           </div>
                           <div>
                             <span className="font-medium">Surface:</span>{" "}
-                            {court.surfaceType || (
-                              <span className="italic text-gray-400">
-                                Not specified
-                              </span>
-                            )}
+                            {court.surfaceType || <span className="italic text-gray-400">Not specified</span>}
                           </div>
                           <div>
-                            <span className="font-medium">Slot Duration:</span>{" "}
-                            {court.courtSlotDuration || (
-                              <span className="italic text-gray-400">
-                                Not specified
-                              </span>
-                            )}
+                            <span className="font-medium">Slot:</span>{" "}
+                            {court.courtSlotDuration || <span className="italic text-gray-400">Not specified</span>}
                           </div>
                           <div>
-                            <span className="font-medium">
-                              Max Booking/Slot:
-                            </span>{" "}
-                            {court.courtMaxPeople || (
-                              <span className="italic text-gray-400">
-                                Not specified
-                              </span>
-                            )}
+                            <span className="font-medium">Max/Slot:</span>{" "}
+                            {court.courtMaxPeople || <span className="italic text-gray-400">Not specified</span>}
                           </div>
                           <div>
                             <span className="font-medium">Price/Slot:</span>{" "}
-                            {court.courtPricePerSlot ? (
-                              `₹${court.courtPricePerSlot}`
-                            ) : (
-                              <span className="italic text-gray-400">
-                                Not specified
-                              </span>
-                            )}
+                            {court.courtPricePerSlot
+                              ? `₹${court.courtPricePerSlot}`
+                              : <span className="italic text-gray-400">Not specified</span>}
                           </div>
                           {court.courtPeakEnabled && (
-                            <div className="mt-2 bg-orange-50 border border-orange-200 rounded p-2">
+                            <div className="mt-1 bg-orange-50 border border-orange-100 rounded p-1">
                               <div>
                                 <span className="font-medium">Peak Days:</span>{" "}
-                                {court.courtPeakDays.length ? (
-                                  court.courtPeakDays.join(", ")
-                                ) : (
-                                  <span className="italic text-gray-400">
-                                    None
-                                  </span>
-                                )}
+                                {court.courtPeakDays.length
+                                  ? court.courtPeakDays.join(", ")
+                                  : <span className="italic text-gray-400">None</span>}
                               </div>
                               <div>
                                 <span className="font-medium">Peak Hours:</span>{" "}
-                                {court.courtPeakStart && court.courtPeakEnd ? (
-                                  `${court.courtPeakStart} - ${court.courtPeakEnd}`
-                                ) : (
-                                  <span className="italic text-gray-400">
-                                    Not specified
-                                  </span>
-                                )}
+                                {court.courtPeakStart && court.courtPeakEnd
+                                  ? `${court.courtPeakStart} - ${court.courtPeakEnd}`
+                                  : <span className="italic text-gray-400">Not specified</span>}
                               </div>
                               <div>
-                                <span className="font-medium">
-                                  Peak Price/Slot:
-                                </span>{" "}
-                                {court.courtPeakPricePerSlot ? (
-                                  `₹${court.courtPeakPricePerSlot}`
-                                ) : (
-                                  <span className="italic text-gray-400">
-                                    Not specified
-                                  </span>
-                                )}
+                                <span className="font-medium">Peak Price:</span>{" "}
+                                {court.courtPeakPricePerSlot
+                                  ? `₹${court.courtPeakPricePerSlot}`
+                                  : <span className="italic text-gray-400">Not specified</span>}
                               </div>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-row flex-wrap gap-2 items-center">
+                      <div className="flex flex-row flex-wrap gap-1 items-center">
                         {court.courtImages.cover && (
                           <Image
                             src={
@@ -3355,8 +3266,8 @@ case 2: // Amenities
                                 : URL.createObjectURL(court.courtImages.cover)
                             }
                             alt="Cover"
-                            width={60}
-                            height={60}
+                            width={40}
+                            height={40}
                             className="rounded object-cover border"
                           />
                         )}
@@ -3368,8 +3279,8 @@ case 2: // Amenities
                                 : URL.createObjectURL(court.courtImages.logo)
                             }
                             alt="Logo"
-                            width={60}
-                            height={60}
+                            width={40}
+                            height={40}
                             className="rounded object-cover border"
                           />
                         )}
@@ -3383,8 +3294,8 @@ case 2: // Amenities
                                   : URL.createObjectURL(img)
                               }
                               alt={`Other ${i + 1}`}
-                              width={60}
-                              height={60}
+                              width={40}
+                              height={40}
                               className="rounded object-cover border"
                             />
                           ))}
@@ -3393,7 +3304,6 @@ case 2: // Amenities
                   ))}
                 </div>
               </div>
-     
             </div>
           <div className="mt-10 w-full  mx-auto bg-yellow-50 border border-yellow-200 rounded-2xl p-6 shadow space-y-6">
             <h3 className="text-xl font-bold text-gray-900 mb-2">

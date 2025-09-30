@@ -2,14 +2,15 @@ import { NextRequest } from 'next/server';
 import Venue from '@/models/Venue';
 import userModel from '@/models/User';
 import { connectToDB } from '@/lib/mongo';
-import { appendWithRetries } from "@/lib/googleSheets"; // <-- new
+import { appendWithRetries } from "@/lib/googleSheets";
 
+// This POST handler creates a new venue and syncs to Google Sheets (best effort)
 export async function POST(req: NextRequest) {
   try {
-    await connectToDB(); 
+    await connectToDB();
     const body = await req.json();
 
-    // Extract fields from body
+    // Extract fields from body (add revenueModel, availableDays, state, fullAddress)
     const {
       venueName,
       venueType,
@@ -20,9 +21,11 @@ export async function POST(req: NextRequest) {
       floorTower,
       areaSectorLocality,
       city,
+      state,
       pincode,
       latitude,
       longitude,
+      fullAddress,
       contactPersonName,
       contactPhone,
       contactEmail,
@@ -30,24 +33,53 @@ export async function POST(req: NextRequest) {
       ownerPhone,
       ownerEmail,
       amenities,
-   
+      availableDays,
+      revenueModel,
       courts,
       declarationAgreed,
+      declarationConsent,
+      declarationAgree,
     } = body;
 
-    // Required fields check
-    if (!venueName || !description || !contactPersonName || !contactPhone || !contactEmail || !city || !pincode || !Array.isArray(courts) || courts.length === 0) {
-      return new Response(JSON.stringify({ success: false, message: 'Missing required fields.' }), { status: 400 });
+    // Required fields check (add availableDays, revenueModel, declarationAgreed)
+    if (
+      !venueName ||
+      !description ||
+      !contactPersonName ||
+      !contactPhone ||
+      !contactEmail ||
+      !city ||
+      !pincode ||
+      !Array.isArray(courts) ||
+      courts.length === 0 ||
+      !Array.isArray(availableDays) ||
+      availableDays.length === 0 ||
+      !revenueModel ||
+      !declarationAgreed
+    ) {
+      return new Response(
+        JSON.stringify({ success: false, message: 'Missing required fields.' }),
+        { status: 400 }
+      );
     }
 
-    // Check for duplicate venuea
+    // Check for duplicate venue (use fullAddress if provided, else fallback)
+    const addressString = fullAddress
+      ? fullAddress
+      : `${shopNo}, ${floorTower}, ${areaSectorLocality}`;
     const existingVenue = await Venue.findOne({
       venueName,
-      'location.address': `${shopNo}, ${floorTower}, ${areaSectorLocality}`
+      'location.address': addressString,
     });
 
     if (existingVenue) {
-      return new Response(JSON.stringify({ success: false, message: 'Venue already exists at this location!' }), { status: 409 });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Venue already exists at this location!',
+        }),
+        { status: 409 }
+      );
     }
 
     // Promote user if needed
@@ -80,16 +112,17 @@ export async function POST(req: NextRequest) {
         logo?: string;
         others?: string[];
       };
-      courtSlotDuration: number;
-      courtMaxPeople: number;
-      courtPricePerSlot: number;
+      courtSlotDuration: string | number;
+      courtMaxPeople: string | number;
+      courtPricePerSlot: string | number;
       courtPeakEnabled?: boolean;
       courtPeakDays?: string[];
       courtPeakStart?: string;
       courtPeakEnd?: string;
-      courtPeakPricePerSlot?: number;
+      courtPeakPricePerSlot?: string | number;
     }
 
+    // Convert string numbers to numbers for slotDuration, maxPeople, pricePerSlot, peakPricePerSlot
     const courtsData = (courts as Court[]).map((court) => ({
       name: court.courtName,
       sportType: court.courtSportType,
@@ -100,19 +133,27 @@ export async function POST(req: NextRequest) {
       images: {
         cover: court.courtImages?.cover,
         logo: court.courtImages?.logo,
-        others: Array.isArray(court.courtImages?.others) ? court.courtImages.others : [],
+        others: Array.isArray(court.courtImages?.others)
+          ? court.courtImages.others
+          : [],
       },
-      slotDuration: court.courtSlotDuration,
-      maxPeople: court.courtMaxPeople,
-      pricePerSlot: court.courtPricePerSlot,
-      peakEnabled: court.courtPeakEnabled,
-      peakDays: court.courtPeakDays,
-      peakStart: court.courtPeakStart,
-      peakEnd: court.courtPeakEnd,
+      slotDuration: court.courtSlotDuration
+        ? Number(court.courtSlotDuration)
+        : 0,
+      maxPeople: court.courtMaxPeople ? Number(court.courtMaxPeople) : 0,
+      pricePerSlot: court.courtPricePerSlot
+        ? Number(court.courtPricePerSlot)
+        : 0,
+      peakEnabled: court.courtPeakEnabled || false,
+      peakDays: court.courtPeakDays || [],
+      peakStart: court.courtPeakStart || '',
+      peakEnd: court.courtPeakEnd || '',
       peakPricePerSlot: court.courtPeakPricePerSlot
+        ? Number(court.courtPeakPricePerSlot)
+        : 0,
     }));
-    console.log(courtsData);
 
+    // Venue data (add availableDays, revenueModel, state, fullAddress, declarationConsent, declarationAgree)
     const venueData = {
       venueName,
       venueType,
@@ -120,88 +161,102 @@ export async function POST(req: NextRequest) {
       description,
       amenities,
       is24HoursOpen,
+      availableDays,
+      revenueModel,
       location: {
-      address: `${shopNo}, ${floorTower}, ${areaSectorLocality}`,
-      city,
-      // state is not required in schema, but you can add if needed
-      country: 'India',
-      pincode,
-      coordinates: {
-        type: 'Point',
-        coordinates: [
-        longitude ? parseFloat(longitude) : 0,
-        latitude ? parseFloat(latitude) : 0
-        ]
-      }
+        address: addressString,
+        city,
+        state: state || '',
+        country: 'India',
+        pincode,
+        fullAddress: fullAddress || addressString,
+        coordinates: {
+          type: 'Point',
+          coordinates: [
+            longitude ? parseFloat(longitude) : 0,
+            latitude ? parseFloat(latitude) : 0,
+          ],
+        },
       },
       contact: {
-      name: contactPersonName,
-      phone: contactPhone,
-      email: contactEmail
+        name: contactPersonName,
+        phone: contactPhone,
+        email: contactEmail,
       },
       owner: {
-      name: ownerName,
-      phone: ownerPhone,
-      email: ownerEmail
+        name: ownerName,
+        phone: ownerPhone,
+        email: ownerEmail,
       },
       courts: courtsData,
       declarationAgreed,
+      declarationConsent: !!declarationConsent,
+      declarationAgree: !!declarationAgree,
       rawVenueData: body,
-      createdBy: userWhoCreated._id
+      createdBy: userWhoCreated._id,
     };
 
-  
     const newVenue = new Venue(venueData);
     await newVenue.save();
 
-// --- Google Sheets sync (best-effort) ---
-try {
-  if (!process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS) {
-    throw new Error("GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set");
-  }
+    // --- Google Sheets sync (best-effort) ---
+    try {
+      if (!process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS) {
+        throw new Error('GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set');
+      }
 
-  const row = [
-    newVenue._id.toString(),                 // A: Venue ID
-    newVenue.name || "",                     // B: Venue name
-    newVenue.venueType || "",                // C: Venue type
-    Array.isArray(newVenue.sportsOffered)
-      ? newVenue.sportsOffered.join(", ")
-      : newVenue.sportsOffered || "",        // D: Sports
-    newVenue.city || "",                     // E: City
-    newVenue.pincode || "",                  // F: Pincode
-    newVenue.contactPersonName || "",        // G: Contact name
-    newVenue.contactPhone || "",             // H: Contact phone
-    newVenue.contactEmail || "",             // I: Contact email
-    newVenue.ownerName || "",                // J: Owner name
-    newVenue.ownerPhone || "",               // K: Owner phone
-    newVenue.ownerEmail || "",               // L: Owner email
-    newVenue.courts?.length ?? 0,            // M: # courts
-    (newVenue.createdAt || new Date()).toISOString(), // N: createdAt
-  ];
+      // Try to get city, pincode, etc. from newVenue.location if not at root
+      const loc = newVenue.location || {};
+      const contact = newVenue.contact || {};
+      const owner = newVenue.owner || {};
 
-  // Append to sheet named "Venues", columns A:N
-  await appendWithRetries(
-    process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
-    "Venues!A:N",
-    row
-  );
-} catch (sheetErr) {
-  console.error("❌ Failed to append venue to Google Sheets:", sheetErr);
-  // Optional: log to DB for retry later
-}
+      const row = [
+        newVenue._id.toString(), // A: Venue ID
+        newVenue.venueName || '', // B: Venue name
+        newVenue.venueType || '', // C: Venue type
+        Array.isArray(newVenue.sportsOffered)
+          ? newVenue.sportsOffered.join(', ')
+          : newVenue.sportsOffered || '', // D: Sports
+        loc.city || '', // E: City
+        loc.pincode || '', // F: Pincode
+        contact.name || '', // G: Contact name
+        contact.phone || '', // H: Contact phone
+        contact.email || '', // I: Contact email
+        owner.name || '', // J: Owner name
+        owner.phone || '', // K: Owner phone
+        owner.email || '', // L: Owner email
+        Array.isArray(newVenue.courts) ? newVenue.courts.length : 0, // M: # courts
+        (newVenue.createdAt || new Date()).toISOString(), // N: createdAt
+      ];
 
+      // Append to sheet named "Venues", columns A:N
+      await appendWithRetries(
+        process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
+        'Venues!A:N',
+        row
+      );
+    } catch (sheetErr) {
+      console.error('❌ Failed to append venue to Google Sheets:', sheetErr);
+      // Optional: log to DB for retry later
+    }
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Venue created successfully',
-      data: newVenue
-    }), { status: 201 });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Venue created successfully',
+        data: newVenue,
+      }),
+      { status: 201 }
+    );
   } catch (error: unknown) {
-    console.error("CREATE VENUE ERROR:", error);
-    return new Response(JSON.stringify({
-      success: false,
-      message: 'An error occurred while creating the venue.',
-      error: error instanceof Error ? error.message : String(error)
-    }), { status: 500 });
+    console.error('CREATE VENUE ERROR:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: 'An error occurred while creating the venue.',
+        error: error instanceof Error ? error.message : String(error),
+      }),
+      { status: 500 }
+    );
   }
 }

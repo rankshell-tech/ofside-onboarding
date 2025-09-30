@@ -37,12 +37,17 @@ const venueSchema = new mongoose.Schema({
 
   is24HoursOpen: { type: Boolean, default: false },
 
+  availableDays: { type: [String], default: [] },            // <-- Added as per route.ts
+
+  revenueModel: { type: String },                            // <-- Added as per route.ts
+
   location: {
     address: { type: String, required: true },               // fullAddress (shopNo, floorTower, areaSectorLocality)
     city: { type: String, required: true },
-    // state: { type: String, required: true },
+    state: { type: String, default: "" },                    // <-- Added as per route.ts
     country: { type: String, default: "India" },
     pincode: { type: String, required: true },
+    fullAddress: { type: String, default: "" },              // <-- Added as per route.ts
     coordinates: {
       type: { type: String, enum: ["Point"], default: "Point" },
       coordinates: { type: [Number], index: "2dsphere" },    // [lng, lat]
@@ -64,6 +69,8 @@ const venueSchema = new mongoose.Schema({
   courts: { type: [courtSchema], default: [] },
 
   declarationAgreed: { type: Boolean, default: false },
+  declarationConsent: { type: Boolean, default: false },     // <-- Added as per route.ts
+  declarationAgree: { type: Boolean, default: false },       // <-- Added as per route.ts
 
   rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
