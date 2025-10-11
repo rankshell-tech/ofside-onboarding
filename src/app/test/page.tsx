@@ -121,9 +121,9 @@ export default function VenueOnboardingPage() {
   //   amenities: [] as string[],
 
   //   availableDays: [] as string[],
-  //   declarationAccuracy: false,
+  //   declarationAgreed: false,
   // declarationConsent: false,
-  // declarationRevenue: false,
+  // declarationAgree: false,
 
   //   // Courts Array for multiple courts support
   //   courts: [
@@ -177,13 +177,12 @@ export default function VenueOnboardingPage() {
     startTime: "",
     endTime: "",
       declarationConsent: false,
-  declarationRevenue: false,
-  declarationAccuracy: false,
+  declarationAgree: false, 
     // Amenities
     amenities: [] as string[],
 
     availableDays: [] as string[],
-    
+    declarationAgreed: false,
 
     // Courts Array for multiple courts support
     courts: [
@@ -230,21 +229,11 @@ export default function VenueOnboardingPage() {
     }
   }, [isLoaded]);
 
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-    const [showSubmitErrorModal, setShowSubmitErrorModal] = useState(false);
-
-  useEffect(() => {
-    if (submitError) {
-      setShowSubmitErrorModal(true);
-    }
-  }, [submitError]);
-
 
   const handleSubmit = async (e: React.FormEvent, formData: any) => {
     e.preventDefault();
     setLoading(true);
-    setSubmitError(null);
+    setError(null);
 
     try {
       // Step 1: Upload images first with progress feedback
@@ -258,34 +247,25 @@ export default function VenueOnboardingPage() {
         throw new Error("Failed to save venue data. Please try again.");
       }
 
-         if (!submissionResult.venueId) {
+      if (!submissionResult.venueId) {
         throw new Error(
           "Venue ID not received from server. Cannot proceed to payment."
         );
       }
 
       // Step 4: Only redirect to payment if venue was saved successfully
-      if (!submissionResult.success || !submissionResult.venueId) {
-        setLoading(false);
-        return; // Do not proceed to payment if there was an error
-      }
-      // Only proceed if backend returned success and venueId
-      setShowSuccessPopup(true);
+      initiatePayment(submissionResult.venueId);
+    } catch (err) {
+      const errorMessage =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message: string }).message
+          : "An error occurred during submission";
+
+      setError(errorMessage);
       setLoading(false);
 
-      return submissionResult.venueId;
-    } catch (err) {
-        const errorMessage =
-      err && typeof err === "object" && "message" in err
-        ? (err as { message: string }).message
-        : "An error occurred during submission";
-
-    setSubmitError(errorMessage);
-    setLoading(false);
-    console.error("Submission error:", err);
-
-    // ✅ Rethrow so handleStartPaymentProcess can catch it
-    throw err;
+      // Log the error for debugging
+      console.error("Submission error:", err);
     }
   };
 
@@ -300,14 +280,9 @@ export default function VenueOnboardingPage() {
       formData
     );
 
-
-    const getGSTFinalized = (amount: number) => {
-      const gstRate = 0.18; // 18% GST
-      return Math.round(amount + amount * gstRate);
-    };
     // Step 2: If venue saved, then create order
     const res = await createCashfreeOrder({
-      amount: getGSTFinalized(formData.revenueModel === "revenue_share" ? 499 : 2990), // Example amounts
+      amount: 1,
       name:
         process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
           ? "Ofside Venue Listing"
@@ -853,8 +828,12 @@ const handleAmenitySelect = (amenity: string) => {
       icon: Building,
       color: "from-[#ffe100] to-[#ffed4e]",
     },
-    { title: "Review & Declaration", icon: Check, color: "from-[#ffe100] to-[#ffed4e]" },
-  
+    { title: "Declaration", icon: Check, color: "from-[#ffe100] to-[#ffed4e]" },
+    {
+      title: "Review & Pay",
+      icon: DollarSign,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
   ];
 
 
@@ -1136,8 +1115,6 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
     const responseData = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      // Show error on frontend
-      setError(responseData.message || `Submission failed with status ${res.status}`);
       throw new Error(
         responseData.message || `Submission failed with status ${res.status}`
       );
@@ -1145,7 +1122,6 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
 
     // Ensure the response has the expected structure
     if (!responseData.success && responseData.success !== undefined) {
-      setError(responseData.message || "Venue submission was not successful");
       throw new Error(
         responseData.message || "Venue submission was not successful"
       );
@@ -1212,7 +1188,7 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Basic Details
-        return !!formData.venueName.trim() && !!formData.description.trim() && !!formData.startTime && !!formData.endTime && formData.availableDays.length > 0;
+        return !!formData.venueName.trim() && !!formData.description.trim();
       case 1: // Address & Contact
         return (
           !!formData.shopNo.trim() &&
@@ -1253,83 +1229,49 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
                 !!court.courtPeakPricePerSlot))
         );
       case 4: // Pricing & Availability
-        return !!formData.declarationAccuracy && formData.declarationRevenue && formData.declarationConsent;
-
+        return !!formData.declarationAgreed;
+      case 5: // Review & Pay
+        // Always allow, as this is the final review/payment step
+        return true;
       default:
         return false;
     }
   };
-   const [countdown, setCountdown] = useState(5);
 
-    useEffect(() => {
-      if (!showSuccessPopup) return;
-      if (countdown <= 0) {
-      // Redirect to payment page or trigger payment logic here
-      handleStartPaymentProcess();
-      return;
-      }
-      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-      return () => clearTimeout(timer);
-    }, [showSuccessPopup, countdown]);
-
-
-    // below popup looks extra for now hence commented
   // Success Popup
-  // if (showSuccessPopup) {
- 
-
-  //   return (
-  //     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100 via-white to-yellow-200 backdrop-blur-sm animate__animated animate__fadeIn faster">
-  //     <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-yellow-200 relative animate__animated animate__zoomIn animate__faster">
-  //       <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
-  //       <div className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] rounded-full p-4 shadow-lg border-2 border-yellow-300 animate__animated animate__bounceIn">
-  //         <Check className="w-12 h-12 text-green-600" />
-  //       </div>
-  //       </div>
-  //       <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">
-  //       Venue application submitted!
-  //       </h2>
-  //       <p className="text-lg text-gray-700 mb-8 font-medium">
-  //       Redirecting to the Payment page in{" "}
-  //       <span className="text-yellow-700 font-bold">{countdown}</span> seconds...
-  //       </p>
-  //     </div>
-  //     </div>
-  //   );
-  // }
+  if (showSuccessPopup) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100 via-white to-yellow-200 backdrop-blur-sm animate__animated animate__fadeIn faster">
+        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-yellow-200 relative animate__animated animate__zoomIn animate__faster">
+          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
+            <div className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] rounded-full p-4 shadow-lg border-2 border-yellow-300 animate__animated animate__bounceIn">
+              <Check className="w-12 h-12 text-green-600" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">
+            Venue application submitted!
+          </h2>
+          <p className="text-lg text-gray-700 mb-8 font-medium">
+            Your venue details have been submitted for review.
+            <br />
+            <span className="text-yellow-700 font-semibold">
+              Our executive will connect with you within the next 24-48 hours.
+            </span>
+          </p>
+          <button
+            className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-bold py-3 px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-200 text-lg"
+            onClick={() => handleGoToHome()}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <HumorousLoader />;
   }
-
-
-  
-
-  const SubmitErrorModal = () => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-red-200 relative">
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
-          <div className="bg-red-100 rounded-full p-4 shadow-lg border-2 border-red-300">
-            <X className="w-10 h-10 text-red-600" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-bold mb-3 mt-8 text-gray-900">Submission Error</h2>
-        <p className="text-base text-gray-700 mb-6">{submitError}</p>
-        <button
-          className="bg-gradient-to-r from-red-400 to-red-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 transition-all"
-          onClick={() => setShowSubmitErrorModal(false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render modal if error
-  if (showSubmitErrorModal) {
-    return <SubmitErrorModal />;
-  }
-
 
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
@@ -3020,8 +2962,111 @@ case 2: // Amenities
           </div>
         );
 
+      case 4: // Declaration
+        return (
+          <div className="space-y-8">
+            <div className="col-span-2">
+              <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+                Declaration & Consent
+              </h3>
+              <div className="mb-4">
+                <span className="text-gray-800">
+                  I hereby certify that I am an authorized representative of{" "}
+                  <span className="font-semibold">
+                    {formData.venueName || "[Venue Name]"}
+                  </span>
+                  , and that all information provided in the Ofside onboarding
+                  form is true, complete, and accurate to the best of my
+                  knowledge. I understand that Ofside (powered by Rankshell –
+                  India’s ultimate sports ecosystem) will rely on these details
+                  to list and promote my venue.
+                </span>
+              </div>
+              <div className="mb-4">
+                <strong className="font-semibold text-gray-700">
+                  Details Provided:
+                </strong>
+                <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
+                  <li>Brand / Venue Name, Contact Number &amp; Email</li>
+                  <li>Owner’s Name &amp; Contact Details</li>
+                  <li>Venue Location &amp; Full Address</li>
+                  <li>Amenities Available</li>
+                  <li>Operational Days &amp; Timings</li>
+                  <li>Sports Offered</li>
+                  <li>Facility Images for Each Sport</li>
+                </ul>
+              </div>
+              <div className="mb-4">
+                <span className="text-gray-800">
+                  I understand that this declaration constitutes my formal
+                  consent and will be used to activate and manage my venue
+                  listing on the Ofside platform. I acknowledge that any false
+                  or misleading information may result in removal from the
+                  platform or other remedial action by Ofside.
+                </span>
+              </div>
+              <div className="flex items-center mt-6">
+                <input
+                  type="checkbox"
+                  id="declaration"
+                  className={`w-5 h-5 accent-black mr-2 ${
+                    declarationErrors.declarationAgreed ? "border-red-500" : ""
+                  }`}
+                  checked={formData.declarationAgreed}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      declarationAgreed: e.target.checked,
+                    }))
+                  }
+                />
+                <label
+                  htmlFor="declaration"
+                  className="font-semibold text-gray-900"
+                >
+                  I agree and confirm the accuracy of the above information.
+                </label>
+              </div>
+              {declarationErrors.declarationAgreed && (
+                <span className="text-xs text-red-600 mt-2 block">
+                  {declarationErrors.declarationAgreed}
+                </span>
+              )}
+              {/* <div className="mt-8 flex flex-col items-center w-full">
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
+            ${
+              !formData.declarationAgreed ? "opacity-60 cursor-not-allowed" : ""
+            }
+          `}
+                  style={{
+                    fontSize: "1.05rem",
+                    letterSpacing: "0.02em",
+                    boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+                    border: "2px solid #00bf63",
+                  }}
+                  disabled={!formData.declarationAgreed}
+                >
+                  <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
+                    <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
+                      <Check className="w-5 h-5 text-green-600" />
+                    </span>
+                    <span className="flex-1 text-center sm:text-left">
+                      Review & Pay
+                    </span>
+                  </span>
+                </button>
+                <span className="text-xs text-gray-500 mt-2 text-center w-full">
+                  Please review your details before payment.
+                </span>
+              </div> */}
+            </div>
+          </div>
+        );
 
-      case 4: // Review & Pay
+      case 5: // Review & Pay
 
         // Helper to get sports offered display
         const getSportsOfferedDisplay = (sports: string[]) => {
@@ -3382,7 +3427,7 @@ case 2: // Amenities
                     <span className="font-bold text-green-700">6% per booking + GST</span> commission on every confirmed booking.
                   </li>
                   <li>
-                    <span className="inline-block mt-1 text-xs text-gray-500">₹499 + GST one-time onboarding fee</span>
+                    <span className="inline-block mt-1 text-xs text-gray-500">No upfront fees</span>
                   </li>
                 </ul>
               </div>
@@ -3440,7 +3485,7 @@ case 2: // Amenities
                 </div>
                 <ul className="text-gray-700 text-sm pl-11 space-y-1">
                   <li>
-                    <span className="font-bold text-yellow-700">INR 2,990 + GST</span> one-time setup fee (first 3 months)
+                    <span className="font-bold text-yellow-700">INR 2,990</span> one-time setup fee (first 3 months)
                   </li>
                   <li>
                     <span className="font-bold text-yellow-700">No commission</span> in months 1–3
@@ -3451,59 +3496,8 @@ case 2: // Amenities
                 </ul>
               </div>
             </div>
-          <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
-  <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-    Declaration & Consent
-  </h3>
-
-
-
-  {/* Details list */}
-  <div className="mb-4">
-    <strong className="font-semibold text-gray-700">
-      Details Provided:
-    </strong>
-    <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
-      <li>Brand / Venue Name, Contact Number &amp; Email</li>
-      <li>Owner’s Name &amp; Contact Details</li>
-      <li>Venue Location &amp; Full Address</li>
-      <li>Amenities Available</li>
-      <li>Operational Days &amp; Timings</li>
-      <li>Sports Offered</li>
-      <li>Facility Images for Each Sport</li>
-    </ul>
-  </div>
-
-
-  {/* Consent checkboxes */}
- <div className="flex items-start gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  id="declarationAccuracy"
-                  className="size-5 accent-black mr-2"
-                  checked={formData.declarationAccuracy || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationAccuracy: e.target.checked,
-                    }))
-                  }
-                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
-                />
-                <label htmlFor="declarationAccuracy" className="text-gray-700 text-sm font-medium">
-                 I hereby certify that I am an authorized representative of <strong>{formData.venueName}</strong>, and that all information provided in the official Ofside mobile app/website onboarding form is true, complete, and accurate to the best of my knowledge. I understand that Ofside (powered by Rankshell – India’s ultimate sports ecosystem) will rely on these details to list, manage, and promote my venue.
-                 
-                  
-                </label>
-              </div>
-  {/* Optional error display */}
-  {declarationErrors?.declarationAccuracy && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationAccuracy}
-    </span>
-  )}
-
-                        <div className="mt-4 flex items-start gap-2">
+            <div className="mt-6 bg-white border border-gray-200 rounded-xl p-4">
+              <div className="flex items-start gap-2 mt-2">
                 <input
                   type="checkbox"
                   id="declarationConsent"
@@ -3517,26 +3511,20 @@ case 2: // Amenities
                   }
                   style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
                 />
-                <label htmlFor="declarationConsent" className="text-sm text-gray-900 font-medium">
-             I understand that this declaration constitutes my formal consent to onboard and activate my venue on the Ofside platform under the above-selected commercial model. I further acknowledge that any false or misleading information may result in suspension or removal of my venue listing at Ofside’s discretion.
+                <label htmlFor="declarationConsent" className="text-gray-700 text-sm font-medium">
+                  I understand that this declaration constitutes my formal consent to onboard and activate my venue on the Ofside platform under the above-selected commercial model. I further acknowledge that any false or misleading information may result in suspension or removal of my venue listing at Ofside’s discretion.
                 </label>
-              </div>  {/* Optional error display */}
-  {declarationErrors?.declarationConsent && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationConsent}
-    </span>
-  )}
-              
+              </div>
               <div className="mt-4 flex items-start gap-2">
                 <input
                   type="checkbox"
                   id="declarationAgree"
                   className="size-5 accent-black mr-2"
-                  checked={formData.declarationRevenue || false}
+                  checked={formData.declarationAgree || false}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      declarationRevenue: e.target.checked,
+                      declarationAgree: e.target.checked,
                     }))
                   }
                   style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
@@ -3545,15 +3533,7 @@ case 2: // Amenities
                   I agree, confirm the accuracy of the above information, and accept the selected revenue model terms.
                 </label>
               </div>
-
-  {/* Optional error display */}
-  {declarationErrors?.declarationRevenue && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationRevenue}
-    </span>
-  )}
-</div>
-
+            </div>
           </div>
 
           <div className="mt-10 flex flex-col items-center w-full">
@@ -3562,11 +3542,11 @@ case 2: // Amenities
               className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
             ${
               paymentLoading ||
-              !formData.declarationAccuracy ||
-              !formData.declarationConsent || !formData.declarationRevenue
+              !formData.declarationAgree ||
+              !formData.declarationConsent
                 ? "opacity-60 cursor-not-allowed"
                 : ""
-            }Revenue Share
+            }
           `}
               style={{
                 fontSize: "1.05rem",
@@ -3576,9 +3556,8 @@ case 2: // Amenities
               }}
               disabled={
                 paymentLoading ||
-                !formData.declarationAccuracy ||
-                !formData.declarationConsent ||
-                !formData.declarationRevenue
+                !formData.declarationAgree ||
+                !formData.declarationConsent
               }
             >
               <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
@@ -3609,11 +3588,9 @@ case 2: // Amenities
                   </span>
                 )}
                 <span className="flex-1 text-center sm:text-left">
-                    {paymentLoading
-                      ? "Processing..."
-                      : formData.revenueModel === "intro_plan"
-                        ? "Pay ₹2,990 + GST & Submit for Review"
-                        : "Pay ₹499 + GST & Submit for Review"}
+                  {paymentLoading
+                    ? "Processing..."
+                    : "Pay ₹1,999 & Submit for Review"}
                 </span>
               </span>
             </button>
@@ -3790,55 +3767,52 @@ case 2: // Amenities
                 </div>
 
                 {/* Navigation Buttons */}
-          <div
-  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
-    currentStep === 4 ? "flex-col" : "flex-row"
-  } items-center justify-center gap-2`}
->
-  {/* Back Button */}
-  <button
-    type="button"
-    onClick={prevStep}
-    disabled={currentStep === 0}
-    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
-      currentStep === 0
-        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
-    style={currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }}
-  >
-    <ChevronLeft className="w-4 h-4" />
-    <span>Back</span>
-  </button>
+                <div
+                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
+                    currentStep === 5 ? "flex-col" : "flex-row"
+                  } items-center justify-center gap-2`}
+                >
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    disabled={currentStep === 0}
+                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
+                      currentStep === 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    } ${currentStep === 5 ? "w-full" : "w-full sm:w-auto"}`}
+                    style={
+                      currentStep === 5 ? { width: "100%" } : { maxWidth: 160 }
+                    }
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back</span>
+                  </button>
 
-  {/* Step Indicator */}
-  <div
-    className="text-sm text-gray-500 flex-shrink-0 text-center"
-    style={{ minWidth: 110 }}
-  >
-    Step {currentStep + 1} of {steps.length}
-  </div>
+                  <div
+                    className="text-sm text-gray-500 flex-shrink-0 text-center"
+                    style={{ minWidth: 110 }}
+                  >
+                    Step {currentStep + 1} of {steps.length}
+                  </div>
 
-  {/* Wrap Next button inside a stable container */}
-  <div style={{ maxWidth: 160, width: "100%" }}>
-    {currentStep !== steps.length - 1 ? (
-      <button
-        type="button"
-        onClick={nextStep}
-        disabled={!isStepValid(currentStep)}
-        className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full justify-center ${
-          isStepValid(currentStep)
-            ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
-      >
-        <span>Next</span>
-        <ChevronRight className="w-4 h-4" />
-      </button>
-    ) : null}
-  </div>
-</div>
-
+                  {currentStep !== steps.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      disabled={!isStepValid(currentStep)}
+                      className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full sm:w-auto justify-center ${
+                        isStepValid(currentStep)
+                          ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
+                      style={{ maxWidth: 160 }}
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Help Text */}

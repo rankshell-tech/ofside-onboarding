@@ -6,38 +6,28 @@ const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 
 /** Parse credentials from env (expects JSON object or stringified JSON) */
 function getServiceAccountCredentials(): any {
-    const raw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-    if (!raw) {
-        throw new Error("Missing Google service account credentials. Set GOOGLE_SERVICE_ACCOUNT_KEY in .env.local");
-    }
-    console.log(raw)
-    return JSON.parse(raw); // now valid
+   const rawBase64 = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64;
+  if (!rawBase64) {
+    throw new Error(
+      "Missing Google service account credentials. Set GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 in .env"
+    );
+  }
+   const jsonString = Buffer.from(rawBase64, "base64").toString("utf8");
+    return JSON.parse(jsonString);
 }
 
 /** Create authorized sheets client */
 async function getSheetsClient() {
-    const credentials = getServiceAccountCredentials();
+  const credsObj = getServiceAccountCredentials();
 
-    // If credentials is a string, parse it as JSON
-    let credsObj: any;
-    if (typeof credentials === "string") {
-        try {
-            credsObj = JSON.parse(credentials);
-        } catch (e) {
-            throw new Error("Failed to parse service account credentials string as JSON.");
-        }
-    } else {
-        credsObj = credentials;
-    }
+  const jwt = new google.auth.JWT({
+    email: credsObj.client_email,
+    key: credsObj.private_key,
+    scopes: SCOPES,
+  });
 
-    const jwt = new google.auth.JWT({
-        email: credsObj.client_email,
-        key: credsObj.private_key,
-        scopes: SCOPES
-    });
-
-    await jwt.authorize();
-    return google.sheets({ version: "v4", auth: jwt });
+  await jwt.authorize();
+  return google.sheets({ version: "v4", auth: jwt });
 }
 
 export async function appendRow(spreadsheetId: string, range: string, values: any[]) {

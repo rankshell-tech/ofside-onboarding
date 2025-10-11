@@ -10,21 +10,23 @@ export async function POST(req: NextRequest) {
     await connectToDB();
     const body = await req.json();
 
-    // Extract fields from body (add revenueModel, availableDays, state, fullAddress)
+    // Extract fields from body (updated as per new JSON)
     const {
       venueName,
-      venueType,
       sportsOffered,
       description,
+      venueLogo,
       is24HoursOpen,
+      revenueModel,
       shopNo,
       floorTower,
       areaSectorLocality,
-      city,
-      state,
-      pincode,
       latitude,
       longitude,
+      city,
+      state,
+      landmark,
+      pincode,
       fullAddress,
       contactPersonName,
       contactPhone,
@@ -32,16 +34,17 @@ export async function POST(req: NextRequest) {
       ownerName,
       ownerPhone,
       ownerEmail,
+      startTime,
+      endTime,
+      declarationConsent,
+      declarationRevenue,
+      declarationAccuracy,
       amenities,
       availableDays,
-      revenueModel,
       courts,
-      declarationAgreed,
-      declarationConsent,
-      declarationAgree,
     } = body;
 
-    // Required fields check (add availableDays, revenueModel, declarationAgreed)
+    // Required fields check (updated for new declarations)
     if (
       !venueName ||
       !description ||
@@ -55,10 +58,44 @@ export async function POST(req: NextRequest) {
       !Array.isArray(availableDays) ||
       availableDays.length === 0 ||
       !revenueModel ||
-      !declarationAgreed
+      !declarationConsent ||
+      !declarationRevenue ||
+      !declarationAccuracy
     ) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Missing required fields.' }),
+        JSON.stringify({
+          success: false,
+          message: `Missing required fields: ${[
+        !venueName && 'venueName',
+        !description && 'description',
+        !contactPersonName && 'contactPersonName',
+        !contactPhone && 'contactPhone',
+        !contactEmail && 'contactEmail',
+        !city && 'city',
+        !pincode && 'pincode',
+        (!Array.isArray(courts) || courts.length === 0) && 'courts',
+        (!Array.isArray(availableDays) || availableDays.length === 0) && 'availableDays',
+        !revenueModel && 'revenueModel',
+        !declarationConsent && 'declarationConsent',
+        !declarationRevenue && 'declarationRevenue',
+        !declarationAccuracy && 'declarationAccuracy',
+          ].filter(Boolean).join(', ')}`,
+          missingFields: [
+        !venueName && 'venueName',
+        !description && 'description',
+        !contactPersonName && 'contactPersonName',
+        !contactPhone && 'contactPhone',
+        !contactEmail && 'contactEmail',
+        !city && 'city',
+        !pincode && 'pincode',
+        (!Array.isArray(courts) || courts.length === 0) && 'courts',
+        (!Array.isArray(availableDays) || availableDays.length === 0) && 'availableDays',
+        !revenueModel && 'revenueModel',
+        !declarationConsent && 'declarationConsent',
+        !declarationRevenue && 'declarationRevenue',
+        !declarationAccuracy && 'declarationAccuracy',
+          ].filter(Boolean),
+        }),
         { status: 400 }
       );
     }
@@ -153,16 +190,16 @@ export async function POST(req: NextRequest) {
         : 0,
     }));
 
-    // Venue data (add availableDays, revenueModel, state, fullAddress, declarationConsent, declarationAgree)
+    // Venue data (updated for new fields)
     const venueData = {
       venueName,
-      venueType,
       sportsOffered,
       description,
-      amenities,
+      venueLogo,
       is24HoursOpen,
-      availableDays,
       revenueModel,
+      amenities,
+      availableDays,
       location: {
         address: addressString,
         city,
@@ -170,6 +207,9 @@ export async function POST(req: NextRequest) {
         country: 'India',
         pincode,
         fullAddress: fullAddress || addressString,
+        latitude: latitude ? parseFloat(latitude) : 0,
+        longitude: longitude ? parseFloat(longitude) : 0,
+        landmark: landmark || '',
         coordinates: {
           type: 'Point',
           coordinates: [
@@ -188,10 +228,12 @@ export async function POST(req: NextRequest) {
         phone: ownerPhone,
         email: ownerEmail,
       },
+      startTime,
+      endTime,
       courts: courtsData,
-      declarationAgreed,
       declarationConsent: !!declarationConsent,
-      declarationAgree: !!declarationAgree,
+      declarationRevenue: !!declarationRevenue,
+      declarationAccuracy: !!declarationAccuracy,
       rawVenueData: body,
       createdBy: userWhoCreated._id,
     };
@@ -205,7 +247,6 @@ export async function POST(req: NextRequest) {
         throw new Error('GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set');
       }
 
-      // Try to get city, pincode, etc. from newVenue.location if not at root
       const loc = newVenue.location || {};
       const contact = newVenue.contact || {};
       const owner = newVenue.owner || {};
@@ -213,7 +254,7 @@ export async function POST(req: NextRequest) {
       const row = [
         newVenue._id.toString(), // A: Venue ID
         newVenue.venueName || '', // B: Venue name
-        newVenue.venueType || '', // C: Venue type
+        '', // C: Venue type (not present in new JSON)
         Array.isArray(newVenue.sportsOffered)
           ? newVenue.sportsOffered.join(', ')
           : newVenue.sportsOffered || '', // D: Sports
@@ -229,7 +270,6 @@ export async function POST(req: NextRequest) {
         (newVenue.createdAt || new Date()).toISOString(), // N: createdAt
       ];
 
-      // Append to sheet named "Venues", columns A:N
       await appendWithRetries(
         process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
         'Venues!A:N',
@@ -237,13 +277,13 @@ export async function POST(req: NextRequest) {
       );
     } catch (sheetErr) {
       console.error('❌ Failed to append venue to Google Sheets:', sheetErr);
-      // Optional: log to DB for retry later
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Venue created successfully',
+            venueId: newVenue._id,
         data: newVenue,
       }),
       { status: 201 }
