@@ -58,3 +58,19 @@ export async function appendWithRetries(spreadsheetId: string, range: string, va
     }
   }
 }
+
+
+export async function clearSheetData(spreadsheetId: string, range: string) {
+  try {
+      const sheets = await getSheetsClient();
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId,
+      range,
+    });
+    console.log(`✅ Cleared data from range: ${range}`);
+  } catch (error) {
+    console.error('❌ Error clearing sheet data:', error);
+    throw error;
+  }
+}
+

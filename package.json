@@ -41,5 +41,11 @@
     "eslint-config-next": "15.4.5",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+    "crons": [
+    {
+      "path": "/api/venue/fetch-and-save-google-sheet",
+      "schedule": "*/10 * * * *"
+    }
+  ]
 }

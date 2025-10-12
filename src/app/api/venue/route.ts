@@ -242,42 +242,8 @@ export async function POST(req: NextRequest) {
     await newVenue.save();
 
     // --- Google Sheets sync (best-effort) ---
-    try {
-      if (!process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS) {
-        throw new Error('GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set');
-      }
+    await syncVenueToGoogleSheets(newVenue);
 
-      const loc = newVenue.location || {};
-      const contact = newVenue.contact || {};
-      const owner = newVenue.owner || {};
-
-      const row = [
-        newVenue._id.toString(), // A: Venue ID
-        newVenue.venueName || '', // B: Venue name
-        '', // C: Venue type (not present in new JSON)
-        Array.isArray(newVenue.sportsOffered)
-          ? newVenue.sportsOffered.join(', ')
-          : newVenue.sportsOffered || '', // D: Sports
-        loc.city || '', // E: City
-        loc.pincode || '', // F: Pincode
-        contact.name || '', // G: Contact name
-        contact.phone || '', // H: Contact phone
-        contact.email || '', // I: Contact email
-        owner.name || '', // J: Owner name
-        owner.phone || '', // K: Owner phone
-        owner.email || '', // L: Owner email
-        Array.isArray(newVenue.courts) ? newVenue.courts.length : 0, // M: # courts
-        (newVenue.createdAt || new Date()).toISOString(), // N: createdAt
-      ];
-
-      await appendWithRetries(
-        process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
-        'Venues!A:N',
-        row
-      );
-    } catch (sheetErr) {
-      console.error('❌ Failed to append venue to Google Sheets:', sheetErr);
-    }
 
     return new Response(
       JSON.stringify({
@@ -300,3 +266,77 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+    // Helper function to sync venue to Google Sheets
+    async function syncVenueToGoogleSheets(venue: typeof Venue.prototype) {
+      try {
+      if (!process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS) {
+        throw new Error('GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS not set');
+      }
+
+      const row = [
+        venue._id?.toString() || '',
+        venue.venueName || '',
+        JSON.stringify(venue.sportsOffered || []),
+        venue.description || '',
+        JSON.stringify(venue.amenities || []),
+        venue.is24HoursOpen ? 'Yes' : 'No',
+        JSON.stringify(venue.availableDays || []),
+        venue.revenueModel || '',
+        venue.location?.address || '',
+        venue.location?.city || '',
+        venue.location?.state || '',
+        venue.location?.country || '',
+        venue.location?.pincode || '',
+        venue.location?.fullAddress || '',
+        JSON.stringify(venue.location?.coordinates || {}),
+        venue.contact?.name || '',
+        venue.contact?.phone || '',
+        venue.contact?.email || '',
+        venue.owner?.name || '',
+        venue.owner?.phone || '',
+        venue.owner?.email || '',
+        venue.declarationConsent ? 'Yes' : 'No',
+        venue.declarationRevenue ? 'Yes' : 'No',
+        venue.declarationAccuracy ? 'Yes' : 'No',
+        JSON.stringify(venue.rawVenueData || {}),
+        venue.createdBy?.toString() || '',
+        (venue.createdAt || new Date()).toISOString(),
+        venue.isActive ? 'Yes' : 'No',
+        venue.isTrending ? 'Yes' : 'No',
+        venue.isVerified ? 'Yes' : 'No',
+        venue.rating?.toString() || '0',
+        venue.reviewsCount?.toString() || '0',
+        JSON.stringify(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        venue.courts?.map((court) => ({
+          name: court.name,
+          sportType: court.sportType,
+          surfaceType: court.surfaceType,
+          size: court.size,
+          isIndoor: court.isIndoor,
+          hasLighting: court.hasLighting,
+          images: court.images,
+          slotDuration: court.slotDuration,
+          maxPeople: court.maxPeople,
+          pricePerSlot: court.pricePerSlot,
+          peakEnabled: court.peakEnabled,
+          peakDays: court.peakDays,
+          peakStart: court.peakStart,
+          peakEnd: court.peakEnd,
+          peakPricePerSlot: court.peakPricePerSlot,
+        })) || [],
+        null,
+        2
+        ),
+      ];
+
+      await appendWithRetries(
+        process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
+        'Venues!A:N',
+        row
+      );
+      } catch (sheetErr) {
+      console.error('❌ Failed to append venue to Google Sheets:', sheetErr);
+      }
+    }
