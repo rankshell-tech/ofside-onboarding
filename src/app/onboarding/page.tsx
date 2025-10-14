@@ -176,14 +176,12 @@ export default function VenueOnboardingPage() {
     ownerEmail: "jane.doe@example.com",
     startTime: "",
     endTime: "",
-      declarationConsent: false,
-  declarationRevenue: false,
-  declarationAccuracy: false,
+ 
+    venuePartnerAcknowledgment: false,
     // Amenities
     amenities: [] as string[],
 
     availableDays: [] as string[],
-    
 
     // Courts Array for multiple courts support
     courts: [
@@ -232,14 +230,13 @@ export default function VenueOnboardingPage() {
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-    const [showSubmitErrorModal, setShowSubmitErrorModal] = useState(false);
+  const [showSubmitErrorModal, setShowSubmitErrorModal] = useState(false);
 
   useEffect(() => {
     if (submitError) {
       setShowSubmitErrorModal(true);
     }
   }, [submitError]);
-
 
   const handleSubmit = async (e: React.FormEvent, formData: any) => {
     e.preventDefault();
@@ -258,7 +255,7 @@ export default function VenueOnboardingPage() {
         throw new Error("Failed to save venue data. Please try again.");
       }
 
-         if (!submissionResult.venueId) {
+      if (!submissionResult.venueId) {
         throw new Error(
           "Venue ID not received from server. Cannot proceed to payment."
         );
@@ -275,60 +272,59 @@ export default function VenueOnboardingPage() {
 
       return submissionResult.venueId;
     } catch (err) {
-        const errorMessage =
-      err && typeof err === "object" && "message" in err
-        ? (err as { message: string }).message
-        : "An error occurred during submission";
+      const errorMessage =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message: string }).message
+          : "An error occurred during submission";
 
-    setSubmitError(errorMessage);
-    setLoading(false);
-    console.error("Submission error:", err);
+      setSubmitError(errorMessage);
+      setLoading(false);
+      console.error("Submission error:", err);
 
-    // ✅ Rethrow so handleStartPaymentProcess can catch it
-    throw err;
+      // ✅ Rethrow so handleStartPaymentProcess can catch it
+      throw err;
     }
   };
 
+  const handleStartPaymentProcess = async () => {
+    setPaymentLoading(true);
 
- const handleStartPaymentProcess = async () => {
-  setPaymentLoading(true);
- 
-  try {
-    // Step 1: Save venue and wait for confirmation
-    const venueId = await handleSubmit(
-      { preventDefault: () => {} } as React.FormEvent,
-      formData
-    );
+    try {
+      // Step 1: Save venue and wait for confirmation
+      const venueId = await handleSubmit(
+        { preventDefault: () => {} } as React.FormEvent,
+        formData
+      );
 
+      const getGSTFinalized = (amount: number) => {
+        const gstRate = 0.18; // 18% GST
+        return Math.round(amount + amount * gstRate);
+      };
+      // Step 2: If venue saved, then create order
+      const res = await createCashfreeOrder({
+        amount: getGSTFinalized(
+          formData.revenueModel === "revenue_share" ? 499 : 2990
+        ), // Example amounts
+        name:
+          process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
+            ? "Ofside Venue Listing"
+            : "Ofside Venue Listing [Test]",
+        email: formData.contactEmail,
+        phone: formData.contactPhone,
+      });
 
-    const getGSTFinalized = (amount: number) => {
-      const gstRate = 0.18; // 18% GST
-      return Math.round(amount + amount * gstRate);
-    };
-    // Step 2: If venue saved, then create order
-    const res = await createCashfreeOrder({
-      amount: getGSTFinalized(formData.revenueModel === "revenue_share" ? 499 : 2990), // Example amounts
-      name:
-        process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
-          ? "Ofside Venue Listing"
-          : "Ofside Venue Listing [Test]",
-      email: formData.contactEmail,
-      phone: formData.contactPhone,
-    });
-
-    if (res.success) {
-      await initiatePayment(res.sessionId);
-    } else {
-      throw new Error(res.error || "Payment failed. Try again later.");
+      if (res.success) {
+        await initiatePayment(res.sessionId);
+      } else {
+        throw new Error(res.error || "Payment failed. Try again later.");
+      }
+    } catch (err: any) {
+      console.error("Payment process error:", err);
+      setPaymentError(err?.message || "Something went wrong with payment.");
+    } finally {
+      setPaymentLoading(false);
     }
-  } catch (err: any) {
-    console.error("Payment process error:", err);
-    setPaymentError(err?.message || "Something went wrong with payment.");
-  } finally {
-    setPaymentLoading(false);
-  }
-};
-
+  };
 
   const fetchBusinessPredictions = async (input: string) => {
     if (!input.trim() || !window.google) return;
@@ -710,20 +706,19 @@ export default function VenueOnboardingPage() {
 
   type CourtArrayField = "courtPeakDays";
 
-const handleAmenitySelect = (amenity: string) => {
-  setFormData(prev => {
-    const updated = prev.amenities.includes(amenity)
-      ? prev.amenities.filter(item => item !== amenity)
-      : [...prev.amenities, amenity];
+  const handleAmenitySelect = (amenity: string) => {
+    setFormData((prev) => {
+      const updated = prev.amenities.includes(amenity)
+        ? prev.amenities.filter((item) => item !== amenity)
+        : [...prev.amenities, amenity];
 
-    console.log("Before:", prev.amenities, "After:", updated);
-    return {
-      ...prev,
-      amenities: updated,
-    };
-  });
-};
-
+      console.log("Before:", prev.amenities, "After:", updated);
+      return {
+        ...prev,
+        amenities: updated,
+      };
+    });
+  };
 
   const handleCourtMultiSelect = (
     idx: number,
@@ -853,11 +848,12 @@ const handleAmenitySelect = (amenity: string) => {
       icon: Building,
       color: "from-[#ffe100] to-[#ffed4e]",
     },
-    { title: "Review & Declaration", icon: Check, color: "from-[#ffe100] to-[#ffed4e]" },
-  
+    {
+      title: "Review & Declaration",
+      icon: Check,
+      color: "from-[#ffe100] to-[#ffed4e]",
+    },
   ];
-
-
 
   // Categorised sports options for grouped display (e.g. multi-select)
   const sportsCategories = [
@@ -931,24 +927,23 @@ const handleAmenitySelect = (amenity: string) => {
 
   type MultiSelectField = "sportsOffered" | "amenities" | "availableDays";
 
-const handleMultiSelect = (field: MultiSelectField, value: string) => {
-  console.log("🛠️ handleMultiSelect called with:", field, value);
-  
-  setFormData(prev => {
-    const currentArray = Array.isArray(prev[field]) ? [...prev[field]] : [];
-    const updatedArray = currentArray.includes(value)
-      ? currentArray.filter(item => item !== value)
-      : [...currentArray, value];
-    
-    console.log("🛠️ Returning new state with amenities:", updatedArray);
-    
-    return {
-      ...prev, // CRITICAL: This preserves all other fields
-      [field]: updatedArray,
-    };
-  });
-};
+  const handleMultiSelect = (field: MultiSelectField, value: string) => {
+    console.log("🛠️ handleMultiSelect called with:", field, value);
 
+    setFormData((prev) => {
+      const currentArray = Array.isArray(prev[field]) ? [...prev[field]] : [];
+      const updatedArray = currentArray.includes(value)
+        ? currentArray.filter((item) => item !== value)
+        : [...currentArray, value];
+
+      console.log("🛠️ Returning new state with amenities:", updatedArray);
+
+      return {
+        ...prev, // CRITICAL: This preserves all other fields
+        [field]: updatedArray,
+      };
+    });
+  };
 
   const nextStep = () => {
     // Try to scroll the main container to top (for both mobile and desktop)
@@ -1137,7 +1132,9 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
 
     if (!res.ok) {
       // Show error on frontend
-      setError(responseData.message || `Submission failed with status ${res.status}`);
+      setError(
+        responseData.message || `Submission failed with status ${res.status}`
+      );
       throw new Error(
         responseData.message || `Submission failed with status ${res.status}`
       );
@@ -1153,8 +1150,6 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
 
     return responseData;
   };
-
-
 
   // at the top of your component
   const lastManualTimesRef = useRef<{ start: string; end: string }>({
@@ -1212,7 +1207,13 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Basic Details
-        return !!formData.venueName.trim() && !!formData.description.trim() && !!formData.startTime && !!formData.endTime && formData.availableDays.length > 0;
+        return (
+          !!formData.venueName.trim() &&
+          !!formData.description.trim() &&
+          !!formData.startTime &&
+          !!formData.endTime &&
+          formData.availableDays.length > 0
+        );
       case 1: // Address & Contact
         return (
           !!formData.shopNo.trim() &&
@@ -1253,57 +1254,73 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
                 !!court.courtPeakPricePerSlot))
         );
       case 4: // Pricing & Availability
-        return !!formData.declarationAccuracy && formData.declarationRevenue && formData.declarationConsent;
+        return (
+          !!formData.venuePartnerAcknowledgment
+        );
 
       default:
         return false;
     }
   };
-   const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(5);
 
-    useEffect(() => {
-      if (!showSuccessPopup) return;
-      if (countdown <= 0) {
+  useEffect(() => {
+    if (!showSuccessPopup) return;
+    if (countdown <= 0) {
       // Redirect to payment page or trigger payment logic here
       handleStartPaymentProcess();
       return;
-      }
-      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-      return () => clearTimeout(timer);
-    }, [showSuccessPopup, countdown]);
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [showSuccessPopup, countdown]);
 
-
-    // below popup looks extra for now hence commented
+  // below popup looks extra for now hence commented
   // Success Popup
-  // if (showSuccessPopup) {
- 
-
-  //   return (
-  //     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100 via-white to-yellow-200 backdrop-blur-sm animate__animated animate__fadeIn faster">
-  //     <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-yellow-200 relative animate__animated animate__zoomIn animate__faster">
-  //       <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
-  //       <div className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] rounded-full p-4 shadow-lg border-2 border-yellow-300 animate__animated animate__bounceIn">
-  //         <Check className="w-12 h-12 text-green-600" />
-  //       </div>
-  //       </div>
-  //       <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">
-  //       Venue application submitted!
-  //       </h2>
-  //       <p className="text-lg text-gray-700 mb-8 font-medium">
-  //       Redirecting to the Payment page in{" "}
-  //       <span className="text-yellow-700 font-bold">{countdown}</span> seconds...
-  //       </p>
-  //     </div>
-  //     </div>
-  //   );
-  // }
+  if (showSuccessPopup) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-yellow-100 via-white to-yellow-200 backdrop-blur-sm animate__animated animate__fadeIn faster">
+        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center border-4 border-yellow-200 relative animate__animated animate__zoomIn animate__faster">
+          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
+            <div className="bg-gradient-to-r from-[#ffe100] to-[#ffed4e] rounded-full p-4 shadow-lg border-2 border-yellow-300 animate__animated animate__bounceIn">
+              <Check className="w-12 h-12 text-green-600" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-extrabold mb-3 mt-8 text-gray-900 drop-shadow-lg">
+            Venue application submitted!
+          </h2>
+          <p className="text-lg text-gray-700 mb-8 font-medium">
+            Redirecting to the Payment page...
+          </p>
+          <div className="flex justify-center items-center mt-6">
+            <svg
+              className="animate-spin h-8 w-8 text-yellow-400"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <HumorousLoader />;
   }
-
-
-  
 
   const SubmitErrorModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -1313,7 +1330,9 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
             <X className="w-10 h-10 text-red-600" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold mb-3 mt-8 text-gray-900">Submission Error</h2>
+        <h2 className="text-2xl font-bold mb-3 mt-8 text-gray-900">
+          Submission Error
+        </h2>
         <p className="text-base text-gray-700 mb-6">{submitError}</p>
         <button
           className="bg-gradient-to-r from-red-400 to-red-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 transition-all"
@@ -1329,7 +1348,6 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
   if (showSubmitErrorModal) {
     return <SubmitErrorModal />;
   }
-
 
   const renderStepContent = () => {
     const currentStepData = steps[currentStep];
@@ -1429,16 +1447,17 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
                       <div
                         key={day}
                         className={`flex items-center justify-center space-x-2 w-full p-3 border rounded-xl cursor-pointer transition-all
-                          ${isChecked
-                            ? "bg-red-50 border-red-300"
-                            : "border-gray-200 hover:bg-red-50 hover:border-red-300"
+                          ${
+                            isChecked
+                              ? "bg-red-50 border-red-300"
+                              : "border-gray-200 hover:bg-red-50 hover:border-red-300"
                           }
                         `}
                         tabIndex={0}
                         role="checkbox"
                         aria-checked={isChecked}
                         onClick={() => handleMultiSelect("availableDays", day)}
-                        onKeyDown={e => {
+                        onKeyDown={(e) => {
                           if (e.key === " " || e.key === "Enter") {
                             e.preventDefault();
                             handleMultiSelect("availableDays", day);
@@ -1449,7 +1468,9 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
                           id={day}
                           type="checkbox"
                           checked={isChecked}
-                          onChange={() => handleMultiSelect("availableDays", day)}
+                          onChange={() =>
+                            handleMultiSelect("availableDays", day)
+                          }
                           onBlur={() => handleTouched("availableDays")}
                           className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 text-gray-700"
                           tabIndex={-1}
@@ -2186,95 +2207,97 @@ const handleMultiSelect = (field: MultiSelectField, value: string) => {
           </div>
         );
 
-case 2: // Amenities
-  // Validation logic
-  const amenitiesErrors: Record<string, string> = {};
-  if (formData.amenities.length === 0) {
-    amenitiesErrors.amenities = "Select at least one amenity.";
-  }
+      case 2: // Amenities
+        // Validation logic
+        const amenitiesErrors: Record<string, string> = {};
+        if (formData.amenities.length === 0) {
+          amenitiesErrors.amenities = "Select at least one amenity.";
+        }
 
-  return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {amenitiesOptions.map((amenity) => {
-          const amenityIcons: Record<string, React.ElementType> = {
-            WiFi: Wifi,
-            "Flood lights": Lightbulb,
-            "Washroom / Restroom": Droplets,
-            "Changing Room": User,
-            "Drinking Water": Droplets,
-            "Artificial Grass": Leaf,
-            "Natural Grass": Leaf,
-            "Bike/Car Parking": Car,
-            "Mobile Charging": BatteryCharging,
-            "Showers/Steam": ShowerHead,
-            "Match Referee": ShieldCheck,
-            "Warm-up track": Dumbbell,
-            "Rental Equipment": Package,
-            "First Aid": ShieldPlus,
-            "Locker Room": Lock,
-            "Seating Area": MdChair,
-            Cafeteria: Utensils,
-            Coaching: GraduationCap,
-          };
-          const Icon = amenityIcons[amenity] || Plus;
-          const checked = formData.amenities.includes(amenity);
-          const isSelected = formData.amenities.includes(amenity);
-          return (
-           
-
-            <div
-            key={amenity}
-            className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
-              ${isSelected
-                ? "bg-green-50 border-green-400 shadow"
-                : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
+        return (
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {amenitiesOptions.map((amenity) => {
+                const amenityIcons: Record<string, React.ElementType> = {
+                  WiFi: Wifi,
+                  "Flood lights": Lightbulb,
+                  "Washroom / Restroom": Droplets,
+                  "Changing Room": User,
+                  "Drinking Water": Droplets,
+                  "Artificial Grass": Leaf,
+                  "Natural Grass": Leaf,
+                  "Bike/Car Parking": Car,
+                  "Mobile Charging": BatteryCharging,
+                  "Showers/Steam": ShowerHead,
+                  "Match Referee": ShieldCheck,
+                  "Warm-up track": Dumbbell,
+                  "Rental Equipment": Package,
+                  "First Aid": ShieldPlus,
+                  "Locker Room": Lock,
+                  "Seating Area": MdChair,
+                  Cafeteria: Utensils,
+                  Coaching: GraduationCap,
+                };
+                const Icon = amenityIcons[amenity] || Plus;
+                const checked = formData.amenities.includes(amenity);
+                const isSelected = formData.amenities.includes(amenity);
+                return (
+                  <div
+                    key={amenity}
+                    className={`flex flex-col items-center justify-end gap-2 p-4 border rounded-xl cursor-pointer transition-all
+              ${
+                isSelected
+                  ? "bg-green-50 border-green-400 shadow"
+                  : "bg-white border-gray-200 hover:bg-green-50 hover:border-green-300"
               }
             `}
-            style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
-            onClick={() => handleMultiSelect("amenities", amenity)}
-            tabIndex={0}
-            role="checkbox"
-            aria-checked={isSelected}
-            onKeyDown={e => {
-              if (e.key === " " || e.key === "Enter") {
-                e.preventDefault();
-                handleMultiSelect("amenities", amenity);
-              }
-            }}
-          >
-            <Icon
-              className={`w-8 h-8 ${isSelected ? "text-green-600" : "text-gray-400"}`}
-            />
-            <span className="text-xs font-medium text-center text-gray-700">
-              {amenity}
-            </span>
-          
-            {/* Checkbox */}
-            <div className="mt-1 flex items-center justify-center" style={{ width: 20, height: 20 }}>
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onClick={(e) => e.stopPropagation()}  // 🛑 stops parent div toggle
-                onChange={() => handleMultiSelect("amenities", amenity)}
-                className="accent-green-500 cursor-pointer"
-                style={{ width: 20, height: 20 }}
-                tabIndex={-1}
-              />
+                    style={{ minHeight: 110, minWidth: 90, maxWidth: 140 }}
+                    onClick={() => handleMultiSelect("amenities", amenity)}
+                    tabIndex={0}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    onKeyDown={(e) => {
+                      if (e.key === " " || e.key === "Enter") {
+                        e.preventDefault();
+                        handleMultiSelect("amenities", amenity);
+                      }
+                    }}
+                  >
+                    <Icon
+                      className={`w-8 h-8 ${
+                        isSelected ? "text-green-600" : "text-gray-400"
+                      }`}
+                    />
+                    <span className="text-xs font-medium text-center text-gray-700">
+                      {amenity}
+                    </span>
+
+                    {/* Checkbox */}
+                    <div
+                      className="mt-1 flex items-center justify-center"
+                      style={{ width: 20, height: 20 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onClick={(e) => e.stopPropagation()} // 🛑 stops parent div toggle
+                        onChange={() => handleMultiSelect("amenities", amenity)}
+                        className="accent-green-500 cursor-pointer"
+                        style={{ width: 20, height: 20 }}
+                        tabIndex={-1}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+            {amenitiesErrors.amenities && formData.amenities.length < 1 && (
+              <span className="text-xs text-red-600 mt-2 block text-center">
+                {amenitiesErrors.amenities}
+              </span>
+            )}
           </div>
-            
-           
-          );
-        })}
-      </div>
-      {amenitiesErrors.amenities && formData.amenities.length < 1 && (
-        <span className="text-xs text-red-600 mt-2 block text-center">
-          {amenitiesErrors.amenities}
-        </span>
-      )}
-    </div>
-  );
+        );
       case 3: // Court Details
         // Multiple courts support
 
@@ -3020,9 +3043,7 @@ case 2: // Amenities
           </div>
         );
 
-
       case 4: // Review & Pay
-
         // Helper to get sports offered display
         const getSportsOfferedDisplay = (sports: string[]) => {
           if (!sports || sports.length === 0) {
@@ -3079,7 +3100,7 @@ case 2: // Amenities
                           </span>
                         )}
                       </div>
-                
+
                       <div>
                         <span className="font-medium">Sports Offered:</span>{" "}
                         {getSportsOfferedDisplay(formData.sportsOffered)}
@@ -3115,7 +3136,9 @@ case 2: // Amenities
                     </h4>
                     <div className="text-gray-700 text-sm space-y-2">
                       <div>
-                        <span className="font-medium">Contact Person Name:</span>{" "}
+                        <span className="font-medium">
+                          Contact Person Name:
+                        </span>{" "}
                         {formData.contactPersonName || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3123,7 +3146,9 @@ case 2: // Amenities
                         )}
                       </div>
                       <div>
-                        <span className="font-medium">Contact Person Phone:</span>{" "}
+                        <span className="font-medium">
+                          Contact Person Phone:
+                        </span>{" "}
                         {formData.contactPhone || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3131,7 +3156,9 @@ case 2: // Amenities
                         )}
                       </div>
                       <div>
-                        <span className="font-medium">Contact Person Email:</span>{" "}
+                        <span className="font-medium">
+                          Contact Person Email:
+                        </span>{" "}
                         {formData.contactEmail || (
                           <span className="italic text-gray-400">
                             Not specified
@@ -3229,41 +3256,69 @@ case 2: // Amenities
                           </div>
                           <div>
                             <span className="font-medium">Surface:</span>{" "}
-                            {court.surfaceType || <span className="italic text-gray-400">Not specified</span>}
+                            {court.surfaceType || (
+                              <span className="italic text-gray-400">
+                                Not specified
+                              </span>
+                            )}
                           </div>
                           <div>
                             <span className="font-medium">Slot:</span>{" "}
-                            {court.courtSlotDuration || <span className="italic text-gray-400">Not specified</span>}
+                            {court.courtSlotDuration || (
+                              <span className="italic text-gray-400">
+                                Not specified
+                              </span>
+                            )}
                           </div>
                           <div>
                             <span className="font-medium">Max/Slot:</span>{" "}
-                            {court.courtMaxPeople || <span className="italic text-gray-400">Not specified</span>}
+                            {court.courtMaxPeople || (
+                              <span className="italic text-gray-400">
+                                Not specified
+                              </span>
+                            )}
                           </div>
                           <div>
                             <span className="font-medium">Price/Slot:</span>{" "}
-                            {court.courtPricePerSlot
-                              ? `₹${court.courtPricePerSlot}`
-                              : <span className="italic text-gray-400">Not specified</span>}
+                            {court.courtPricePerSlot ? (
+                              `₹${court.courtPricePerSlot}`
+                            ) : (
+                              <span className="italic text-gray-400">
+                                Not specified
+                              </span>
+                            )}
                           </div>
                           {court.courtPeakEnabled && (
                             <div className="mt-1 bg-orange-50 border border-orange-100 rounded p-1">
                               <div>
                                 <span className="font-medium">Peak Days:</span>{" "}
-                                {court.courtPeakDays.length
-                                  ? court.courtPeakDays.join(", ")
-                                  : <span className="italic text-gray-400">None</span>}
+                                {court.courtPeakDays.length ? (
+                                  court.courtPeakDays.join(", ")
+                                ) : (
+                                  <span className="italic text-gray-400">
+                                    None
+                                  </span>
+                                )}
                               </div>
                               <div>
                                 <span className="font-medium">Peak Hours:</span>{" "}
-                                {court.courtPeakStart && court.courtPeakEnd
-                                  ? `${court.courtPeakStart} - ${court.courtPeakEnd}`
-                                  : <span className="italic text-gray-400">Not specified</span>}
+                                {court.courtPeakStart && court.courtPeakEnd ? (
+                                  `${court.courtPeakStart} - ${court.courtPeakEnd}`
+                                ) : (
+                                  <span className="italic text-gray-400">
+                                    Not specified
+                                  </span>
+                                )}
                               </div>
                               <div>
                                 <span className="font-medium">Peak Price:</span>{" "}
-                                {court.courtPeakPricePerSlot
-                                  ? `₹${court.courtPeakPricePerSlot}`
-                                  : <span className="italic text-gray-400">Not specified</span>}
+                                {court.courtPeakPricePerSlot ? (
+                                  `₹${court.courtPeakPricePerSlot}`
+                                ) : (
+                                  <span className="italic text-gray-400">
+                                    Not specified
+                                  </span>
+                                )}
                               </div>
                             </div>
                           )}
@@ -3317,317 +3372,288 @@ case 2: // Amenities
                 </div>
               </div>
             </div>
-          <div className="mt-10 w-full  mx-auto bg-yellow-50 border border-yellow-200 rounded-2xl p-6 shadow space-y-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Select your preferred Venue Listing revenue model:
-            </h3>
-            <p className="text-gray-700 mb-4">
-              Please select the best monetization model for your sports venue. You can choose to continue with the same listing revenue model for all your venues.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6">
-              {/* Option 1 – Revenue Share */}
-              <div
-                className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
-                  formData.revenueModel === "revenue_share"
-                    ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100 shadow-lg scale-[1.03]"
-                    : "border-gray-200 bg-white hover:border-green-400 hover:bg-green-50/40"
-                }`}
-                tabIndex={0}
-                role="button"
-                aria-pressed={formData.revenueModel === "revenue_share"}
-                onClick={() =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    revenueModel: "revenue_share",
-                  }))
-                }
-                onKeyDown={e => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
+            <div className="mt-10 w-full  mx-auto bg-yellow-50 border border-yellow-200 rounded-2xl p-6 shadow space-y-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Select your preferred Venue Listing revenue model:
+              </h3>
+              <p className="text-gray-700 mb-4">
+                Please select the best monetization model for your sports venue.
+                You can choose to continue with the same listing revenue model
+                for all your venues.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6">
+                {/* Option 1 – Revenue Share */}
+                <div
+                  className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
+                    formData.revenueModel === "revenue_share"
+                      ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100 shadow-lg scale-[1.03]"
+                      : "border-gray-200 bg-white hover:border-green-400 hover:bg-green-50/40"
+                  }`}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={formData.revenueModel === "revenue_share"}
+                  onClick={() =>
                     setFormData((prev) => ({
                       ...prev,
                       revenueModel: "revenue_share",
-                    }));
+                    }))
                   }
-                }}
-              >
-                {formData.revenueModel === "revenue_share" && (
-                  <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                    Selected
-                  </span>
-                )}
-                <div className="flex items-center mb-3 gap-3">
-                 
-                  <input
-                    type="radio"
-                    name="revenueModel"
-                    value="revenue_share"
-                    checked={formData.revenueModel === "revenue_share"}
-                    onChange={() =>
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                      e.preventDefault();
                       setFormData((prev) => ({
                         ...prev,
                         revenueModel: "revenue_share",
-                      }))
+                      }));
                     }
-                    className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 accent-green-600"
-                    style={{ pointerEvents: "none" }}
-                    tabIndex={-1}
-                  />
-                  <span className="font-semibold text-lg text-gray-900 ml-2">
-                    Revenue Share
-                  </span>
+                  }}
+                >
+                  {formData.revenueModel === "revenue_share" && (
+                    <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                      Selected
+                    </span>
+                  )}
+                  <div className="flex items-center mb-3 gap-3">
+                    <input
+                      type="radio"
+                      name="revenueModel"
+                      value="revenue_share"
+                      checked={formData.revenueModel === "revenue_share"}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          revenueModel: "revenue_share",
+                        }))
+                      }
+                      className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 accent-green-600"
+                      style={{ pointerEvents: "none" }}
+                      tabIndex={-1}
+                    />
+                    <span className="font-semibold text-lg text-gray-900 ml-2">
+                      Revenue Share
+                    </span>
+                  </div>
+                  <ul className="text-gray-700 text-sm pl-11 space-y-1">
+                    <li>
+                      <span className="font-bold text-green-700">
+                        6% per booking + GST
+                      </span>{" "}
+                      commission on every confirmed booking.
+                    </li>
+                    <li>
+                      <span className="inline-block mt-1 text-xs text-gray-500">
+                        ₹499 + 18% GST one-time onboarding fee
+                      </span>
+                    </li>
+                  </ul>
                 </div>
-                <ul className="text-gray-700 text-sm pl-11 space-y-1">
-                  <li>
-                    <span className="font-bold text-green-700">6% per booking + GST</span> commission on every confirmed booking.
-                  </li>
-                  <li>
-                    <span className="inline-block mt-1 text-xs text-gray-500">₹499 + GST one-time onboarding fee</span>
-                  </li>
-                </ul>
-              </div>
-              {/* Option 2 – Introductory Plan */}
-              <div
-                className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
-                  formData.revenueModel === "intro_plan"
-                    ? "border-yellow-500 bg-gradient-to-br from-yellow-100 to-yellow-50 shadow-lg scale-[1.03]"
-                    : "border-gray-200 bg-white hover:border-yellow-400 hover:bg-yellow-50/40"
-                }`}
-                tabIndex={0}
-                role="button"
-                aria-pressed={formData.revenueModel === "intro_plan"}
-                onClick={() =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    revenueModel: "intro_plan",
-                  }))
-                }
-                onKeyDown={e => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
+                {/* Option 2 – Introductory Plan */}
+                <div
+                  className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
+                    formData.revenueModel === "intro_plan"
+                      ? "border-yellow-500 bg-gradient-to-br from-yellow-100 to-yellow-50 shadow-lg scale-[1.03]"
+                      : "border-gray-200 bg-white hover:border-yellow-400 hover:bg-yellow-50/40"
+                  }`}
+                  tabIndex={0}
+                  role="button"
+                  aria-pressed={formData.revenueModel === "intro_plan"}
+                  onClick={() =>
                     setFormData((prev) => ({
                       ...prev,
                       revenueModel: "intro_plan",
-                    }));
+                    }))
                   }
-                }}
-              >
-                {formData.revenueModel === "intro_plan" && (
-                  <span className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                    Selected
-                  </span>
-                )}
-                <div className="flex items-center mb-3 gap-3">
-               
-                  <input
-                    type="radio"
-                    name="revenueModel"
-                    value="intro_plan"
-                    checked={formData.revenueModel === "intro_plan"}
-                    onChange={() =>
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                      e.preventDefault();
                       setFormData((prev) => ({
                         ...prev,
                         revenueModel: "intro_plan",
-                      }))
+                      }));
                     }
-                    className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 accent-yellow-500"
-                    style={{ pointerEvents: "none" }}
-                    tabIndex={-1}
-                  />
-                  <span className="font-semibold text-lg text-gray-900 ml-2">
-                    Introductory Plan
-                  </span>
+                  }}
+                >
+                  {formData.revenueModel === "intro_plan" && (
+                    <span className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                      Selected
+                    </span>
+                  )}
+                  <div className="flex items-center mb-3 gap-3">
+                    <input
+                      type="radio"
+                      name="revenueModel"
+                      value="intro_plan"
+                      checked={formData.revenueModel === "intro_plan"}
+                      onChange={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          revenueModel: "intro_plan",
+                        }))
+                      }
+                      className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 accent-yellow-500"
+                      style={{ pointerEvents: "none" }}
+                      tabIndex={-1}
+                    />
+                    <span className="font-semibold text-lg text-gray-900 ml-2">
+                      Introductory Plan
+                    </span>
+                  </div>
+                  <ul className="text-gray-700 text-sm pl-11 space-y-1">
+                    <li>
+                      <span className="font-bold text-yellow-700">
+                        INR 2,990 + 18% GST
+                      </span>{" "}
+                      one-time setup fee (first 3 months)
+                    </li>
+                    <li>
+                      <span className="font-bold text-yellow-700">
+                        No commission
+                      </span>{" "}
+                      in months 1–3
+                    </li>
+                    <li>
+                      <span className="font-bold text-yellow-700">
+                        6% per booking + GST
+                      </span>{" "}
+                      from month 4 onward
+                    </li>
+                  </ul>
                 </div>
-                <ul className="text-gray-700 text-sm pl-11 space-y-1">
-                  <li>
-                    <span className="font-bold text-yellow-700">INR 2,990 + GST</span> one-time setup fee (first 3 months)
-                  </li>
-                  <li>
-                    <span className="font-bold text-yellow-700">No commission</span> in months 1–3
-                  </li>
-                  <li>
-                    <span className="font-bold text-yellow-700">6% per booking + GST</span> from month 4 onward
-                  </li>
-                </ul>
               </div>
-            </div>
-          <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
+         <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
   <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-    Declaration & Consent
+    Venue Partner Declaration
   </h3>
 
-
-
-  {/* Details list */}
+  {/* Authorization & Accuracy */}
   <div className="mb-4">
-    <strong className="font-semibold text-gray-700">
-      Details Provided:
-    </strong>
-    <ul className="list-disc ml-6 text-gray-800 mt-2 space-y-1">
-      <li>Brand / Venue Name, Contact Number &amp; Email</li>
-      <li>Owner’s Name &amp; Contact Details</li>
-      <li>Venue Location &amp; Full Address</li>
-      <li>Amenities Available</li>
-      <li>Operational Days &amp; Timings</li>
-      <li>Sports Offered</li>
-      <li>Facility Images for Each Sport</li>
-    </ul>
+    <p className="text-gray-700 text-sm leading-relaxed">
+      <strong>Authorization & Accuracy:</strong> I hereby confirm that I am an
+      authorized representative of{" "}
+      <strong>{formData.venueName || "[Venue Name]"}</strong>, and that all
+      details provided in the official Ofside mobile app/website onboarding form
+      are true, complete, and accurate. I understand that Ofside (powered by
+      Rankshell – India’s ultimate sports ecosystem) will rely on this
+      information to list, manage, and promote my venue on the platform.
+    </p>
   </div>
 
+  {/* Consent & Compliance */}
+  <div className="mb-4">
+    <p className="text-gray-700 text-sm leading-relaxed">
+      <strong>Consent & Compliance:</strong> I provide my formal consent to
+      onboard and activate my venue under the selected commercial model, and I
+      accept all applicable terms and revenue share conditions. I acknowledge
+      that any false or misleading information may lead to suspension or removal
+      of my venue listing at Ofside’s discretion.
+    </p>
+  </div>
 
-  {/* Consent checkboxes */}
- <div className="flex items-start gap-2 mt-2">
-                <input
-                  type="checkbox"
-                  id="declarationAccuracy"
-                  className="size-5 accent-black mr-2"
-                  checked={formData.declarationAccuracy || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationAccuracy: e.target.checked,
-                    }))
-                  }
-                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
-                />
-                <label htmlFor="declarationAccuracy" className="text-gray-700 text-sm font-medium">
-                 I hereby certify that I am an authorized representative of <strong>{formData.venueName}</strong>, and that all information provided in the official Ofside mobile app/website onboarding form is true, complete, and accurate to the best of my knowledge. I understand that Ofside (powered by Rankshell – India’s ultimate sports ecosystem) will rely on these details to list, manage, and promote my venue.
-                 
-                  
-                </label>
-              </div>
-  {/* Optional error display */}
-  {declarationErrors?.declarationAccuracy && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationAccuracy}
-    </span>
-  )}
-
-                        <div className="mt-4 flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  id="declarationConsent"
-                  className="size-5 accent-black mr-2"
-                  checked={formData.declarationConsent || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationConsent: e.target.checked,
-                    }))
-                  }
-                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
-                />
-                <label htmlFor="declarationConsent" className="text-sm text-gray-900 font-medium">
-             I understand that this declaration constitutes my formal consent to onboard and activate my venue on the Ofside platform under the above-selected commercial model. I further acknowledge that any false or misleading information may result in suspension or removal of my venue listing at Ofside’s discretion.
-                </label>
-              </div>  {/* Optional error display */}
-  {declarationErrors?.declarationConsent && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationConsent}
-    </span>
-  )}
-              
-              <div className="mt-4 flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  id="declarationAgree"
-                  className="size-5 accent-black mr-2"
-                  checked={formData.declarationRevenue || false}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      declarationRevenue: e.target.checked,
-                    }))
-                  }
-                  style={{ minWidth: 20, minHeight: 20, width: 20, height: 20 }}
-                />
-                <label htmlFor="declarationAgree" className="text-sm text-gray-900 font-medium">
-                  I agree, confirm the accuracy of the above information, and accept the selected revenue model terms.
-                </label>
-              </div>
+  {/* Single Acknowledgment Checkbox */}
+  <div className="mt-4 flex items-start gap-2">
+    <input
+      type="checkbox"
+      id="venuePartnerAcknowledgment"
+      className="size-5 accent-black mr-2"
+      checked={formData.venuePartnerAcknowledgment || false}
+      onChange={(e) =>
+        setFormData((prev) => ({
+          ...prev,
+          venuePartnerAcknowledgment: e.target.checked,
+        }))
+      }
+      style={{
+        minWidth: 20,
+        minHeight: 20,
+        width: 20,
+        height: 20,
+      }}
+    />
+    <label
+      htmlFor="venuePartnerAcknowledgment"
+      className="text-sm text-gray-900 font-medium"
+    >
+      I agree and confirm the accuracy of the above information and accept the
+      terms of listing on Ofside.
+    </label>
+  </div>
 
   {/* Optional error display */}
-  {declarationErrors?.declarationRevenue && (
+  {declarationErrors?.venuePartnerAcknowledgment && (
     <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.declarationRevenue}
+      {declarationErrors.venuePartnerAcknowledgment}
     </span>
   )}
 </div>
 
-          </div>
+            </div>
 
-          <div className="mt-10 flex flex-col items-center w-full">
-            <button
-              onClick={handleStartPaymentProcess}
-              className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
+            <div className="mt-10 flex flex-col items-center w-full">
+              <button
+                onClick={handleStartPaymentProcess}
+                className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
             ${
               paymentLoading ||
-              !formData.declarationAccuracy ||
-              !formData.declarationConsent || !formData.declarationRevenue
+              !formData.venuePartnerAcknowledgment
                 ? "opacity-60 cursor-not-allowed"
                 : ""
             }Revenue Share
           `}
-              style={{
-                fontSize: "1.05rem",
-                letterSpacing: "0.02em",
-                boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
-                border: "2px solid #00bf63",
-              }}
-              disabled={
-                paymentLoading ||
-                !formData.declarationAccuracy ||
-                !formData.declarationConsent ||
-                !formData.declarationRevenue
-              }
-            >
-              <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
-                {paymentLoading ? (
-                  <svg
-                    className="animate-spin h-5 w-5 text-white mr-2"
-                    viewBox="0 0 24 24"
-                    fill="white"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="white"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
+                style={{
+                  fontSize: "1.05rem",
+                  letterSpacing: "0.02em",
+                  boxShadow: "0 4px 16px 0 rgba(0,191,99,0.10)",
+                  border: "2px solid #00bf63",
+                }}
+                disabled={
+                  paymentLoading ||
+                  !formData.venuePartnerAcknowledgment
+                }
+              >
+                <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
+                  {paymentLoading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 text-white mr-2"
+                      viewBox="0 0 24 24"
                       fill="white"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    />
-                  </svg>
-                ) : (
-                  <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
-                    <Check className="w-5 h-5 text-green-600" />
-                  </span>
-                )}
-                <span className="flex-1 text-center sm:text-left">
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="white"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="white"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                  ) : (
+                    <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
+                      <Check className="w-5 h-5 text-green-600" />
+                    </span>
+                  )}
+                  <span className="flex-1 text-center sm:text-left">
                     {paymentLoading
                       ? "Processing..."
                       : formData.revenueModel === "intro_plan"
-                        ? "Pay ₹2,990 + GST & Submit for Review"
-                        : "Pay ₹499 + GST & Submit for Review"}
+                      ? "Pay ₹2,990 + GST & Submit for Review"
+                      : "Pay ₹499 + GST & Submit for Review"}
+                  </span>
+                </span>
+              </button>
+              <span className="text-xs text-gray-500 mt-3 text-center w-full">
+                Payment is required to complete your onboarding.
+                <br />
+                <span className="text-green-700 font-semibold">
+                  Secure payment powered by Cashfree.
                 </span>
               </span>
-            </button>
-            <span className="text-xs text-gray-500 mt-3 text-center w-full">
-              Payment is required to complete your onboarding.
-              <br />
-              <span className="text-green-700 font-semibold">
-                Secure payment powered by Cashfree.
-              </span>
-            </span>
-          </div>
-
-
-            
+            </div>
           </div>
         );
 
@@ -3790,55 +3816,56 @@ case 2: // Amenities
                 </div>
 
                 {/* Navigation Buttons */}
-          <div
-  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
-    currentStep === 4 ? "flex-col" : "flex-row"
-  } items-center justify-center gap-2`}
->
-  {/* Back Button */}
-  <button
-    type="button"
-    onClick={prevStep}
-    disabled={currentStep === 0}
-    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
-      currentStep === 0
-        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
-    style={currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }}
-  >
-    <ChevronLeft className="w-4 h-4" />
-    <span>Back</span>
-  </button>
+                <div
+                  className={`px-4 py-4 sm:px-6 sm:py-6 bg-gray-50 border-t border-gray-100 flex ${
+                    currentStep === 4 ? "flex-col" : "flex-row"
+                  } items-center justify-center gap-2`}
+                >
+                  {/* Back Button */}
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    disabled={currentStep === 0}
+                    className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all justify-center ${
+                      currentStep === 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                    } ${currentStep === 4 ? "w-full" : "w-full sm:w-auto"}`}
+                    style={
+                      currentStep === 4 ? { width: "100%" } : { maxWidth: 160 }
+                    }
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back</span>
+                  </button>
 
-  {/* Step Indicator */}
-  <div
-    className="text-sm text-gray-500 flex-shrink-0 text-center"
-    style={{ minWidth: 110 }}
-  >
-    Step {currentStep + 1} of {steps.length}
-  </div>
+                  {/* Step Indicator */}
+                  <div
+                    className="text-sm text-gray-500 flex-shrink-0 text-center"
+                    style={{ minWidth: 110 }}
+                  >
+                    Step {currentStep + 1} of {steps.length}
+                  </div>
 
-  {/* Wrap Next button inside a stable container */}
-  <div style={{ maxWidth: 160, width: "100%" }}>
-    {currentStep !== steps.length - 1 ? (
-      <button
-        type="button"
-        onClick={nextStep}
-        disabled={!isStepValid(currentStep)}
-        className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full justify-center ${
-          isStepValid(currentStep)
-            ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
-      >
-        <span>Next</span>
-        <ChevronRight className="w-4 h-4" />
-      </button>
-    ) : null}
-  </div>
-</div>
-
+                  {/* Wrap Next button inside a stable container */}
+                  <div style={{ maxWidth: 160, width: "100%" }}>
+                    {currentStep !== steps.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={nextStep}
+                        disabled={!isStepValid(currentStep)}
+                        className={`flex items-center space-x-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-medium transition-all w-full justify-center ${
+                          isStepValid(currentStep)
+                            ? `bg-gradient-to-r ${steps[currentStep].color} text-gray-900 hover:shadow-lg transform hover:scale-105`
+                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        }`}
+                      >
+                        <span>Next</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
               </div>
 
               {/* Help Text */}
@@ -3870,5 +3897,3 @@ function load(arg0: { mode: string }):
     }> {
   throw new Error("Function not implemented.");
 }
-
-

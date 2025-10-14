@@ -36,9 +36,7 @@ export async function POST(req: NextRequest) {
       ownerEmail,
       startTime,
       endTime,
-      declarationConsent,
-      declarationRevenue,
-      declarationAccuracy,
+      venuePartnerAcknowledgment,
       amenities,
       availableDays,
       courts,
@@ -58,9 +56,7 @@ export async function POST(req: NextRequest) {
       !Array.isArray(availableDays) ||
       availableDays.length === 0 ||
       !revenueModel ||
-      !declarationConsent ||
-      !declarationRevenue ||
-      !declarationAccuracy
+      !venuePartnerAcknowledgment
     ) {
       return new Response(
         JSON.stringify({
@@ -76,9 +72,7 @@ export async function POST(req: NextRequest) {
         (!Array.isArray(courts) || courts.length === 0) && 'courts',
         (!Array.isArray(availableDays) || availableDays.length === 0) && 'availableDays',
         !revenueModel && 'revenueModel',
-        !declarationConsent && 'declarationConsent',
-        !declarationRevenue && 'declarationRevenue',
-        !declarationAccuracy && 'declarationAccuracy',
+        !venuePartnerAcknowledgment && 'venuePartnerAcknowledgment',
           ].filter(Boolean).join(', ')}`,
           missingFields: [
         !venueName && 'venueName',
@@ -91,9 +85,7 @@ export async function POST(req: NextRequest) {
         (!Array.isArray(courts) || courts.length === 0) && 'courts',
         (!Array.isArray(availableDays) || availableDays.length === 0) && 'availableDays',
         !revenueModel && 'revenueModel',
-        !declarationConsent && 'declarationConsent',
-        !declarationRevenue && 'declarationRevenue',
-        !declarationAccuracy && 'declarationAccuracy',
+        !venuePartnerAcknowledgment && 'venuePartnerAcknowledgment',
           ].filter(Boolean),
         }),
         { status: 400 }
@@ -231,9 +223,8 @@ export async function POST(req: NextRequest) {
       startTime,
       endTime,
       courts: courtsData,
-      declarationConsent: !!declarationConsent,
-      declarationRevenue: !!declarationRevenue,
-      declarationAccuracy: !!declarationAccuracy,
+
+      venuePartnerAcknowledgment: !!venuePartnerAcknowledgment,
       rawVenueData: body,
       createdBy: userWhoCreated._id,
     };
@@ -295,9 +286,7 @@ export async function POST(req: NextRequest) {
         venue.owner?.name || '',
         venue.owner?.phone || '',
         venue.owner?.email || '',
-        venue.declarationConsent ? 'Yes' : 'No',
-        venue.declarationRevenue ? 'Yes' : 'No',
-        venue.declarationAccuracy ? 'Yes' : 'No',
+        venue.venuePartnerAcknowledgment ? 'Yes' : 'No',
         JSON.stringify(venue.rawVenueData || {}),
         venue.createdBy?.toString() || '',
         (venue.createdAt || new Date()).toISOString(),

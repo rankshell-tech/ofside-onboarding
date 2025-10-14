@@ -72,6 +72,8 @@ const venueSchema = new mongoose.Schema({
   declarationConsent: { type: Boolean, default: false },     // <-- Added as per route.ts
   declarationAgree: { type: Boolean, default: false },       // <-- Added as per route.ts
 
+  venuePartnerAcknowledgment: { type: Boolean, default: false }, // <-- Added as per route.ts
+
   rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
