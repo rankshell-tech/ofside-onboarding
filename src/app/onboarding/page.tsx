@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useJsApiLoader } from "@react-google-maps/api";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   Upload,
@@ -39,6 +39,9 @@ import { useRef } from "react";
 import imageCompression from "browser-image-compression";
 import { createCashfreeOrder } from "@/utils/api";
 import { initiatePayment } from "@/utils/cashfree";
+import { Libraries } from "@googlemaps/js-api-loader";
+import HumorousLoader from "../components/HumorousLoader";
+import { MdChair } from "react-icons/md";
 const footballVideo = "./assets/football-playing-vertical.mp4";
 
 interface ImageJob {
@@ -60,93 +63,71 @@ interface UploadProgress {
   currentFile: string;
 }
 
-// Extend the Window interface to include Cashfree
 
-import { Libraries } from "@googlemaps/js-api-loader";
-import HumorousLoader from "../components/HumorousLoader";
-import { MdChair } from "react-icons/md";
 
 const libraries: Libraries = ["places"];
 
 export default function VenueOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const rightRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    // Make every * bold and red in labels after render
-    const interval = setTimeout(() => {
-      document.querySelectorAll("label").forEach((label) => {
-        label.innerHTML = label.innerHTML.replace(
-          /\*/g,
-          '<span style="color:red;font-weight:900">*</span>'
-        );
-      });
-    }, 0);
-    return () => clearTimeout(interval);
-  }, [currentStep]);
-
   const [loading, setLoading] = useState(false);
-
   const [sameAsContact, setSameAsContact] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [fileSizeError, setFileSizeError] = useState<string | null>(null);
+  const [showSubmitErrorModal, setShowSubmitErrorModal] = useState(false);
+  const [payloadWithUrls, setPayloadWithUrls] = useState<any>(null);
+  // Validation logic
+  const declarationErrors: Record<string, string> = {};
 
-  // const [formData, setFormData] = useState({
-  //   // Basic Details
-  //   venueName: "",
-  //   sportsOffered: [] as string[],
-  //   description: "",
-  //   venueLogo: null as File | null,
-  //   is24HoursOpen: false,
-  // revenueModel: "",
+  // Cashfree payment integration
+  const [paymentLoading, setPaymentLoading] = useState(false);
+ 
 
-  //   // Address & Contact
-  //   shopNo: "",
-  //   floorTower: "",
-  //   areaSectorLocality: "",
-  //   latitude: "",
-  //   longitude: "",
-  //   city: "",
-  //   state: "",
-  //   landmark: "",
-  //   pincode: "",
-  //   fullAddress: "",
 
-  //   contactPersonName: "",
-  //   contactPhone: "",
-  //   contactEmail: "",
-  //   ownerName: "",
-  //   ownerPhone: "",
-  //   ownerEmail: "",
-  //   startTime: "",
-  //   endTime: "",
-  //   // Amenities
-  //   amenities: [] as string[],
+    const requiredFields = [
+    "venueName",
+    "description",
+    "startTime",
+    "endTime",
+    "availableDays",
+    "shopNo",
+    "areaSectorLocality",
+    "city",
+    "pincode",
+    "contactPersonName",
+    "contactPhone",
+    "contactEmail",
+    "ownerName",
+    "ownerPhone",
+    "ownerEmail",
+    // Remove single court fields, handle via courts array
+    "slotDuration",
+    "pricePerSlot",
+    "declarationAgreed",
+  ];
 
-  //   availableDays: [] as string[],
-  //   declarationAccuracy: false,
-  // declarationConsent: false,
-  // declarationRevenue: false,
+  // For multiple courts, track touched for each court by index
+  const courtFields = [
+    "courtName",
+    "surfaceType",
+    "courtSportType",
+    "courtSlotDuration",
+    "courtMaxPeople",
+    "courtPricePerSlot",
+    "courtImages",
+    "courtPeakEnabled",
+    "courtPeakDays",
+    "courtPeakStart",
+    "courtPeakEnd",
+    "courtPeakPricePerSlot",
+  ];
 
-  //   // Courts Array for multiple courts support
-  //   courts: [
-  //     {
-  //       courtName: "",
-  //       surfaceType: "",
-  //       courtSportType: "",
-  //       courtSlotDuration: "",
-  //       courtMaxPeople: "",
-  //       courtPricePerSlot: "",
-  //       courtImages: {
-  //         cover: null as File | null,
-  //         logo: null as File | null,
-  //         others: [] as File[],
-  //       },
-  //       courtPeakEnabled: false,
-  //       courtPeakDays: [] as string[],
-  //       courtPeakStart: "",
-  //       courtPeakEnd: "",
-  //       courtPeakPricePerSlot: "",
-  //     },
-  //   ],
-  // });
+  type UploadStatus = "pending" | "uploading" | "done" | undefined;
+
+    // touched for main form fields
+  const [touched, setTouched] = useState<Record<string, boolean>>(
+    Object.fromEntries(requiredFields.map((field) => [field, false]))
+  );
 
   const [formData, setFormData] = useState({
     // Basic Details
@@ -176,7 +157,7 @@ export default function VenueOnboardingPage() {
     ownerEmail: "jane.doe@example.com",
     startTime: "",
     endTime: "",
- 
+
     venuePartnerAcknowledgment: false,
     // Amenities
     amenities: [] as string[],
@@ -206,6 +187,31 @@ export default function VenueOnboardingPage() {
     ],
   });
 
+  // touched for each court (array of objects)
+  const [courtsTouched, setCourtsTouched] = useState<Record<string, boolean>[]>(
+    formData.courts.map(() =>
+      Object.fromEntries(courtFields.map((field) => [field, false]))
+    )
+  );
+
+
+  useEffect(() => {
+    // Make every * bold and red in labels after render
+    const interval = setTimeout(() => {
+      document.querySelectorAll("label").forEach((label) => {
+        label.innerHTML = label.innerHTML.replace(
+          /\*/g,
+          '<span style="color:red;font-weight:900">*</span>'
+        );
+      });
+    }, 0);
+    return () => clearTimeout(interval);
+  }, [currentStep]);
+
+
+
+
+
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,
@@ -218,8 +224,7 @@ export default function VenueOnboardingPage() {
   const [businessResults, setBusinessResults] = useState<
     google.maps.places.AutocompletePrediction[]
   >([]);
-  const [selectedPlace, setSelectedPlace] =
-    useState<google.maps.places.Place | null>(null);
+
 
   // Initialize session token
   useEffect(() => {
@@ -228,9 +233,6 @@ export default function VenueOnboardingPage() {
     }
   }, [isLoaded]);
 
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const [showSubmitErrorModal, setShowSubmitErrorModal] = useState(false);
 
   useEffect(() => {
     if (submitError) {
@@ -238,17 +240,31 @@ export default function VenueOnboardingPage() {
     }
   }, [submitError]);
 
-  const handleSubmit = async (e: React.FormEvent, formData: any) => {
+  
+
+  const [isImageGettingUploaded, setIsImageGettingUploaded] =
+    useState<UploadStatus>("pending");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setSubmitError(null);
 
+    const startTime = performance.now();
+
     try {
       // Step 1: Upload images first with progress feedback
-      const payloadWithUrls = await handleImageUpload(formData);
 
-      // Step 2: Submit venue data and wait for confirmation
-      const submissionResult = await submitVenueData(payloadWithUrls);
+      console.log("fetching the payloadWithUrls", payloadWithUrls);
+      const updatedPayload = {
+        ...payloadWithUrls,
+        venuePartnerAcknowledgment: true,
+      };
+
+      console.log("Final payload with URLs:", updatedPayload);
+      // console.log("Previous payload with URLs:", payloadWithUrls);
+      const submissionResult = await submitVenueData(updatedPayload);
+      console.log("Submission result:", submissionResult);
 
       // Step 3: Verify the venue was saved successfully before payment
       if (!submissionResult.success) {
@@ -270,12 +286,43 @@ export default function VenueOnboardingPage() {
       setShowSuccessPopup(true);
       setLoading(false);
 
+      const totalTime = performance.now() - startTime;
+
       return submissionResult.venueId;
     } catch (err) {
-      const errorMessage =
-        err && typeof err === "object" && "message" in err
-          ? (err as { message: string }).message
-          : "An error occurred during submission";
+      const totalTime = performance.now() - startTime;
+      console.log(
+        `❌ [HANDLE_SUBMIT] Process failed after ${totalTime.toFixed(2)}ms`
+      );
+
+      let errorMessage = "An error occurred during submission";
+
+      if (err && typeof err === "object" && "message" in err) {
+        const errMsg = (err as { message: string }).message;
+
+        // Provide user-friendly error messages
+        if (errMsg.includes("too large") && errMsg.includes("5MB")) {
+          errorMessage = errMsg; // Use the specific file size error message
+        } else if (errMsg.includes("Compression timeout")) {
+          errorMessage =
+            "Image processing is taking too long. Please try with smaller images.";
+        } else if (errMsg.includes("Signed URL request timeout")) {
+          errorMessage =
+            "Network request timed out. Please check your internet connection and try again.";
+        } else if (errMsg.includes("S3 upload timeout")) {
+          errorMessage =
+            "Image upload timed out. Please try again with a better internet connection.";
+        } else if (errMsg.includes("Global upload timeout")) {
+          errorMessage =
+            "Image upload process timed out. Please try with fewer or smaller images.";
+        } else if (errMsg.includes("Failed to upload critical images")) {
+          errorMessage = "Failed to upload required images. Please try again.";
+        } else if (errMsg.includes("Failed to save venue data")) {
+          errorMessage = "Failed to save venue information. Please try again.";
+        } else {
+          errorMessage = errMsg;
+        }
+      }
 
       setSubmitError(errorMessage);
       setLoading(false);
@@ -286,15 +333,35 @@ export default function VenueOnboardingPage() {
     }
   };
 
+  const handleImageSizeCheck = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    courtIndex: number,
+    name: string
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 5MB = 5 * 1024 * 1024 bytes
+    if (file.size > 5 * 1024 * 1024) {
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      setFileSizeError(
+        `${name} image is too large (${fileSizeMB}MB). Please use images smaller than 5MB.`
+      );
+
+      return;
+    }
+
+    setFileSizeError(null);
+  };
+
   const handleStartPaymentProcess = async () => {
     setPaymentLoading(true);
 
     try {
       // Step 1: Save venue and wait for confirmation
-      const venueId = await handleSubmit(
-        { preventDefault: () => {} } as React.FormEvent,
-        formData
-      );
+      const venueId = await handleSubmit({
+        preventDefault: () => {},
+      } as React.FormEvent);
 
       const getGSTFinalized = (amount: number) => {
         const gstRate = 0.18; // 18% GST
@@ -320,7 +387,7 @@ export default function VenueOnboardingPage() {
       }
     } catch (err: any) {
       console.error("Payment process error:", err);
-      setPaymentError(err?.message || "Something went wrong with payment.");
+     
     } finally {
       setPaymentLoading(false);
     }
@@ -361,12 +428,7 @@ export default function VenueOnboardingPage() {
     }
   };
 
-  // Validation logic
-  const declarationErrors: Record<string, string> = {};
 
-  // Cashfree payment integration
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentError, setPaymentError] = useState(false);
 
   const handlePlaceSelect = async (placeId: string) => {
     if (!placeId || !window.google?.maps?.places) return;
@@ -476,94 +538,9 @@ export default function VenueOnboardingPage() {
     }
   };
 
-  // Helper to extract address components
-  const extractAddressComponents = (
-    components: google.maps.places.AddressComponent[] | undefined
-  ) => {
-    const result = {
-      shopNo: "",
-      areaSectorLocality: "",
-      city: "",
-      pincode: "",
-      state: "",
-    };
 
-    components?.forEach((component) => {
-      if (component.types.includes("street_number")) {
-        result.shopNo = component.longText || "";
-      }
-      if (component.types.includes("route")) {
-        result.areaSectorLocality = component.longText || "";
-      }
-      if (
-        component.types.includes("locality") ||
-        component.types.includes("sublocality")
-      ) {
-        result.city = component.longText || "";
-      }
-      if (component.types.includes("postal_code")) {
-        result.pincode = component.longText || "";
-      }
-      if (component.types.includes("administrative_area_level_1")) {
-        result.state = component.longText || "";
-      }
-    });
 
-    return result;
-  };
 
-  const requiredFields = [
-    "venueName",
-    "description",
-    "startTime",
-    "endTime",
-    "availableDays",
-    "shopNo",
-    "areaSectorLocality",
-    "city",
-    "pincode",
-    "contactPersonName",
-    "contactPhone",
-    "contactEmail",
-    "ownerName",
-    "ownerPhone",
-    "ownerEmail",
-    // Remove single court fields, handle via courts array
-    "slotDuration",
-    "pricePerSlot",
-    "declarationAgreed",
-  ];
-
-  // For multiple courts, track touched for each court by index
-  const courtFields = [
-    "courtName",
-    "surfaceType",
-    "courtSportType",
-    "courtSlotDuration",
-    "courtMaxPeople",
-    "courtPricePerSlot",
-    "courtImages",
-    "courtPeakEnabled",
-    "courtPeakDays",
-    "courtPeakStart",
-    "courtPeakEnd",
-    "courtPeakPricePerSlot",
-  ];
-
-  // touched for main form fields
-  const [touched, setTouched] = useState<Record<string, boolean>>(
-    Object.fromEntries(requiredFields.map((field) => [field, false]))
-  );
-
-  // touched for each court (array of objects)
-  const [courtsTouched, setCourtsTouched] = useState<Record<string, boolean>[]>(
-    formData.courts.map(() =>
-      Object.fromEntries(courtFields.map((field) => [field, false]))
-    )
-  );
-
-  // Add courts state and setCourts function
-  const [courts, setCourts] = useState(formData.courts);
 
   // Validation logic for each court
   const courtsErrors: Record<number, Record<string, string>> = {};
@@ -639,29 +616,6 @@ export default function VenueOnboardingPage() {
     });
   };
 
-  const handleCourtFileChange = (idx: number, files: FileList | null) => {
-    if (!files) return;
-    setFormData((prev) => {
-      const updatedCourts = prev.courts.map((court, i) => {
-        if (i !== idx) return court;
-        // Map files to cover, logo, others
-        const fileArr = Array.from(files).slice(0, 5);
-        return {
-          ...court,
-          courtImages: {
-            cover: fileArr[0] || null,
-            logo: fileArr[1] || null,
-            others: fileArr.slice(2),
-          },
-        };
-      });
-      return {
-        ...prev,
-        courts: updatedCourts,
-      };
-    });
-  };
-
   const handleRemoveCourtImage = (idx: number, imgIdx: number) => {
     setFormData((prev) => {
       const updatedCourts = prev.courts.map((court, i) => {
@@ -705,20 +659,6 @@ export default function VenueOnboardingPage() {
   };
 
   type CourtArrayField = "courtPeakDays";
-
-  const handleAmenitySelect = (amenity: string) => {
-    setFormData((prev) => {
-      const updated = prev.amenities.includes(amenity)
-        ? prev.amenities.filter((item) => item !== amenity)
-        : [...prev.amenities, amenity];
-
-      console.log("Before:", prev.amenities, "After:", updated);
-      return {
-        ...prev,
-        amenities: updated,
-      };
-    });
-  };
 
   const handleCourtMultiSelect = (
     idx: number,
@@ -779,12 +719,26 @@ export default function VenueOnboardingPage() {
   };
 
   const compressImage = async (file: File): Promise<File> => {
+    const sizeMB = file.size / 1024 / 1024;
+
+    // Skip small files
+    if (sizeMB < 1) return file;
+
     const options = {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 1200,
+      maxSizeMB: sizeMB > 3 ? 0.4 : 0.7,
+      maxWidthOrHeight: sizeMB > 3 ? 1200 : 1600,
       useWebWorker: true,
+      initialQuality: 0.85,
     };
-    return await imageCompression(file, options);
+
+    try {
+      const compressed = await imageCompression(file, options);
+
+      return compressed;
+    } catch (err) {
+      console.warn(`[COMPRESS] Failed for ${file.name}`, err);
+      return file; // fallback
+    }
   };
 
   // Sync courts with formData
@@ -827,10 +781,6 @@ export default function VenueOnboardingPage() {
     );
   };
 
-  const handleGoToHome = () => {
-    // Redirect to home page
-    window.location.href = "/";
-  };
   const steps = [
     {
       title: "Basic Details",
@@ -928,15 +878,11 @@ export default function VenueOnboardingPage() {
   type MultiSelectField = "sportsOffered" | "amenities" | "availableDays";
 
   const handleMultiSelect = (field: MultiSelectField, value: string) => {
-    console.log("🛠️ handleMultiSelect called with:", field, value);
-
     setFormData((prev) => {
       const currentArray = Array.isArray(prev[field]) ? [...prev[field]] : [];
       const updatedArray = currentArray.includes(value)
         ? currentArray.filter((item) => item !== value)
         : [...currentArray, value];
-
-      console.log("🛠️ Returning new state with amenities:", updatedArray);
 
       return {
         ...prev, // CRITICAL: This preserves all other fields
@@ -962,6 +908,7 @@ export default function VenueOnboardingPage() {
       setCurrentStep(currentStep - 1);
     }
   };
+
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(
     null
@@ -969,6 +916,7 @@ export default function VenueOnboardingPage() {
   const [error, setError] = useState<string | null>(null);
 
   const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
+    const startTime = performance.now();
     const fileName = `${Date.now()}-${file.name}`;
 
     try {
@@ -984,7 +932,6 @@ export default function VenueOnboardingPage() {
       const { url, success } = await res.json();
       if (!success || !url) throw new Error("Failed to get signed URL");
 
-      // Upload to S3
       const uploadRes = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": file.type },
@@ -993,9 +940,17 @@ export default function VenueOnboardingPage() {
 
       if (!uploadRes.ok) throw new Error("Upload failed");
 
-      return `https://ofside-venue-images.s3.ap-south-1.amazonaws.com/${fileName}`;
+      const finalUrl = `https://ofside-venue-images.s3.ap-south-1.amazonaws.com/${fileName}`;
+
+      return finalUrl;
     } catch (err) {
-      console.error("Image upload failed:", err);
+      const totalTime = performance.now() - startTime;
+      console.error(
+        `🔗 [UPLOAD_IMAGE_AND_GET_URL] Upload failed after ${totalTime.toFixed(
+          2
+        )}ms for ${file.name}:`,
+        err
+      );
       throw new Error(
         `Failed to upload ${file.name}: ${
           err && typeof err === "object" && "message" in err
@@ -1009,118 +964,228 @@ export default function VenueOnboardingPage() {
   const uploadAllImages = async (
     allImageJobs: ImageJob[]
   ): Promise<UploadResult[]> => {
+    const startTime = performance.now();
     const totalJobs = allImageJobs.length;
     const results: UploadResult[] = [];
 
-    for (let i = 0; i < totalJobs; i++) {
-      const job = allImageJobs[i];
-
-      setUploadProgress({
-        total: totalJobs,
-        completed: i,
-        currentFile: job.file.name,
-      });
+    // Process images in parallel for better performance
+    let completedCount = 0;
+    const uploadPromises = allImageJobs.map(async (job, index) => {
+      const imageStartTime = performance.now();
 
       try {
         const compressed = await compressImage(job.file);
+
+        // Upload step
+
         const url = await uploadImageAndGetUrl(compressed);
-        results.push({ job, url });
-      } catch (err) {
-        results.push({
-          job,
-          url: null,
-          error:
-            typeof err === "object" && err !== null && "message" in err
-              ? (err as { message: string }).message
-              : String(err),
+
+        // Update progress
+        completedCount++;
+        setUploadProgress({
+          total: totalJobs,
+          completed: completedCount,
+          currentFile: `Completed ${completedCount}/${totalJobs}`,
         });
 
-        // Optionally: continue with other uploads or break here
+        return { job, url };
+      } catch (err) {
+        const imageTotalTime = performance.now() - imageStartTime;
+        console.error(
+          `📤 [UPLOAD_ALL_IMAGES] Image ${
+            index + 1
+          }/${totalJobs} failed after ${imageTotalTime.toFixed(2)}ms:`,
+          err
+        );
+
+        // Update progress even on failure
+        completedCount++;
+        setUploadProgress({
+          total: totalJobs,
+          completed: completedCount,
+          currentFile: `Failed ${completedCount}/${totalJobs}`,
+        });
+
+        // Create user-friendly error message
+        let errorMessage = "Upload failed";
+        if (err && typeof err === "object" && "message" in err) {
+          const errMsg = (err as { message: string }).message;
+          if (errMsg.includes("too large") && errMsg.includes("5MB")) {
+            errorMessage = errMsg; // Use the specific file size error message
+          } else if (errMsg.includes("Compression timeout")) {
+            errorMessage = "Image processing timed out";
+          } else if (errMsg.includes("Signed URL request timeout")) {
+            errorMessage = "Network request timed out";
+          } else if (errMsg.includes("S3 upload timeout")) {
+            errorMessage = "Upload to server timed out";
+          } else {
+            errorMessage = errMsg;
+          }
+        }
+
         // For critical images, you might want to stop the process
         if (job.imageType === "cover") {
-          throw new Error(`Critical image upload failed: ${job.file.name}`);
+          throw new Error(
+            `Critical image upload failed: ${job.file.name} - ${errorMessage}`
+          );
         }
+
+        return {
+          job,
+          url: null,
+          error: errorMessage,
+        };
       }
+    });
+
+    // Wait for all uploads to complete
+    try {
+      const uploadResults = await Promise.all(uploadPromises);
+      results.push(...uploadResults);
+    } catch (err) {
+      console.error("📤 [UPLOAD_ALL_IMAGES] Error occurred:", err);
+      throw err;
     }
+
+    const totalTime = performance.now() - startTime;
 
     setUploadProgress(null);
     return results;
   };
 
-  const handleImageUpload = async (formData: any): Promise<any> => {
-    // Prepare all image upload jobs
-    const allImageJobs: ImageJob[] = [];
+  let uploadInProgress = false;
 
-    formData.courts.forEach((court: any, i: number) => {
-      if (court.courtImages.cover) {
-        allImageJobs.push({
-          file: court.courtImages.cover,
-          courtIndex: i,
-          imageType: "cover",
-        });
-      }
-      if (court.courtImages.logo) {
-        allImageJobs.push({
-          file: court.courtImages.logo,
-          courtIndex: i,
-          imageType: "logo",
-        });
-      }
-      if (Array.isArray(court.courtImages.others)) {
-        court.courtImages.others.forEach((file: File, idx: number) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleImageUpload = useCallback(async (currentFormData: any): Promise<any> => {
+    if (uploadInProgress) {
+      console.warn("📸 [HANDLE_IMAGE_UPLOAD] Skipping duplicate upload...");
+      return currentFormData;
+    }
+
+    uploadInProgress = true;
+    try {
+      // Prepare all image upload jobs
+      const allImageJobs: ImageJob[] = [];
+
+      currentFormData.courts.forEach((court: any, i: number) => {
+        if (court.courtImages.cover) {
+          // Check file size before adding to upload queue
+          if (court.courtImages.cover.size > 5000000) {
+            const fileSizeMB = (
+              court.courtImages.cover.size /
+              1024 /
+              1024
+            ).toFixed(2);
+            throw new Error(
+              `Cover image for Court ${
+                i + 1
+              } is too large (${fileSizeMB}MB). Please use images smaller than 5MB.`
+            );
+          }
           allImageJobs.push({
-            file,
+            file: court.courtImages.cover,
             courtIndex: i,
-            imageType: "others",
-            otherIndex: idx,
+            imageType: "cover",
           });
-        });
+        }
+        if (court.courtImages.logo) {
+          // Check file size before adding to upload queue
+          if (court.courtImages.logo.size > 5000000) {
+            const fileSizeMB = (
+              court.courtImages.logo.size /
+              1024 /
+              1024
+            ).toFixed(2);
+            throw new Error(
+              `Logo image for Court ${
+                i + 1
+              } is too large (${fileSizeMB}MB). Please use images smaller than 5MB.`
+            );
+          }
+          allImageJobs.push({
+            file: court.courtImages.logo,
+            courtIndex: i,
+            imageType: "logo",
+          });
+        }
+        if (Array.isArray(court.courtImages.others)) {
+          court.courtImages.others.forEach((file: File, idx: number) => {
+            // Check file size before adding to upload queue
+            if (file.size > 5000000) {
+              const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+              throw new Error(
+                `Additional image ${idx + 1} for Court ${
+                  i + 1
+                } is too large (${fileSizeMB}MB). Please use images smaller than 5MB.`
+              );
+            }
+            allImageJobs.push({
+              file,
+              courtIndex: i,
+              imageType: "others",
+              otherIndex: idx,
+            });
+          });
+        }
+      });
+
+      if (allImageJobs.length === 0) {
+        console.log(
+          "📸 [HANDLE_IMAGE_UPLOAD] No images to upload, returning original formData"
+        );
+        return formData; // No images to upload
       }
-    });
 
-    if (allImageJobs.length === 0) {
-      return formData; // No images to upload
-    }
+      // Upload all images with progress tracking
 
-    // Upload all images with progress tracking
-    const uploadResults = await uploadAllImages(allImageJobs);
+      const uploadResults = await uploadAllImages(allImageJobs);
 
-    // Check for critical errors
-    const criticalErrors = uploadResults.filter(
-      (result) => !result.url && result.job.imageType === "cover"
-    );
-
-    if (criticalErrors.length > 0) {
-      throw new Error("Failed to upload critical images. Please try again.");
-    }
-
-    // Map uploaded URLs back to courtImages structure
-    const updatedCourts = formData.courts.map((court: any, i: number) => {
-      const coverResult = uploadResults.find(
-        (r) => r.job.courtIndex === i && r.job.imageType === "cover"
+      // Check for critical errors
+      const criticalErrors = uploadResults.filter(
+        (result) => !result.url && result.job.imageType === "cover"
       );
-      const logoResult = uploadResults.find(
-        (r) => r.job.courtIndex === i && r.job.imageType === "logo"
-      );
-      const othersResults = uploadResults
-        .filter((r) => r.job.courtIndex === i && r.job.imageType === "others")
-        .sort((a, b) => (a.job.otherIndex ?? 0) - (b.job.otherIndex ?? 0));
 
+      if (criticalErrors.length > 0) {
+        console.error(
+          "📸 [HANDLE_IMAGE_UPLOAD] Critical errors found:",
+          criticalErrors
+        );
+        throw new Error("Failed to upload critical images. Please try again.");
+      }
+
+      // Map uploaded URLs back to courtImages structure
+
+      const updatedCourts = currentFormData.courts.map((court: any, i: number) => {
+        const coverResult = uploadResults.find(
+          (r) => r.job.courtIndex === i && r.job.imageType === "cover"
+        );
+        const logoResult = uploadResults.find(
+          (r) => r.job.courtIndex === i && r.job.imageType === "logo"
+        );
+        const othersResults = uploadResults
+          .filter((r) => r.job.courtIndex === i && r.job.imageType === "others")
+          .sort((a, b) => (a.job.otherIndex ?? 0) - (b.job.otherIndex ?? 0));
+
+        return {
+          ...court,
+          courtImages: {
+            cover: coverResult?.url || null,
+            logo: logoResult?.url || null,
+            others: othersResults.map((r) => r.url).filter(Boolean) as string[],
+          },
+        };
+      });
+      setIsImageGettingUploaded("done");
       return {
-        ...court,
-        courtImages: {
-          cover: coverResult?.url || null,
-          logo: logoResult?.url || null,
-          others: othersResults.map((r) => r.url).filter(Boolean) as string[],
-        },
+        ...currentFormData,
+        courts: updatedCourts,
       };
-    });
+    } catch (err) {
+      uploadInProgress = false;
+      throw err;
+    }
+  }, [formData]);
 
-    return {
-      ...formData,
-      courts: updatedCourts,
-    };
-  };
   const submitVenueData = async (payload: any) => {
     const res = await fetch("/api/venue", {
       method: "POST",
@@ -1131,6 +1196,10 @@ export default function VenueOnboardingPage() {
     const responseData = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      console.error(
+        `💾 [SUBMIT_VENUE_DATA] API request failed with status ${res.status}:`,
+        responseData
+      );
       // Show error on frontend
       setError(
         responseData.message || `Submission failed with status ${res.status}`
@@ -1142,6 +1211,10 @@ export default function VenueOnboardingPage() {
 
     // Ensure the response has the expected structure
     if (!responseData.success && responseData.success !== undefined) {
+      console.error(
+        "💾 [SUBMIT_VENUE_DATA] Response indicates failure:",
+        responseData
+      );
       setError(responseData.message || "Venue submission was not successful");
       throw new Error(
         responseData.message || "Venue submission was not successful"
@@ -1158,7 +1231,6 @@ export default function VenueOnboardingPage() {
   });
 
   const handle24HoursChange = (checked: boolean) => {
-    console.log("24 Hours Toggle:", checked);
     setFormData((prev) => {
       // Always update lastManualTimesRef with latest manual times if not 24h
       if (!prev.is24HoursOpen && prev.startTime && prev.endTime) {
@@ -1193,6 +1265,7 @@ export default function VenueOnboardingPage() {
 
     handleTouched("is24HoursOpen");
   };
+
   // Fix: Reset courtsTouched when going back to step 0
   useEffect(() => {
     if (currentStep === 0) {
@@ -1203,6 +1276,29 @@ export default function VenueOnboardingPage() {
       );
     }
   }, [currentStep, formData.courts.length]);
+
+  useEffect(() => {
+    if (currentStep !== 4) return;
+
+    let mounted = true;
+
+    const upload = async () => {
+      try {
+        const uploadedData = await handleImageUpload(formData);
+        console.log("All images uploaded successfully:", uploadedData);
+        if (!mounted) return;
+        setPayloadWithUrls(uploadedData);
+      } catch (err) {
+        console.error("Upload failed:", err);
+      }
+    };
+
+    upload();
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentStep, formData, handleImageUpload]);
 
   const isStepValid = (stepIndex: number) => {
     switch (stepIndex) {
@@ -1254,9 +1350,7 @@ export default function VenueOnboardingPage() {
                 !!court.courtPeakPricePerSlot))
         );
       case 4: // Pricing & Availability
-        return (
-          !!formData.venuePartnerAcknowledgment
-        );
+        return !!formData.venuePartnerAcknowledgment;
 
       default:
         return false;
@@ -1274,6 +1368,82 @@ export default function VenueOnboardingPage() {
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
   }, [showSuccessPopup, countdown]);
+
+  if (
+    isImageGettingUploaded === "uploading" &&
+    formData.venuePartnerAcknowledgment
+  ) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full mx-4 text-center border-2 border-blue-200 relative">
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2">
+            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full p-4 shadow-lg border-2 border-yellow-300">
+              <Upload className="w-10 h-10 text-white animate-bounce" />
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold mb-3 mt-8 text-gray-900">
+            Processing Images
+          </h2>
+
+          <p className="text-gray-600 mb-6 font-medium">
+            We are uploading and optimizing your venue images. This may take a
+            few moments...
+          </p>
+
+          {uploadProgress && (
+            <div className="mb-6">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Progress</span>
+                <span>
+                  {uploadProgress.completed}/{uploadProgress.total}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    width: `${
+                      (uploadProgress.completed / uploadProgress.total) * 100
+                    }%`,
+                  }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {uploadProgress.currentFile}
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-center items-center">
+            <svg
+              className="animate-spin h-8 w-8 text-yellow-500"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          </div>
+
+          <p className="text-xs text-gray-500 mt-4">
+            Please dont close this window while we process your images
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // below popup looks extra for now hence commented
   // Success Popup
@@ -1324,7 +1494,7 @@ export default function VenueOnboardingPage() {
 
   const SubmitErrorModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center border-2 border-red-200 relative">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center border-2 border-red-200 relative">
         <div className="absolute -top-10 left-1/2 transform -translate-x-1/2">
           <div className="bg-red-100 rounded-full p-4 shadow-lg border-2 border-red-300">
             <X className="w-10 h-10 text-red-600" />
@@ -1333,13 +1503,34 @@ export default function VenueOnboardingPage() {
         <h2 className="text-2xl font-bold mb-3 mt-8 text-gray-900">
           Submission Error
         </h2>
-        <p className="text-base text-gray-700 mb-6">{submitError}</p>
-        <button
-          className="bg-gradient-to-r from-red-400 to-red-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 transition-all"
-          onClick={() => setShowSubmitErrorModal(false)}
-        >
-          Close
-        </button>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <p className="text-base text-gray-700 mb-2">{submitError}</p>
+          <p className="text-sm text-gray-600">
+            Please try again. If the problem persists, try with smaller images
+            or check your internet connection.
+          </p>
+        </div>
+        <div className="flex gap-3 justify-center">
+          <button
+            className="bg-gray-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 transition-all"
+            onClick={() => {
+              setShowSubmitErrorModal(false);
+              setSubmitError(null);
+            }}
+          >
+            Close
+          </button>
+          <button
+            className="bg-gradient-to-r from-red-400 to-red-500 text-white font-bold py-2 px-6 rounded-xl shadow hover:scale-105 transition-all"
+            onClick={() => {
+              setShowSubmitErrorModal(false);
+              setSubmitError(null);
+              // Optionally retry the submission
+            }}
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2434,6 +2625,7 @@ export default function VenueOnboardingPage() {
                                 accept="image/*"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
+                                    handleImageSizeCheck(e, idx, "Cover");
                                     // Only update cover image
                                     setFormData((prev) => {
                                       const updatedCourts = prev.courts.map(
@@ -2509,6 +2701,7 @@ export default function VenueOnboardingPage() {
                                 accept="image/*"
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files[0]) {
+                                    handleImageSizeCheck(e, idx, "Logo");
                                     // Only update logo image
                                     setFormData((prev) => {
                                       const updatedCourts = prev.courts.map(
@@ -2598,6 +2791,7 @@ export default function VenueOnboardingPage() {
                                         e.target.files &&
                                         e.target.files.length > 0
                                       ) {
+                                        handleImageSizeCheck(e, idx, "Other");
                                         // Only update others images
                                         const filesArr = Array.from(
                                           e.target.files
@@ -2687,6 +2881,20 @@ export default function VenueOnboardingPage() {
                         {courtsErrors[idx].courtImages}
                       </span>
                     )}
+                    {fileSizeError && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-2">
+                        <div className="flex items-center">
+                          <X className="w-4 h-4 text-red-500 mr-2" />
+                          <span className="text-sm text-red-700 font-medium">
+                            File Size Error
+                          </span>
+                        </div>
+                        <p className="text-xs text-red-600 mt-1">
+                          {fileSizeError}
+                        </p>
+                      </div>
+                    )}
+
                     <span className="inline-flex items-center text-xs bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded gap-2 mt-2">
                       <Info className="w-4 h-4 text-yellow-500" />
                       <span>
@@ -3520,72 +3728,75 @@ export default function VenueOnboardingPage() {
                   </ul>
                 </div>
               </div>
-         <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
-  <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-    Venue Partner Declaration
-  </h3>
+              <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
+                  Venue Partner Declaration
+                </h3>
 
-  {/* Authorization & Accuracy */}
-  <div className="mb-4">
-    <p className="text-gray-700 text-sm leading-relaxed">
-      <strong>Authorization & Accuracy:</strong> I hereby confirm that I am an
-      authorized representative of{" "}
-      <strong>{formData.venueName || "[Venue Name]"}</strong>, and that all
-      details provided in the official Ofside mobile app/website onboarding form
-      are true, complete, and accurate. I understand that Ofside (powered by
-      Rankshell – India’s ultimate sports ecosystem) will rely on this
-      information to list, manage, and promote my venue on the platform.
-    </p>
-  </div>
+                {/* Authorization & Accuracy */}
+                <div className="mb-4">
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    <strong>Authorization & Accuracy:</strong> I hereby confirm
+                    that I am an authorized representative of{" "}
+                    <strong>{formData.venueName || "[Venue Name]"}</strong>, and
+                    that all details provided in the official Ofside mobile
+                    app/website onboarding form are true, complete, and
+                    accurate. I understand that Ofside (powered by Rankshell –
+                    India’s ultimate sports ecosystem) will rely on this
+                    information to list, manage, and promote my venue on the
+                    platform.
+                  </p>
+                </div>
 
-  {/* Consent & Compliance */}
-  <div className="mb-4">
-    <p className="text-gray-700 text-sm leading-relaxed">
-      <strong>Consent & Compliance:</strong> I provide my formal consent to
-      onboard and activate my venue under the selected commercial model, and I
-      accept all applicable terms and revenue share conditions. I acknowledge
-      that any false or misleading information may lead to suspension or removal
-      of my venue listing at Ofside’s discretion.
-    </p>
-  </div>
+                {/* Consent & Compliance */}
+                <div className="mb-4">
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    <strong>Consent & Compliance:</strong> I provide my formal
+                    consent to onboard and activate my venue under the selected
+                    commercial model, and I accept all applicable terms and
+                    revenue share conditions. I acknowledge that any false or
+                    misleading information may lead to suspension or removal of
+                    my venue listing at Ofside’s discretion.
+                  </p>
+                </div>
 
-  {/* Single Acknowledgment Checkbox */}
-  <div className="mt-4 flex items-start gap-2">
-    <input
-      type="checkbox"
-      id="venuePartnerAcknowledgment"
-      className="size-5 accent-black mr-2"
-      checked={formData.venuePartnerAcknowledgment || false}
-      onChange={(e) =>
-        setFormData((prev) => ({
-          ...prev,
-          venuePartnerAcknowledgment: e.target.checked,
-        }))
-      }
-      style={{
-        minWidth: 20,
-        minHeight: 20,
-        width: 20,
-        height: 20,
-      }}
-    />
-    <label
-      htmlFor="venuePartnerAcknowledgment"
-      className="text-sm text-gray-900 font-medium"
-    >
-      I agree and confirm the accuracy of the above information and accept the
-      terms of listing on Ofside.
-    </label>
-  </div>
+                {/* Single Acknowledgment Checkbox */}
+                <div className="mt-4 flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="venuePartnerAcknowledgment"
+                    className="size-5 accent-black mr-2"
+                    checked={formData.venuePartnerAcknowledgment || false}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        venuePartnerAcknowledgment: e.target.checked,
+                      }))
+                    }
+                    style={{
+                      minWidth: 20,
+                      minHeight: 20,
+                      width: 20,
+                      height: 20,
+                    }}
+                  />
+                  <label
+                    htmlFor="venuePartnerAcknowledgment"
+                    aria-required={true}
+                    className="text-sm text-gray-900 font-medium"
+                  >
+                    I agree and confirm the accuracy of the above information
+                    and accept the terms of listing on Ofside.
+                  </label>
+                </div>
 
-  {/* Optional error display */}
-  {declarationErrors?.venuePartnerAcknowledgment && (
-    <span className="text-xs text-red-600 mt-2 block">
-      {declarationErrors.venuePartnerAcknowledgment}
-    </span>
-  )}
-</div>
-
+                {/* Optional error display */}
+                {declarationErrors?.venuePartnerAcknowledgment && (
+                  <span className="text-xs text-red-600 mt-2 block">
+                    {declarationErrors.venuePartnerAcknowledgment}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="mt-10 flex flex-col items-center w-full">
@@ -3593,8 +3804,7 @@ export default function VenueOnboardingPage() {
                 onClick={handleStartPaymentProcess}
                 className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
             ${
-              paymentLoading ||
-              !formData.venuePartnerAcknowledgment
+              paymentLoading || !formData.venuePartnerAcknowledgment || isImageGettingUploaded === "pending"
                 ? "opacity-60 cursor-not-allowed"
                 : ""
             }Revenue Share
@@ -3606,12 +3816,11 @@ export default function VenueOnboardingPage() {
                   border: "2px solid #00bf63",
                 }}
                 disabled={
-                  paymentLoading ||
-                  !formData.venuePartnerAcknowledgment
+                  paymentLoading || !formData.venuePartnerAcknowledgment || isImageGettingUploaded === "pending"
                 }
               >
                 <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
-                  {paymentLoading ? (
+                  {paymentLoading || isImageGettingUploaded === "pending" ? (
                     <svg
                       className="animate-spin h-5 w-5 text-white mr-2"
                       viewBox="0 0 24 24"
@@ -3634,15 +3843,20 @@ export default function VenueOnboardingPage() {
                     </svg>
                   ) : (
                     <span className="inline-flex items-center justify-center rounded-full bg-white p-1 mr-2">
-                      <Check className="w-5 h-5 text-green-600" />
+                      <Check className="w-4 h-4 text-green-600" />
                     </span>
                   )}
                   <span className="flex-1 text-center sm:text-left">
-                    {paymentLoading
-                      ? "Processing..."
-                      : formData.revenueModel === "intro_plan"
-                      ? "Pay ₹2,990 + GST & Submit for Review"
-                      : "Pay ₹499 + GST & Submit for Review"}
+                    {isImageGettingUploaded === "pending" ? (
+                      "Uploading Images..."
+                    ) : paymentLoading ? (
+                      "Processing..."
+                    ) : formData.revenueModel === "intro_plan" ? (
+                      "Pay ₹2,990 + GST & Submit for Review"
+                    ) : (
+                      "Pay ₹499 + GST & Submit for Review"
+                    )}
+                   
                   </span>
                 </span>
               </button>
@@ -3716,6 +3930,7 @@ export default function VenueOnboardingPage() {
                 <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-400 rounded-full hidden sm:block mt-6 mb-2 mx-auto" />
               </div>
               {/* Contact/Help */}
+
               <div className="mt-2 sm:mt-6 sm:mt-12 flex justify-center">
                 <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300">
                   <span className="flex items-center gap-1">Need help?</span>

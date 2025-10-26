@@ -232,8 +232,8 @@ export async function POST(req: NextRequest) {
     const newVenue = new Venue(venueData);
     await newVenue.save();
 
-    // --- Google Sheets sync (best-effort) ---
-    await syncVenueToGoogleSheets(newVenue);
+    // // --- Google Sheets sync (best-effort) --- this takes too long
+    // await syncVenueToGoogleSheets(newVenue);
 
 
     return new Response(
@@ -322,7 +322,7 @@ export async function POST(req: NextRequest) {
 
       await appendWithRetries(
         process.env.GOOGLE_SPREADSHEET_ID_ONBOARDING_LEADS,
-        'Venues!A:N',
+        'Venues!A:ZZ',
         row
       );
       } catch (sheetErr) {

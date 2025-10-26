@@ -26,20 +26,34 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex items-start justify-center">
           {/* Blurred, semi-transparent background */}
           <div className="absolute inset-0 backdrop-blur-sm bg-white/10 z-0"></div>
-            <div className="relative mt-12 bg-[#e4d800] rounded-lg shadow-lg  z-10 flex justify-center items-center" style={{ width:"400px", maxWidth:"100%"}}>
-            <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
-              onClick={handleClose}
-              aria-label="Close"
+            <div
+              className="relative mt-12 bg-[#e4d800] rounded-lg shadow-lg z-10 flex justify-center items-center"
+              style={
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? { width: "90%", maxWidth: "90%", maxHeight: "90vh", margin: "auto" }
+                  : { width: "auto", maxWidth: "60%", maxHeight: "90vh", margin: "auto" }
+              }
             >
-              &times;
-            </button>
-            <img
-              src="/assets/onboarding_banner.PNG"
-              alt="Onboarding Banner"
-              className="rounded object-contain"
-            
-            />
+              <button
+                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
+                onClick={handleClose}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+              <img
+                src={
+                  typeof window !== "undefined" && window.innerWidth < 768
+                    ? "/assets/onboarding_banner_mobile.PNG"
+                    : "/assets/onboarding_banner.PNG"
+                }
+                alt="Onboarding Banner"
+                className={
+                  typeof window !== "undefined" && window.innerWidth < 768
+                    ? "rounded object-contain w-full"
+                    : "rounded object-contain"
+                }
+              />
             </div>
         </div>
       )}
