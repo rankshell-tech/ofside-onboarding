@@ -45,7 +45,7 @@ export default function Home() {
                 src={
                   typeof window !== "undefined" && window.innerWidth < 768
                     ? "/assets/onboarding_banner_mobile.PNG"
-                    : "/assets/onboarding_banner.PNG"
+                    : "/assets/onboarding_banner.png"
                 }
                 alt="Onboarding Banner"
                 className={
