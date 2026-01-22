@@ -23,9 +23,9 @@
     "googleapis": "^159.0.0",
     "lucide-react": "^0.536.0",
     "mongoose": "^8.17.0",
-    "next": "^15.6.0-canary.52",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "^16.1.4",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
     "uuid": "^11.1.0"
   },
@@ -42,7 +42,7 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-    "crons": [
+  "crons": [
     {
       "path": "/api/venue/fetch-and-save-google-sheet",
       "schedule": "*/10 * * * *"

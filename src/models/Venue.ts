@@ -22,6 +22,9 @@ const courtSchema = new mongoose.Schema(
     peakStart: { type: String },                             // courtPeakStart
     peakEnd: { type: String },                               // courtPeakEnd
     peakPricePerSlot: { type: Number },                      // courtPeakPricePerSlot
+
+
+    
   },
   { _id: false }
 );
