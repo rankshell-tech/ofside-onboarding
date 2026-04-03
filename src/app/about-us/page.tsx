@@ -79,7 +79,7 @@ export default function AboutUsPage() {
         </div>
       </Section>
 
-      <Section>
+      {/* <Section>
         <SectionIntro
           eyebrow="Team"
           title="Founder / team section"
@@ -94,7 +94,7 @@ export default function AboutUsPage() {
             Right now this block acts as a trust-building placeholder for founder or team content. Once you are ready, we can swap this with real profiles, portraits, and a more personal origin story.
           </p>
         </div>
-      </Section>
+      </Section> */}
 
       <Section>
         <CtaBand
