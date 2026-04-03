@@ -44,6 +44,7 @@ export default function ContactForm() {
   return (
     <div
       id="contact-form"
+      data-reveal="feature-card"
       className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-8"
     >
       <div className="flex items-center gap-3">

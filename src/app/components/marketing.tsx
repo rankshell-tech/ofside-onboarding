@@ -58,7 +58,10 @@ export function AppDownloadButtons({
   centered?: boolean;
 }) {
   return (
-    <div className={`flex flex-col gap-3 sm:flex-row ${centered ? "sm:justify-center" : ""} ${className}`}>
+    <div
+      data-reveal="button-row"
+      className={`flex flex-col gap-3 sm:flex-row ${centered ? "sm:justify-center" : ""} ${className}`}
+    >
       <a
         href={APP_LINKS.playStore}
         className="inline-flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-yellow-300 hover:bg-yellow-50"
@@ -103,7 +106,10 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section className={`mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 ${className}`}>
+    <section
+      data-reveal="section"
+      className={`mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8 ${className}`}
+    >
       {children}
     </section>
   );
@@ -118,7 +124,7 @@ export function SectionIntro({
   const alignment = align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl";
 
   return (
-    <div className={alignment}>
+    <div data-reveal="intro" className={alignment}>
       {eyebrow ? (
         <p className="mb-3 inline-flex rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800">
           {eyebrow}
@@ -153,7 +159,7 @@ export function PageHero({
     <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,226,0,0.45),_transparent_38%),linear-gradient(180deg,_#fffdf2_0%,_#ffffff_65%,_#f8fafc_100%)]">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
-        <div>
+        <div data-reveal="hero-copy">
           <p className="inline-flex rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800">
             {eyebrow}
           </p>
@@ -184,7 +190,9 @@ export function PageHero({
             </div>
           ) : null}
         </div>
-        <div>{aside}</div>
+        <div data-reveal="hero-media" style={{ "--reveal-delay": "120ms" } as React.CSSProperties}>
+          {aside}
+        </div>
       </div>
     </section>
   );
@@ -193,9 +201,11 @@ export function PageHero({
 export function StatStrip({ items }: { items: { label: string; value: string }[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <div
           key={item.label}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
           className="rounded-3xl border border-white/70 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur"
         >
           <p className="text-3xl font-semibold text-gray-950">{item.value}</p>
@@ -212,9 +222,11 @@ export function IconCardGrid({ items, columns = 3 }: { items: IconCard[]; column
 
   return (
     <div className={`grid gap-5 md:grid-cols-2 ${gridClass}`}>
-      {items.map(({ title, description, icon: Icon }) => (
+      {items.map(({ title, description, icon: Icon }, index) => (
         <div
           key={title}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
           className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
         >
           <div className="inline-flex rounded-2xl bg-yellow-100 p-3 text-gray-950">
@@ -233,9 +245,11 @@ export function SimpleCardGrid({ items, columns = 3 }: { items: SimpleCard[]; co
 
   return (
     <div className={`grid gap-5 md:grid-cols-2 ${gridClass}`}>
-      {items.map((item) => (
+      {items.map((item, index) => (
         <div
           key={item.title}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
           className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
         >
           <h3 className="text-xl font-semibold text-gray-950">{item.title}</h3>
@@ -256,7 +270,10 @@ export function Checklist({
   items: string[];
 }) {
   return (
-    <div className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]">
+    <div
+      data-reveal="feature-card"
+      className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+    >
       <h3 className="text-2xl font-semibold text-gray-950">{title}</h3>
       {description ? <p className="mt-3 text-sm leading-7 text-gray-600">{description}</p> : null}
       <div className="mt-6 grid gap-4">
@@ -274,9 +291,11 @@ export function Checklist({
 export function SportPills({ sports }: { sports: string[] }) {
   return (
     <div className="flex flex-wrap gap-3">
-      {sports.map((sport) => (
+      {sports.map((sport, index) => (
         <div
           key={sport}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 55}ms` } as React.CSSProperties}
           className="rounded-full border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm font-medium text-gray-900"
         >
           {sport}
@@ -293,9 +312,11 @@ export function TestimonialGrid({
 }) {
   return (
     <div className="grid gap-5 lg:grid-cols-3">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <div
           key={item.name}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 100}ms` } as React.CSSProperties}
           className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
         >
           <Sparkles className="h-5 w-5 text-yellow-600" />
@@ -313,9 +334,11 @@ export function TestimonialGrid({
 export function FaqGrid({ items }: { items: FaqItem[] }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <details
           key={item.question}
+          data-reveal="feature-card"
+          style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
           className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)]"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-gray-950">
@@ -343,7 +366,10 @@ export function CtaBand({
   showAppButtons?: boolean;
 }) {
   return (
-    <div className="rounded-[2rem] border border-gray-950 bg-gray-950 p-8 text-white shadow-[0_24px_80px_rgba(15,23,42,0.28)] sm:p-10">
+    <div
+      data-reveal="cta"
+      className="rounded-[2rem] border border-gray-950 bg-gray-950 p-8 text-white shadow-[0_24px_80px_rgba(15,23,42,0.28)] sm:p-10"
+    >
       <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">Ready to move</p>
       <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">

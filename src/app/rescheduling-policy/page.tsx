@@ -59,7 +59,7 @@ const policySections = [
 export default function ReschedulingPolicyPage() {
     return (
         <main className="min-h-screen bg-gray-50 py-8 px-4 md:px-12">
-            <section className="mb-8 p-6 bg-white rounded-xl shadow">
+            <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4">
                     Rescheduling Policy – Ofside Booking Platform
                 </h1>
@@ -68,7 +68,7 @@ export default function ReschedulingPolicyPage() {
                 </p>
             </section>
             {policySections.map((section) => (
-                <section key={section.title} className="mb-8 p-6 bg-white rounded-xl shadow">
+                <section key={section.title} data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
                     <h2 className="text-xl font-semibold text-gray-700 mb-3">{section.title}</h2>
                     <ul className="list-disc pl-6 mb-3 space-y-1">
                         {section.content.map((point, idx) => (

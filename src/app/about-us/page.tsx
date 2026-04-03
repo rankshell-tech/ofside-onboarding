@@ -85,7 +85,10 @@ export default function AboutUsPage() {
           title="Founder / team section"
           description="This section is intentionally flexible so you can later add founder names, photos, advisor profiles, or team notes without reworking the page structure."
         />
-        <div className="mt-10 rounded-[2rem] border border-dashed border-yellow-400 bg-yellow-50 p-8">
+        <div
+          data-reveal="feature-card"
+          className="mt-10 rounded-[2rem] border border-dashed border-yellow-400 bg-yellow-50 p-8"
+        >
           <h3 className="text-2xl font-semibold text-gray-950">A place for the people behind the platform</h3>
           <p className="mt-4 max-w-3xl text-base leading-7 text-gray-700">
             Right now this block acts as a trust-building placeholder for founder or team content. Once you are ready, we can swap this with real profiles, portraits, and a more personal origin story.

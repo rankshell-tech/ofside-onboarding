@@ -1,13 +1,13 @@
 import React from "react";
 
 const SectionBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <section className="mb-8 p-6 bg-white rounded-xl shadow">{children}</section>
+    <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">{children}</section>
 );
 
 const RefundPolicyPage = () => (
     <>
         <main className="min-h-screen bg-gray-50 py-8 px-4 md:px-12">
-            <section className="mb-8 p-6 bg-white rounded-xl shadow">
+            <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
                 <h1 className="text-3xl font-bold text-gray-900 mb-4 text-center">
                     Cancellation &amp; Refund Policy – Ofside Booking Platform
                 </h1>
@@ -91,7 +91,7 @@ const RefundPolicyPage = () => (
                 </p>
             </SectionBox>
 
-            <section className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mt-8 shadow">
+            <section data-reveal="feature-card" className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mt-8 shadow">
                 <strong className="block text-lg mb-2">📌 Important Note:</strong>
                 <p className="text-gray-700">
                     Always read the specific cancellation policy for each venue before booking, as individual venues may have custom rules overriding the standard policy mentioned above.

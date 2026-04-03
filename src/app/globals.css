@@ -19,3 +19,36 @@ h5,
 h6,button,a {
   font-family: "Poppins", sans-serif;
 }
+
+[data-reveal] {
+  --reveal-distance: 36px;
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance), 0) scale(0.985);
+  filter: blur(10px);
+  transition:
+    opacity 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    transform 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms),
+    filter 720ms cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+[data-reveal="hero-media"],
+[data-reveal="feature-card"],
+[data-reveal="contact-card"] {
+  --reveal-distance: 42px;
+}
+
+[data-revealed="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

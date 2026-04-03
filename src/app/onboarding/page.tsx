@@ -3816,7 +3816,7 @@ export default function VenueOnboardingPage() {
       <div className="min-h-screen">
         <div className="flex flex-col lg:flex-row bg-white p-2 sm:p-0 sm:min-h-screen">
           {/* Left Side (Video + Info) */}
-          <div className="w-full lg:w-1/2 xl:w-1/3 p-0 bg-theme-primary-light relative flex flex-col ">
+          <div data-reveal="hero-media" className="w-full lg:w-1/2 xl:w-1/3 p-0 bg-theme-primary-light relative flex flex-col ">
             {/* Background Video */}
             <video
               autoPlay
@@ -3947,7 +3947,7 @@ export default function VenueOnboardingPage() {
                 ))}
               </div>
 
-              <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+              <div data-reveal="feature-card" className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {/* Step Header */}
                 <div
                   className={`bg-gradient-to-r ${steps[currentStep].color} p-4 sm:px-8 sm:py-6`}
@@ -4019,7 +4019,7 @@ export default function VenueOnboardingPage() {
               </div>
 
               {/* Help Text */}
-              <div className="text-center mt-8">
+              <div data-reveal="intro" className="text-center mt-8">
                 <p className="text-gray-600">
                   Your venue will be reviewed within 24-48 hours and you will be
                   notified via email.

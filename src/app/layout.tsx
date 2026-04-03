@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import Header from "./components/Header";
+import ScrollRevealObserver from "./components/ScrollRevealObserver";
 
 import "./globals.css";
 import Footer from "./components/Footer";
@@ -53,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <ScrollRevealObserver />
         <Header />
         {children}
         <Footer />

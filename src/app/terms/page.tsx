@@ -1,12 +1,12 @@
 import React from "react";
 
 const SectionBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <section className="mb-6 p-5 bg-white rounded-xl shadow border border-gray-100">{children}</section>
+    <section data-reveal="feature-card" className="mb-6 p-5 bg-white rounded-xl shadow border border-gray-100">{children}</section>
 );
 
 const TermsPage = () => (
     <main className="min-h-screen bg-gray-50 py-8 px-4 md:px-12">
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h1 className="text-3xl font-bold text-gray-900 mb-4 text-center">Ofside Terms and Conditions of Use</h1>
         </section>
 
@@ -154,7 +154,7 @@ const TermsPage = () => (
             </div>
         </SectionBox>
 
-        <section className="mt-8 p-4 bg-green-50 rounded-xl shadow text-center">
+        <section data-reveal="feature-card" className="mt-8 p-4 bg-green-50 rounded-xl shadow text-center">
             <p className="text-lg font-medium text-green-700">Thank you for choosing Ofside. Play safe, play fair!</p>
         </section>
     </main>

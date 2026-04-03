@@ -67,19 +67,24 @@ export default function ContactUsPage() {
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <ContactForm />
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+            <div
+              data-reveal="feature-card"
+              className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+            >
               <SectionIntro
                 eyebrow="Direct Contact"
                 title="Email, phone, and WhatsApp"
                 description="Choose the route that matches the urgency and type of conversation."
               />
               <div className="mt-8 grid gap-4">
-                {contactCards.map(({ title, value, href, icon: Icon }) => (
+                {contactCards.map(({ title, value, href, icon: Icon }, index) => (
                   <a
                     key={title}
                     href={href}
                     target={href.startsWith("http") ? "_blank" : undefined}
                     rel={href.startsWith("http") ? "noreferrer" : undefined}
+                    data-reveal="contact-card"
+                    style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
                     className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 transition hover:border-yellow-300 hover:bg-yellow-50"
                   >
                     <div className="rounded-2xl bg-yellow-100 p-3 text-gray-950">
@@ -94,14 +99,20 @@ export default function ContactUsPage() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-gray-200 bg-gray-950 p-6 text-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
+            <div
+              data-reveal="feature-card"
+              style={{ "--reveal-delay": "120ms" } as React.CSSProperties}
+              className="rounded-[2rem] border border-gray-200 bg-gray-950 p-6 text-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]"
+            >
               <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">Social Links</p>
               <div className="mt-6 grid gap-4">
-                {socialLinks.map(({ label, href, icon: Icon }) => (
+                {socialLinks.map(({ label, href, icon: Icon }, index) => (
                   <Link
                     key={label}
                     href={href}
                     target="_blank"
+                    data-reveal="contact-card"
+                    style={{ "--reveal-delay": `${index * 90}ms` } as React.CSSProperties}
                     className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:bg-white/10"
                   >
                     <Icon className="h-5 w-5 text-yellow-300" />
@@ -109,7 +120,11 @@ export default function ContactUsPage() {
                   </Link>
                 ))}
               </div>
-              <div className="mt-6 rounded-2xl bg-white/5 p-4 text-sm leading-7 text-gray-300">
+              <div
+                data-reveal="contact-card"
+                style={{ "--reveal-delay": "180ms" } as React.CSSProperties}
+                className="mt-6 rounded-2xl bg-white/5 p-4 text-sm leading-7 text-gray-300"
+              >
                 Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
               </div>
             </div>

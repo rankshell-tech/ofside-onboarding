@@ -2,14 +2,14 @@ import React from "react";
 
 const PrivacyPolicyPage = () => (
     <main className="min-h-screen bg-gray-50 py-8 px-4 md:px-12">
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Ofside Privacy Policy</h1>
             <p>
                 Ofside Technologies Private Limited (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users (&quot;you&quot;, &quot;your&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal and non-personal information when you access or use our sports venue booking Platform, mobile applications, and related services (collectively, the &quot;Services&quot;). By using the Services, you consent to the practices described in this Policy.
             </p>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">I. Definitions</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Account:</strong> The password-protected user profile you create on the Platform.</li>
@@ -22,7 +22,7 @@ const PrivacyPolicyPage = () => (
             </ul>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">II. Information Collection</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Account Registration:</strong> When you register, we collect Personal Information such as your name, email address, phone number, and address.</li>
@@ -34,7 +34,7 @@ const PrivacyPolicyPage = () => (
             </ul>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">III. Use of Information</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li>Provide, operate, and maintain the Services.</li>
@@ -47,7 +47,7 @@ const PrivacyPolicyPage = () => (
             </ul>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">IV. Information Sharing</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Venue Partners:</strong> To confirm and manage your Bookings, we share necessary Booking details (name, contact, date/time, payment status).</li>
@@ -63,7 +63,7 @@ const PrivacyPolicyPage = () => (
             </p>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">V. Data Security</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li>Encryption (SSL/TLS) for data in transit.</li>
@@ -75,7 +75,7 @@ const PrivacyPolicyPage = () => (
             </p>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">VI. Data Retention &amp; Your Rights</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Retention:</strong> We retain your Personal Information as long as necessary to provide Services and comply with legal obligations.</li>
@@ -85,21 +85,21 @@ const PrivacyPolicyPage = () => (
             </ul>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">VII. Children</h2>
             <p>
                 Our Services are intended for users aged 18 and above. We do not knowingly collect Personal Information from minors. If you believe we have inadvertently collected data from a minor, please contact us for removal.
             </p>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">VIII. Third-Party Links</h2>
             <p>
                 The Platform may contain links to Third-Party websites or services with separate privacy practices. We are not responsible for their content or policies; please review their privacy statements.
             </p>
         </section>
 
-        <section className="mb-8 p-6 bg-white rounded-xl shadow">
+        <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">IX. Policy Changes</h2>
             <p>
                 We may update this Privacy Policy periodically. We will post the revised Policy on the Platform with a new &quot;Last updated&quot; date. Continued use of Services after changes indicates acceptance.

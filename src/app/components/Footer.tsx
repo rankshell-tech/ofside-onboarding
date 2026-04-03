@@ -21,7 +21,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-gray-200 bg-gray-950 text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr_0.9fr] lg:px-8">
-        <div>
+        <div data-reveal="footer-block">
           <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">Ofside</p>
           <h2 className="mt-4 text-3xl font-semibold">India&apos;s ultimate sports ecosystem</h2>
           <p className="mt-4 max-w-md text-sm leading-7 text-gray-300">
@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div>
+        <div data-reveal="footer-block" style={{ "--reveal-delay": "90ms" } as React.CSSProperties}>
           <h3 className="text-sm uppercase tracking-[0.24em] text-yellow-300">Navigate</h3>
           <div className="mt-5 grid gap-3">
             {primaryLinks.map((link) => (
@@ -59,7 +59,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div>
+        <div data-reveal="footer-block" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
           <h3 className="text-sm uppercase tracking-[0.24em] text-yellow-300">Policies & Social</h3>
           <div className="mt-5 grid gap-3">
             {policyLinks.map((link) => (
@@ -91,7 +91,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="border-t border-white/10" data-reveal="footer-block">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-sm text-gray-400 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <p>© {new Date().getFullYear()} Ofside. All rights reserved.</p>
           <p>Designed to support better sports discovery, participation, and venue growth.</p>

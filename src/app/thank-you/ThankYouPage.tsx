@@ -17,6 +17,7 @@ export default function ThankYouPage() {
       }}
     >
       <div
+        data-reveal="feature-card"
         className="px-8 py-12 rounded-3xl shadow-2xl text-center w-full max-w-md"
         style={{
           background: BRAND_CARD_BG,
