@@ -63,7 +63,6 @@ export default function PlayersPage() {
         title="A simpler way to discover venues, play more often, and stay close to your sports world."
         description="Ofside is built for users who want more than a one-time booking. It supports discovery, exploration, match journeys, and a stronger connection to local sports activity."
         primaryCta={{ label: "Explore Ofside", href: "/" }}
-        secondaryCta={{ label: "Download App", href: "mailto:play@ofside.in?subject=I%20want%20the%20Ofside%20app" }}
         aside={
           <div className="rounded-[2rem] border border-white/70 bg-white p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
             <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">What users get</p>
@@ -126,7 +125,7 @@ export default function PlayersPage() {
           title="Want to explore Ofside as a player?"
           description="Start with the main website, reach out for app access, or contact the team if you want help getting into the ecosystem."
           primaryCta={{ label: "Explore Ofside", href: "/" }}
-          secondaryCta={{ label: "Download App", href: "mailto:play@ofside.in?subject=I%20want%20the%20Ofside%20app" }}
+         
           showAppButtons
         />
       </Section>
