@@ -24,7 +24,7 @@ export default function Header() {
             <Link href="/">
                 <Image
                     src="/assets/ofside-logo.png"
-                    alt="Ofside Logo"
+                    alt="Ofside"
                     width={120}
                     height={40}
                     priority

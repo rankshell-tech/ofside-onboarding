@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useJsApiLoader } from "@react-google-maps/api";
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import {
@@ -37,9 +36,6 @@ import {
 } from "lucide-react";
 import { useRef } from "react";
 import imageCompression from "browser-image-compression";
-import { createCashfreeOrder } from "@/utils/api";
-import { initiatePayment } from "@/utils/cashfree";
-import { Libraries } from "@googlemaps/js-api-loader";
 import HumorousLoader from "../components/HumorousLoader";
 import { MdChair } from "react-icons/md";
 const footballVideo = "./assets/football-playing-vertical.mp4";
@@ -65,7 +61,14 @@ interface UploadProgress {
 
 
 
-const libraries: Libraries = ["places"];
+interface PlacePrediction {
+  place_id: string;
+  description: string;
+  structured_formatting?: {
+    main_text: string;
+    secondary_text: string;
+  };
+}
 
 export default function VenueOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -79,9 +82,6 @@ export default function VenueOnboardingPage() {
   // Validation logic
   const declarationErrors: Record<string, string> = {};
 
-  // Cashfree payment integration
-  const [paymentLoading, setPaymentLoading] = useState(false);
- 
 
 
     const requiredFields = [
@@ -112,7 +112,8 @@ export default function VenueOnboardingPage() {
     "surfaceType",
     "courtSportType",
     "courtSlotDuration",
-    "courtMaxPeople",
+    "courtMaxBookingsPerSlot",
+    "courtMaxPeoplePerBooking",
     "courtPricePerSlot",
     "courtImages",
     "courtPeakEnabled",
@@ -131,12 +132,11 @@ export default function VenueOnboardingPage() {
 
   const [formData, setFormData] = useState({
     // Basic Details
-    venueName: "venue test",
-    sportsOffered: ["football", "basketball"],
-    description: "description test",
+    venueName: "",
+    description: "",
     venueLogo: null as File | null,
+    venueCoverImage: null as File | null,
     is24HoursOpen: false,
-    revenueModel: "revenue_share",
     // Address & Contact
     shopNo: "",
     floorTower: "",
@@ -149,16 +149,18 @@ export default function VenueOnboardingPage() {
     pincode: "",
     fullAddress: "",
 
-    contactPersonName: "John Doe",
-    contactPhone: "1234567890",
-    contactEmail: "john.doe@example.com",
-    ownerName: "Jane Doe",
-    ownerPhone: "0987654321",
-    ownerEmail: "jane.doe@example.com",
+    contactPersonName: "",
+    contactPhone: "",
+    contactEmail: "",
+    contactAlternativePhone: "",
+    ownerName: "",
+    ownerPhone: "",
+    ownerEmail: "",
     startTime: "",
     endTime: "",
 
     venuePartnerAcknowledgment: false,
+    venueTermsAcknowledgment: false,
     // Amenities
     amenities: [] as string[],
 
@@ -167,12 +169,13 @@ export default function VenueOnboardingPage() {
     // Courts Array for multiple courts support
     courts: [
       {
-        courtName: "court 1",
-        surfaceType: "Natural Grass",
-        courtSportType: "Football (Standard)",
-        courtSlotDuration: "5",
-        courtMaxPeople: "3",
-        courtPricePerSlot: "500",
+        courtName: "",
+        surfaceType: "",
+        courtSportType: "",
+        courtSlotDuration: "",
+        courtMaxBookingsPerSlot: "1",
+        courtMaxPeoplePerBooking: "",
+        courtPricePerSlot: "",
         courtImages: {
           cover: null as File | null,
           logo: null as File | null,
@@ -180,9 +183,9 @@ export default function VenueOnboardingPage() {
         },
         courtPeakEnabled: false,
         courtPeakDays: [] as string[],
-        courtPeakStart: "09:00",
-        courtPeakEnd: "18:00",
-        courtPeakPricePerSlot: "700",
+        courtPeakStart: "",
+        courtPeakEnd: "",
+        courtPeakPricePerSlot: "",
       },
     ],
   });
@@ -212,26 +215,7 @@ export default function VenueOnboardingPage() {
 
 
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries,
-    region: "IN",
-    language: "en-IN",
-  });
-
-  const [sessionToken, setSessionToken] =
-    useState<google.maps.places.AutocompleteSessionToken>();
-  const [businessResults, setBusinessResults] = useState<
-    google.maps.places.AutocompletePrediction[]
-  >([]);
-
-
-  // Initialize session token
-  useEffect(() => {
-    if (isLoaded) {
-      setSessionToken(new google.maps.places.AutocompleteSessionToken());
-    }
-  }, [isLoaded]);
+  const [businessResults, setBusinessResults] = useState<PlacePrediction[]>([]);
 
 
   useEffect(() => {
@@ -328,7 +312,6 @@ export default function VenueOnboardingPage() {
       setLoading(false);
       console.error("Submission error:", err);
 
-      // ✅ Rethrow so handleStartPaymentProcess can catch it
       throw err;
     }
   };
@@ -354,74 +337,14 @@ export default function VenueOnboardingPage() {
     setFileSizeError(null);
   };
 
-  const handleStartPaymentProcess = async () => {
-    setPaymentLoading(true);
-
-    try {
-      // Step 1: Save venue and wait for confirmation
-      const venueId = await handleSubmit({
-        preventDefault: () => {},
-      } as React.FormEvent);
-
-      const getGSTFinalized = (amount: number) => {
-        const gstRate = 0.18; // 18% GST
-        return Math.round(amount + amount * gstRate);
-      };
-      // Step 2: If venue saved, then create order
-      const res = await createCashfreeOrder({
-        amount: getGSTFinalized(
-          formData.revenueModel === "revenue_share" ? 499 : 2990
-        ), // Example amounts
-        name:
-          process.env.NEXT_PUBLIC_CASHFREE_ENV == "production"
-            ? "Ofside Venue Listing"
-            : "Ofside Venue Listing [Test]",
-        email: formData.contactEmail,
-        phone: formData.contactPhone,
-      });
-
-      if (res.success) {
-        await initiatePayment(res.sessionId);
-      } else {
-        throw new Error(res.error || "Payment failed. Try again later.");
-      }
-    } catch (err: any) {
-      console.error("Payment process error:", err);
-     
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   const fetchBusinessPredictions = async (input: string) => {
-    if (!input.trim() || !window.google) return;
-
+    if (!input.trim()) return;
     try {
-      const autocompleteService = new google.maps.places.AutocompleteService();
-
-      // Use either locationBias OR locationRestriction, not both
-      const request = {
-        input,
-        sessionToken,
-        types: ["establishment"],
-        componentRestrictions: { country: "in" },
-        // Choose one of these location parameters:
-        locationBias: {
-          center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-          radius: 2000000, // 2000km radius
-        },
-        // OR
-        // locationRestriction: {
-        //   north: 35.5087,
-        //   south: 6.4627,
-        //   east: 97.3956,
-        //   west: 68.1097
-        // }
-      };
-
-      const response = await autocompleteService.getPlacePredictions(request);
-      if (response.predictions) {
-        setBusinessResults(response.predictions);
+      const res = await fetch(`/api/places/autocomplete?input=${encodeURIComponent(input)}`);
+      const data = await res.json();
+      if (data.predictions) {
+        setBusinessResults(data.predictions);
       }
     } catch (error) {
       console.error("Autocomplete error:", error);
@@ -431,110 +354,60 @@ export default function VenueOnboardingPage() {
 
 
   const handlePlaceSelect = async (placeId: string) => {
-    if (!placeId || !window.google?.maps?.places) return;
+    if (!placeId) return;
 
     try {
-      const mapDiv = document.createElement("div");
-      const service = new window.google.maps.places.PlacesService(mapDiv);
+      const res = await fetch(`/api/places/details?place_id=${encodeURIComponent(placeId)}`);
+      const data = await res.json();
+      const place = data.result;
+      if (!place) {
+        console.error("Place details error:", data.status);
+        return;
+      }
 
-      const request: google.maps.places.PlaceDetailsRequest = {
-        placeId,
-        fields: [
-          "name",
-          "formatted_address",
-          "address_components",
-          "geometry",
-          "website",
-          "international_phone_number",
-        ],
-        sessionToken,
+      const addressComponents: any[] = place.address_components || [];
+      const getComponent = (...types: string[]): string => {
+        for (const type of types) {
+          const c = addressComponents.find((ac: any) => ac.types?.includes(type));
+          if (c?.long_name) return c.long_name;
+        }
+        return "";
       };
 
-      service.getDetails(request, (place, status) => {
-        if (
-          status !== window.google.maps.places.PlacesServiceStatus.OK ||
-          !place
-        ) {
-          console.error("Place details error:", status, place);
-          return;
-        }
+      const lat = place.geometry?.location?.lat;
+      const lng = place.geometry?.location?.lng;
 
-        // Enhanced address component extractor
-        const getComponent = (...types: string[]): string => {
-          if (!place.address_components) return "";
-          for (const type of types) {
-            const component = place.address_components.find((c) =>
-              c.types?.includes(type)
-            );
-            if (component?.long_name) return component.long_name;
-          }
-          return "";
-        };
+      setFormData((prev) => ({
+        ...prev,
+        shopNo:
+          getComponent("street_number", "subpremise", "premise", "establishment") ||
+          addressComponents[0]?.long_name ||
+          "",
+        floorTower: getComponent("floor", "tower", "room"),
+        areaSectorLocality: [
+          getComponent("route"),
+          getComponent("neighborhood"),
+          getComponent("sublocality_level_3"),
+          getComponent("sublocality_level_2"),
+          getComponent("sublocality_level_1"),
+          getComponent("political"),
+          getComponent("premise"),
+        ]
+          .filter(Boolean)
+          .filter((v, i, arr) => arr.indexOf(v) === i)
+          .join(", "),
+        city: getComponent("locality", "administrative_area_level_2", "sublocality", "postal_town"),
+        state: getComponent("administrative_area_level_1", "administrative_area_level_2"),
+        landmark: getComponent("landmark"),
+        pincode: getComponent("postal_code", "postal_code_suffix"),
+        fullAddress: place.formatted_address || "",
+        latitude: lat != null ? String(lat) : "",
+        longitude: lng != null ? String(lng) : "",
+      }));
 
-        // Extract all address components in one pass
-        const addressComponents = {
-          shopNo:
-            getComponent(
-              "street_number",
-              "subpremise",
-              "premise",
-              "establishment"
-            ) ||
-            place.address_components?.[0]?.long_name ||
-            "",
-
-          floorTower: getComponent("floor", "tower", "room"),
-
-          areaSectorLocality: [
-            getComponent("route"),
-            getComponent("neighborhood"),
-            getComponent("sublocality_level_3"),
-            getComponent("sublocality_level_2"),
-            getComponent("sublocality_level_1"),
-            getComponent("political"),
-            getComponent("premise"),
-          ]
-            .filter(Boolean)
-            .filter((v, i, arr) => arr.indexOf(v) === i)
-            .join(", "),
-
-          city: getComponent(
-            "locality",
-            "administrative_area_level_2",
-            "sublocality",
-            "postal_town"
-          ),
-
-          state: getComponent(
-            "administrative_area_level_1",
-            "administrative_area_level_2"
-          ),
-
-          landmark: getComponent("landmark"),
-
-          pincode: getComponent("postal_code", "postal_code_suffix"),
-        };
-
-        setFormData((prev) => ({
-          ...prev,
-          ...addressComponents,
-          fullAddress: place.formatted_address || "",
-          latitude: place.geometry?.location?.lat()?.toString() || "",
-          longitude: place.geometry?.location?.lng()?.toString() || "",
-          // Uncomment if needed:
-          // businessName: place.name || "",
-          // website: place.website || "",
-          // phone: place.international_phone_number || ""
-        }));
-
-        setBusinessResults([]);
-        setSessionToken(
-          new window.google.maps.places.AutocompleteSessionToken()
-        );
-      });
+      setBusinessResults([]);
     } catch (error) {
       console.error("Place details error:", error);
-      setSessionToken(new window.google.maps.places.AutocompleteSessionToken());
     }
   };
 
@@ -554,8 +427,8 @@ export default function VenueOnboardingPage() {
       errors.courtSportType = "Sport type is required.";
     if (!court.courtSlotDuration && courtsTouched[idx]?.courtSlotDuration)
       errors.courtSlotDuration = "Slot duration is required.";
-    if (!court.courtMaxPeople && courtsTouched[idx]?.courtMaxPeople)
-      errors.courtMaxPeople = "Max booking per slot is required.";
+    if (!court.courtMaxBookingsPerSlot && courtsTouched[idx]?.courtMaxBookingsPerSlot)
+      errors.courtMaxBookingsPerSlot = "Max bookings per slot is required.";
     if (
       (!court.courtPricePerSlot || Number(court.courtPricePerSlot) <= 0) &&
       courtsTouched[idx]?.courtPricePerSlot
@@ -693,7 +566,8 @@ export default function VenueOnboardingPage() {
           surfaceType: "",
           courtSportType: "",
           courtSlotDuration: "",
-          courtMaxPeople: "",
+          courtMaxBookingsPerSlot: "1",
+          courtMaxPeoplePerBooking: "",
           courtPricePerSlot: "",
           courtImages: {
             cover: null as File | null,
@@ -875,7 +749,7 @@ export default function VenueOnboardingPage() {
     "Sunday",
   ];
 
-  type MultiSelectField = "sportsOffered" | "amenities" | "availableDays";
+  type MultiSelectField = "amenities" | "availableDays";
 
   const handleMultiSelect = (field: MultiSelectField, value: string) => {
     setFormData((prev) => {
@@ -1064,6 +938,18 @@ export default function VenueOnboardingPage() {
 
     uploadInProgress = true;
     try {
+      // Upload venue-level cover image if present
+      let venueCoverImageUrl: string | null = null;
+      let venueLogoUrl: string | null = null;
+      if (currentFormData.venueCoverImage instanceof File) {
+        const compressed = await compressImage(currentFormData.venueCoverImage);
+        venueCoverImageUrl = await uploadImageAndGetUrl(compressed);
+      }
+      if (currentFormData.venueLogo instanceof File) {
+        const compressed = await compressImage(currentFormData.venueLogo);
+        venueLogoUrl = await uploadImageAndGetUrl(compressed);
+      }
+
       // Prepare all image upload jobs
       const allImageJobs: ImageJob[] = [];
 
@@ -1131,9 +1017,14 @@ export default function VenueOnboardingPage() {
 
       if (allImageJobs.length === 0) {
         console.log(
-          "📸 [HANDLE_IMAGE_UPLOAD] No images to upload, returning original formData"
+          "📸 [HANDLE_IMAGE_UPLOAD] No court images to upload, returning formData with venue images"
         );
-        return formData; // No images to upload
+        setIsImageGettingUploaded("done");
+        return {
+          ...currentFormData,
+          venueCoverImage: venueCoverImageUrl ?? currentFormData.venueCoverImage,
+          venueLogo: venueLogoUrl ?? currentFormData.venueLogo,
+        };
       }
 
       // Upload all images with progress tracking
@@ -1179,6 +1070,8 @@ export default function VenueOnboardingPage() {
       return {
         ...currentFormData,
         courts: updatedCourts,
+        venueCoverImage: venueCoverImageUrl ?? currentFormData.venueCoverImage,
+        venueLogo: venueLogoUrl ?? currentFormData.venueLogo,
       };
     } catch (err) {
       uploadInProgress = false;
@@ -1306,8 +1199,7 @@ export default function VenueOnboardingPage() {
         return (
           !!formData.venueName.trim() &&
           !!formData.description.trim() &&
-          !!formData.startTime &&
-          !!formData.endTime &&
+          (formData.is24HoursOpen || (!!formData.startTime && !!formData.endTime)) &&
           formData.availableDays.length > 0
         );
       case 1: // Address & Contact
@@ -1337,7 +1229,7 @@ export default function VenueOnboardingPage() {
             !!court.courtName &&
             !!court.courtSportType &&
             !!court.courtSlotDuration &&
-            !!court.courtMaxPeople &&
+            !!court.courtMaxBookingsPerSlot &&
             !!court.courtPricePerSlot &&
             court.courtImages &&
             !!court.courtImages.cover &&
@@ -1349,8 +1241,8 @@ export default function VenueOnboardingPage() {
                 !!court.courtPeakEnd &&
                 !!court.courtPeakPricePerSlot))
         );
-      case 4: // Pricing & Availability
-        return !!formData.venuePartnerAcknowledgment;
+      case 4: // Review & Declaration
+        return !!formData.venuePartnerAcknowledgment && !!formData.venueTermsAcknowledgment;
 
       default:
         return false;
@@ -1361,8 +1253,7 @@ export default function VenueOnboardingPage() {
   useEffect(() => {
     if (!showSuccessPopup) return;
     if (countdown <= 0) {
-      // Redirect to payment page or trigger payment logic here
-      handleStartPaymentProcess();
+      window.location.href = "/";
       return;
     }
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
@@ -1371,7 +1262,8 @@ export default function VenueOnboardingPage() {
 
   if (
     isImageGettingUploaded === "uploading" &&
-    formData.venuePartnerAcknowledgment
+    formData.venuePartnerAcknowledgment &&
+    formData.venueTermsAcknowledgment
   ) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -1460,7 +1352,7 @@ export default function VenueOnboardingPage() {
             Venue application submitted!
           </h2>
           <p className="text-lg text-gray-700 mb-8 font-medium">
-            Redirecting to the Payment page...
+            Our team will review your venue and get back to you shortly.
           </p>
           <div className="flex justify-center items-center mt-6">
             <svg
@@ -1627,6 +1519,92 @@ export default function VenueOnboardingPage() {
                     </span>
                   )}
               </div>
+              {/* Venue Images */}
+              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Cover Image */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Venue Cover Image <span className="text-gray-400 font-normal text-xs">(landscape, 16:9)</span>
+                  </label>
+                  <div className="relative border-2 border-dashed rounded-xl h-36 flex items-center justify-center bg-gray-50 hover:bg-yellow-50 hover:border-yellow-400 transition-all overflow-hidden">
+                    {formData.venueCoverImage ? (
+                      <>
+                        <Image
+                          src={URL.createObjectURL(formData.venueCoverImage)}
+                          alt="Cover"
+                          fill
+                          className="object-cover rounded-xl"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData((p) => ({ ...p, venueCoverImage: null }))}
+                          className="absolute top-2 right-2 bg-white text-red-600 border border-red-200 rounded-full p-1 shadow hover:bg-red-500 hover:text-white transition z-10"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex flex-col items-center gap-2 text-gray-400 pointer-events-none">
+                          <Camera className="w-8 h-8" />
+                          <span className="text-xs">Upload cover photo</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setFormData((p) => ({ ...p, venueCoverImage: file }));
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+                {/* Logo */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Venue Logo <span className="text-gray-400 font-normal text-xs">(square, 1:1)</span>
+                  </label>
+                  <div className="relative border-2 border-dashed rounded-xl h-36 flex items-center justify-center bg-gray-50 hover:bg-yellow-50 hover:border-yellow-400 transition-all overflow-hidden">
+                    {formData.venueLogo ? (
+                      <>
+                        <Image
+                          src={URL.createObjectURL(formData.venueLogo)}
+                          alt="Logo"
+                          fill
+                          className="object-contain rounded-xl"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setFormData((p) => ({ ...p, venueLogo: null }))}
+                          className="absolute top-2 right-2 bg-white text-red-600 border border-red-200 rounded-full p-1 shadow hover:bg-red-500 hover:text-white transition z-10"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex flex-col items-center gap-2 text-gray-400 pointer-events-none">
+                          <Camera className="w-8 h-8" />
+                          <span className="text-xs">Upload logo</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setFormData((p) => ({ ...p, venueLogo: file }));
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="lg:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Select the operational days *
@@ -1912,76 +1890,45 @@ export default function VenueOnboardingPage() {
         return (
           <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
-              {isLoaded ? (
-                <div className="col-span-1 sm:col-span-2 mb-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
-                    Search &amp; Autofill Business Address{" "}
-                    <span className="text-yellow-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search for your venue (e.g., Smash2Play, Play Arena)"
-                      className="w-full px-4 py-3 border-2 border-yellow-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-yellow-50 text-gray-900 placeholder-gray-400 shadow-sm transition-all"
-                      onChange={(e) => fetchBusinessPredictions(e.target.value)}
-                      style={{ fontWeight: 500, fontSize: "1rem" }}
-                    />
-                    {businessResults.length > 0 && (
-                      <div className="absolute z-20 mt-1 w-full bg-white shadow-xl rounded-xl border border-yellow-200 max-h-64 overflow-auto animate__animated animate__fadeIn">
-                        {businessResults.map((prediction) => (
-                          <div
-                            key={prediction.place_id}
-                            className="p-3 hover:bg-yellow-50 hover:text-yellow-900 cursor-pointer transition-all border-b last:border-b-0 flex flex-col"
-                            onClick={() =>
-                              handlePlaceSelect(prediction.place_id)
-                            }
-                          >
-                            <div className="font-semibold text-gray-900 flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-yellow-500" />
-                              {prediction.structured_formatting.main_text}
-                              {prediction.types?.includes("establishment") && (
-                                <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-semibold">
-                                  Verified Business
-                                </span>
-                              )}
-                            </div>
+              <div className="col-span-1 sm:col-span-2 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+                  Search &amp; Autofill Business Address{" "}
+                  <span className="text-yellow-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search for your venue (e.g., Smash2Play, Play Arena)"
+                    className="w-full px-4 py-3 border-2 border-yellow-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-yellow-50 text-gray-900 placeholder-gray-400 shadow-sm transition-all"
+                    onChange={(e) => fetchBusinessPredictions(e.target.value)}
+                    style={{ fontWeight: 500, fontSize: "1rem" }}
+                  />
+                  {businessResults.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full bg-white shadow-xl rounded-xl border border-yellow-200 max-h-64 overflow-auto animate__animated animate__fadeIn">
+                      {businessResults.map((prediction) => (
+                        <div
+                          key={prediction.place_id}
+                          className="p-3 hover:bg-yellow-50 hover:text-yellow-900 cursor-pointer transition-all border-b last:border-b-0 flex flex-col"
+                          onClick={() => handlePlaceSelect(prediction.place_id)}
+                        >
+                          <div className="font-semibold text-gray-900 flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-yellow-500" />
+                            {prediction.structured_formatting?.main_text ?? prediction.description}
+                          </div>
+                          {prediction.structured_formatting?.secondary_text && (
                             <div className="text-xs text-gray-500 pl-6">
                               {prediction.structured_formatting.secondary_text}
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-yellow-700 mt-2">
-                    Start typing your venue name to quickly autofill address
-                    details from Google Maps.
-                  </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="col-span-1 sm:col-span-2 flex items-center text-yellow-700 text-sm">
-                  <svg
-                    className="animate-spin h-5 w-5 mr-2 text-yellow-400"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                    />
-                  </svg>
-                  Loading Google Maps...
-                </div>
-              )}
+                <p className="text-xs text-yellow-700 mt-2">
+                  Start typing your venue name to quickly autofill address details from Google Maps.
+                </p>
+              </div>
 
               {/* Shop/Building no. */}
               <div className="w-full">
@@ -2248,6 +2195,29 @@ export default function VenueOnboardingPage() {
                     <Info className="w-4 h-4 text-yellow-500" />
                     Booking confirmation emails will be sent to this address
                   </span>
+                </div>
+              </div>
+
+              {/* Alternative Phone */}
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+                  Alternative Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="tel"
+                    value={formData.contactAlternativePhone}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        contactAlternativePhone: e.target.value,
+                      });
+                    }}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-700"
+                    placeholder="Enter alternative phone number (optional)"
+                    maxLength={10}
+                  />
                 </div>
               </div>
 
@@ -3004,45 +2974,70 @@ export default function VenueOnboardingPage() {
                     )}
                   </div>
 
-                  {/* How many in 1 slot */}
+                  {/* Max Bookings Per Slot */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Max Booking Per Slot *
+                      Max Bookings Per Slot *
                     </label>
                     <select
-                      value={court.courtMaxPeople}
+                      value={court.courtMaxBookingsPerSlot}
                       onChange={(e) => {
                         handleCourtChange(
                           idx,
-                          "courtMaxPeople",
+                          "courtMaxBookingsPerSlot",
                           e.target.value
                         );
                       }}
-                      onBlur={() => handleCourtTouched(idx, "courtMaxPeople")}
+                      onBlur={() => handleCourtTouched(idx, "courtMaxBookingsPerSlot")}
                       className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700 ${
-                        courtsErrors[idx]?.courtMaxPeople
+                        courtsErrors[idx]?.courtMaxBookingsPerSlot
                           ? "border-red-500"
                           : "border-gray-300"
                       }`}
                       required
                     >
-                      <option value="">Select max booking here</option>
+                      <option value="">Select max concurrent bookings</option>
                       {[...Array(20)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
                           {i + 1}
                         </option>
                       ))}
                     </select>
-                    {courtsErrors[idx]?.courtMaxPeople && (
+                    {courtsErrors[idx]?.courtMaxBookingsPerSlot && (
                       <span className="text-xs text-red-600 mt-1 block">
-                        {courtsErrors[idx].courtMaxPeople}
+                        {courtsErrors[idx].courtMaxBookingsPerSlot}
                       </span>
                     )}
                     <span className="inline-flex items-center text-xs bg-yellow-100 text-gray-800 font-medium px-3 py-1 rounded gap-2 mt-2">
                       <Info className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                       For some sports (like Archery), a single time slot may
-                      allow multiple bookings. This means more than one person
-                      can book and play in the same slot.
+                      allow multiple concurrent bookings.
+                    </span>
+                  </div>
+
+                  {/* Max People Per Booking */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Max People Per Booking
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={court.courtMaxPeoplePerBooking}
+                      onChange={(e) => {
+                        handleCourtChange(
+                          idx,
+                          "courtMaxPeoplePerBooking",
+                          e.target.value
+                        );
+                      }}
+                      onBlur={() => handleCourtTouched(idx, "courtMaxPeoplePerBooking")}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-gray-700"
+                      placeholder="e.g., 10"
+                    />
+                    <span className="inline-flex items-center text-xs bg-blue-50 text-gray-700 font-medium px-3 py-1 rounded gap-2 mt-2">
+                      <Info className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      Maximum number of players allowed per booking (optional).
                     </span>
                   </div>
 
@@ -3252,14 +3247,6 @@ export default function VenueOnboardingPage() {
         );
 
       case 4: // Review & Pay
-        // Helper to get sports offered display
-        const getSportsOfferedDisplay = (sports: string[]) => {
-          if (!sports || sports.length === 0) {
-            return <span className="italic text-gray-400">None selected</span>;
-          }
-          return sports.join(", ");
-        };
-
         // Helper to get amenities display
         const getAmenitiesDisplay = (amenities: string[]) => {
           if (!amenities || amenities.length === 0) {
@@ -3311,7 +3298,11 @@ export default function VenueOnboardingPage() {
 
                       <div>
                         <span className="font-medium">Sports Offered:</span>{" "}
-                        {getSportsOfferedDisplay(formData.sportsOffered)}
+                        {formData.courts.length > 0
+                          ? [...new Set(formData.courts.map((c: any) => c.courtSportType).filter(Boolean))].join(", ") || (
+                              <span className="italic text-gray-400">Not specified</span>
+                            )
+                          : <span className="italic text-gray-400">Not specified</span>}
                       </div>
                       <div>
                         <span className="font-medium">Operational Days:</span>{" "}
@@ -3479,8 +3470,8 @@ export default function VenueOnboardingPage() {
                             )}
                           </div>
                           <div>
-                            <span className="font-medium">Max/Slot:</span>{" "}
-                            {court.courtMaxPeople || (
+                            <span className="font-medium">Max Bookings/Slot:</span>{" "}
+                            {court.courtMaxBookingsPerSlot || (
                               <span className="italic text-gray-400">
                                 Not specified
                               </span>
@@ -3580,235 +3571,184 @@ export default function VenueOnboardingPage() {
                 </div>
               </div>
             </div>
-            <div className="mt-10 w-full  mx-auto bg-yellow-50 border border-yellow-200 rounded-2xl p-6 shadow space-y-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Select your preferred Venue Listing revenue model:
-              </h3>
-              <p className="text-gray-700 mb-4">
-                Please select the best monetization model for your sports venue.
-                You can choose to continue with the same listing revenue model
-                for all your venues.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6">
-                {/* Option 1 – Revenue Share */}
-                <div
-                  className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
-                    formData.revenueModel === "revenue_share"
-                      ? "border-green-600 bg-gradient-to-br from-green-50 to-green-100 shadow-lg scale-[1.03]"
-                      : "border-gray-200 bg-white hover:border-green-400 hover:bg-green-50/40"
-                  }`}
-                  tabIndex={0}
-                  role="button"
-                  aria-pressed={formData.revenueModel === "revenue_share"}
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      revenueModel: "revenue_share",
-                    }))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === " " || e.key === "Enter") {
-                      e.preventDefault();
-                      setFormData((prev) => ({
-                        ...prev,
-                        revenueModel: "revenue_share",
-                      }));
-                    }
-                  }}
-                >
-                  {formData.revenueModel === "revenue_share" && (
-                    <span className="absolute top-3 right-3 bg-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                      Selected
-                    </span>
-                  )}
-                  <div className="flex items-center mb-3 gap-3">
-                    <input
-                      type="radio"
-                      name="revenueModel"
-                      value="revenue_share"
-                      checked={formData.revenueModel === "revenue_share"}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          revenueModel: "revenue_share",
-                        }))
-                      }
-                      className="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500 accent-green-600"
-                      style={{ pointerEvents: "none" }}
-                      tabIndex={-1}
-                    />
-                    <span className="font-semibold text-lg text-gray-900 ml-2">
-                      Revenue Share
-                    </span>
-                  </div>
-                  <ul className="text-gray-700 text-sm pl-11 space-y-1">
-                    <li>
-                      <span className="font-bold text-green-700">
-                        6% per booking + GST
-                      </span>{" "}
-                      commission on every confirmed booking.
-                    </li>
-                    <li>
-                      <span className="inline-block mt-1 text-xs text-gray-500">
-                        ₹499 + 18% GST one-time onboarding fee
-                      </span>
-                    </li>
-                  </ul>
+            <div className="mt-10 w-full mx-auto space-y-4">
+              {/* Header */}
+              <div className="bg-gray-900 rounded-2xl p-5">
+                <h3 className="text-white text-xl font-bold mb-1">How We Charge</h3>
+                <p className="text-gray-400 text-sm">Simple, transparent pricing designed for growth</p>
+              </div>
+
+              {/* Introductory Period — Active Now */}
+              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-white font-bold text-base">Introductory Period</span>
+                  <span className="bg-white text-green-600 text-xs font-bold px-3 py-1 rounded-full">ACTIVE NOW</span>
                 </div>
-                {/* Option 2 – Introductory Plan */}
-                <div
-                  className={`flex-1 cursor-pointer border rounded-2xl p-6 transition-all group relative overflow-hidden ${
-                    formData.revenueModel === "intro_plan"
-                      ? "border-yellow-500 bg-gradient-to-br from-yellow-100 to-yellow-50 shadow-lg scale-[1.03]"
-                      : "border-gray-200 bg-white hover:border-yellow-400 hover:bg-yellow-50/40"
-                  }`}
-                  tabIndex={0}
-                  role="button"
-                  aria-pressed={formData.revenueModel === "intro_plan"}
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      revenueModel: "intro_plan",
-                    }))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === " " || e.key === "Enter") {
-                      e.preventDefault();
-                      setFormData((prev) => ({
-                        ...prev,
-                        revenueModel: "intro_plan",
-                      }));
-                    }
-                  }}
-                >
-                  {formData.revenueModel === "intro_plan" && (
-                    <span className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                      Selected
-                    </span>
-                  )}
-                  <div className="flex items-center mb-3 gap-3">
-                    <input
-                      type="radio"
-                      name="revenueModel"
-                      value="intro_plan"
-                      checked={formData.revenueModel === "intro_plan"}
-                      onChange={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          revenueModel: "intro_plan",
-                        }))
-                      }
-                      className="w-5 h-5 text-yellow-500 border-gray-300 focus:ring-yellow-500 accent-yellow-500"
-                      style={{ pointerEvents: "none" }}
-                      tabIndex={-1}
-                    />
-                    <span className="font-semibold text-lg text-gray-900 ml-2">
-                      Introductory Plan
-                    </span>
-                  </div>
-                  <ul className="text-gray-700 text-sm pl-11 space-y-1">
-                    <li>
-                      <span className="font-bold text-yellow-700">
-                        INR 2,990 + 18% GST
-                      </span>{" "}
-                      one-time setup fee (first 3 months)
-                    </li>
-                    <li>
-                      <span className="font-bold text-yellow-700">
-                        No commission
-                      </span>{" "}
-                      in months 1–3
-                    </li>
-                    <li>
-                      <span className="font-bold text-yellow-700">
-                        6% per booking + GST
-                      </span>{" "}
-                      from month 4 onward
-                    </li>
-                  </ul>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-white text-3xl font-extrabold">2%</span>
+                  <span className="text-green-100 text-sm">PG charges only</span>
+                </div>
+                <p className="text-green-100 text-xs">Per transaction · No commission · No setup fee</p>
+              </div>
+
+              {/* Post Introductory Period */}
+              <div className="bg-gradient-to-r from-amber-400 to-orange-400 rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-white font-bold text-base">Post Introductory Period</span>
+                  <span className="bg-white text-orange-500 text-xs font-bold px-3 py-1 rounded-full">COMING NEXT</span>
+                </div>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-white text-3xl font-extrabold">4%</span>
+                  <span className="text-orange-50 text-sm">Commission</span>
+                  <span className="text-orange-100 text-sm ml-2">+</span>
+                  <span className="text-white text-3xl font-extrabold ml-2">2%</span>
+                  <span className="text-orange-50 text-sm">PG</span>
+                </div>
+                <p className="text-orange-50 text-xs mb-3">Next 3 months after introductory period</p>
+                <div className="bg-white bg-opacity-20 rounded-xl p-3">
+                  <p className="text-white text-xs font-semibold">Fixed &amp; Locked for 3 Months</p>
+                  <p className="text-orange-50 text-xs mt-0.5">No changes during this period</p>
                 </div>
               </div>
-              <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-gray-700 text-center mb-4">
-                  Venue Partner Declaration
-                </h3>
 
-                {/* Authorization & Accuracy */}
-                <div className="mb-4">
+              {/* Key Highlights */}
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                <p className="text-blue-800 font-bold text-sm mb-3">Key Highlights</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </span>
+                    <span className="text-gray-700 text-sm">No one-time setup fee</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </span>
+                    <span className="text-gray-700 text-sm">Transparent pricing, no hidden charges</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-3 h-3 text-white" />
+                    </span>
+                    <span className="text-gray-700 text-sm">Designed to support your early growth</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 mt-6 bg-white border border-gray-200 rounded-xl p-6 space-y-5">
+                <h3 className="text-xl font-bold text-gray-800 text-center">Venue Partner Declaration</h3>
+
+                {/* Opening Statement */}
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  I hereby confirm that I am an authorized representative of{" "}
+                  <strong>{formData.venueName || "[Venue Name]"}</strong> and that all details submitted in the
+                  official Ofside mobile app / website onboarding form are true, complete, and accurate. I
+                  understand that Ofside (powered by{" "}
+                  <strong>Rankshell – India’s Ultimate Sports Ecosystem</strong>) will rely on this information
+                  to list, manage, and promote my venue on the platform.
+                </p>
+
+                {/* Details Submitted */}
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-2">Details Submitted</p>
+                  <ul className="space-y-1">
+                    {[
+                      "Brand / Venue Name, Contact Number & Email",
+                      "Owner’s Name & Contact Details",
+                      "Venue Location & Full Address",
+                      "Amenities Available",
+                      "Operational Days & Timings",
+                      "Sports Offered",
+                      "Facility Images",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
+                        <span className="mt-0.5 text-gray-400">•</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Commercial Terms Accepted */}
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-2">Commercial Terms Accepted</p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-green-700 mb-2">First 3 Months</p>
+                      <p className="text-sm text-gray-700">• 0% Commission</p>
+                      <p className="text-sm text-gray-700">• 2% Payment Gateway (PG) Charges only</p>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-amber-700 mb-2">Next 3 Months</p>
+                      <p className="text-sm text-gray-700">• 4% Commission + 2% PG Charges</p>
+                      <p className="text-sm text-gray-700">• This structure will remain fixed for next 3 months</p>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-3">
+                    <p className="text-xs font-bold text-blue-700 mb-2">Key Highlights</p>
+                    <p className="text-sm text-gray-700">• No setup or onboarding fee</p>
+                    <p className="text-sm text-gray-700">• Transparent and fixed commercial structure</p>
+                  </div>
+                </div>
+
+                {/* Final Declaration */}
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-2">Final Declaration</p>
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    <strong>Authorization & Accuracy:</strong> I hereby confirm
-                    that I am an authorized representative of{" "}
-                    <strong>{formData.venueName || "[Venue Name]"}</strong>, and
-                    that all details provided in the official Ofside mobile
-                    app/website onboarding form are true, complete, and
-                    accurate. I understand that Ofside (powered by Rankshell –
-                    India’s ultimate sports ecosystem) will rely on this
-                    information to list, manage, and promote my venue on the
-                    platform.
+                    By proceeding, I confirm that I have reviewed and accepted the above details and commercial
+                    terms, and I provide my consent to onboard and activate my venue on Ofside. I understand
+                    that any false or misleading information may result in suspension or removal of my venue
+                    listing.
                   </p>
                 </div>
 
-                {/* Consent & Compliance */}
-                <div className="mb-4">
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    <strong>Consent & Compliance:</strong> I provide my formal
-                    consent to onboard and activate my venue under the selected
-                    commercial model, and I accept all applicable terms and
-                    revenue share conditions. I acknowledge that any false or
-                    misleading information may lead to suspension or removal of
-                    my venue listing at Ofside’s discretion.
-                  </p>
-                </div>
+                {/* Acknowledgment — Checkbox 1 */}
+                <div className="pt-2 space-y-3">
+                  <p className="text-sm font-semibold text-gray-800">Acknowledgment</p>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="venuePartnerAcknowledgment"
+                      className="mt-0.5 accent-black flex-shrink-0"
+                      style={{ width: 18, height: 18 }}
+                      checked={formData.venuePartnerAcknowledgment || false}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, venuePartnerAcknowledgment: e.target.checked }))
+                      }
+                    />
+                    <label htmlFor="venuePartnerAcknowledgment" className="text-sm text-gray-900 cursor-pointer">
+                      I confirm the submitted venue details are correct
+                    </label>
+                  </div>
 
-                {/* Single Acknowledgment Checkbox */}
-                <div className="mt-4 flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    id="venuePartnerAcknowledgment"
-                    className="size-5 accent-black mr-2"
-                    checked={formData.venuePartnerAcknowledgment || false}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        venuePartnerAcknowledgment: e.target.checked,
-                      }))
-                    }
-                    style={{
-                      minWidth: 20,
-                      minHeight: 20,
-                      width: 20,
-                      height: 20,
-                    }}
-                  />
-                  <label
-                    htmlFor="venuePartnerAcknowledgment"
-                    aria-required={true}
-                    className="text-sm text-gray-900 font-medium"
-                  >
-                    I agree and confirm the accuracy of the above information
-                    and accept the terms of listing on Ofside.
-                  </label>
+                  {/* Acknowledgment — Checkbox 2 */}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="venueTermsAcknowledgment"
+                      className="mt-0.5 accent-black flex-shrink-0"
+                      style={{ width: 18, height: 18 }}
+                      checked={formData.venueTermsAcknowledgment || false}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, venueTermsAcknowledgment: e.target.checked }))
+                      }
+                    />
+                    <label htmlFor="venueTermsAcknowledgment" className="text-sm text-gray-900 cursor-pointer">
+                      I accept the above commercial terms and authorize Ofside to proceed with onboarding
+                    </label>
+                  </div>
                 </div>
-
-                {/* Optional error display */}
-                {declarationErrors?.venuePartnerAcknowledgment && (
-                  <span className="text-xs text-red-600 mt-2 block">
-                    {declarationErrors.venuePartnerAcknowledgment}
-                  </span>
-                )}
               </div>
             </div>
 
             <div className="mt-10 flex flex-col items-center w-full">
               <button
-                onClick={handleStartPaymentProcess}
-                className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2
-            ${
-              paymentLoading || !formData.venuePartnerAcknowledgment || isImageGettingUploaded === "pending"
-                ? "opacity-60 cursor-not-allowed"
-                : ""
-            }Revenue Share
-          `}
+                onClick={handleSubmit}
+                className={`w-full max-w-xs sm:max-w-md bg-gradient-to-r from-[#00bf63] to-[#43e97b] text-white font-bold py-3 px-4 sm:px-8 rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-200 text-base sm:text-lg flex items-center justify-center gap-2 ${
+                  loading || !formData.venuePartnerAcknowledgment || !formData.venueTermsAcknowledgment || isImageGettingUploaded === "pending"
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
+                }`}
                 style={{
                   fontSize: "1.05rem",
                   letterSpacing: "0.02em",
@@ -3816,11 +3756,11 @@ export default function VenueOnboardingPage() {
                   border: "2px solid #00bf63",
                 }}
                 disabled={
-                  paymentLoading || !formData.venuePartnerAcknowledgment || isImageGettingUploaded === "pending"
+                  loading || !formData.venuePartnerAcknowledgment || !formData.venueTermsAcknowledgment || isImageGettingUploaded === "pending"
                 }
               >
                 <span className="flex items-center justify-center gap-2 w-full sm:w-auto flex-col sm:flex-row">
-                  {paymentLoading || isImageGettingUploaded === "pending" ? (
+                  {loading || isImageGettingUploaded === "pending" ? (
                     <svg
                       className="animate-spin h-5 w-5 text-white mr-2"
                       viewBox="0 0 24 24"
@@ -3847,24 +3787,19 @@ export default function VenueOnboardingPage() {
                     </span>
                   )}
                   <span className="flex-1 text-center sm:text-left">
-                    {isImageGettingUploaded === "pending" ? (
-                      "Uploading Images..."
-                    ) : paymentLoading ? (
-                      "Processing..."
-                    ) : formData.revenueModel === "intro_plan" ? (
-                      "Pay ₹2,990 + GST & Submit for Review"
-                    ) : (
-                      "Pay ₹499 + GST & Submit for Review"
-                    )}
-                   
+                    {isImageGettingUploaded === "pending"
+                      ? "Uploading Images..."
+                      : loading
+                      ? "Submitting..."
+                      : "Submit Venue — It's Free"}
                   </span>
                 </span>
               </button>
               <span className="text-xs text-gray-500 mt-3 text-center w-full">
-                Payment is required to complete your onboarding.
+                No payment required during the introductory period.
                 <br />
                 <span className="text-green-700 font-semibold">
-                  Secure payment powered by Cashfree.
+                  Your venue will be reviewed and activated by our team.
                 </span>
               </span>
             </div>
