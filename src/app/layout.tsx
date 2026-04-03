@@ -1,26 +1,22 @@
 import type { Metadata } from "next";
-import { Poppins, Inter } from "next/font/google";
 
 import Header from "./components/Header";
 
 import "./globals.css";
 import Footer from "./components/Footer";
 
-// Initialize Inter font
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
 export const metadata: Metadata = {
   title: {
-    default: "SportsVenue",
-    template: "%s | SportsVenue",
+    default: "Ofside",
+    template: "%s | Ofside",
   },
-  description: "Book and manage sports venues with ease.",
+  description: "Ofside is India's sports ecosystem for players, venue partners, bookings, discovery, and local sports growth.",
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
-    title: "SportsVenue",
-    description: "Book and manage sports venues with ease.",
+    title: "Ofside",
+    description: "Explore Ofside for venue discovery, venue onboarding, player journeys, and sports ecosystem growth.",
     type: "website",
     url: "https://ofside.in/",
     images: [
@@ -28,15 +24,15 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "SportsVenue Booking",
+        alt: "Ofside",
       },
     ],
-    siteName: "SportsVenue",
+    siteName: "Ofside",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SportsVenue",
-    description: "Book and manage sports venues with ease.",
+    title: "Ofside",
+    description: "India's sports ecosystem for players and venue partners.",
     images: ["/og-image.png"],
     site: "@ofsideindia",
   },
@@ -56,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className="antialiased">
         <Header />
         {children}
         <Footer />
