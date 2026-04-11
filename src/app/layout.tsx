@@ -56,7 +56,8 @@ export default function RootLayout({
       <body className="antialiased">
         <ScrollRevealObserver />
         <Header />
-        {children}
+        {/* Mobile: offset for absolute header; home hero uses -mt to full-bleed under the nav */}
+        <div className="pt-[4.5rem] sm:pt-0">{children}</div>
         <Footer />
       </body>
     </html>

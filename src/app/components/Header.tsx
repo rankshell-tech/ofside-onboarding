@@ -23,7 +23,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/60 bg-white/90 backdrop-blur">
+    <header className="absolute inset-x-0 top-0 z-40 w-full border-b border-white/60 bg-white/90 backdrop-blur sm:sticky sm:top-0">
       <nav className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="shrink-0">
           <Image src="/assets/ofside-logo.png" alt="Ofside" width={128} height={40} priority />

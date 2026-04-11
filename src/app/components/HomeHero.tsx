@@ -59,7 +59,7 @@ function SportTile({
             className="object-contain"
           />
         </div>
-        <p className="mt-0.5 line-clamp-2 min-h-[1.85rem] max-w-[5.5rem] text-center text-[8px] font-medium leading-tight text-gray-800 sm:mt-1 sm:min-h-[1.95rem] sm:max-w-[6rem] sm:text-[9px]">
+        <p className="mt-0.5 line-clamp-2 min-h-[2rem] max-w-[6rem] text-center text-[10px] font-medium leading-snug text-gray-800 sm:mt-1 sm:min-h-[1.95rem] sm:max-w-[6rem] sm:text-[9px] sm:leading-tight">
           {label}
         </p>
       </div>
@@ -172,11 +172,13 @@ function SportsWeCover() {
 
   return (
     <div className="mx-auto w-full max-w-md shrink-0 sm:max-w-lg md:max-w-xl">
-      <div className="mb-3 text-center">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-yellow-200/90 sm:text-[11px]">
+      <div className="mb-1.5 text-center sm:mb-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.35em]">
           Sports we cover
         </p>
-        <p className="mt-0.5 text-xs text-white/55 sm:text-sm">Swipe or use arrows to explore</p>
+        <p className="mt-0 text-[13px] leading-snug text-white/60 sm:mt-0.5 sm:text-sm sm:leading-normal">
+          Swipe or use arrows to explore
+        </p>
       </div>
 
       <div className="rounded-2xl border border-white/12 bg-white/[0.06] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:rounded-[1.35rem] sm:p-2.5">
@@ -238,7 +240,7 @@ function SportsWeCover() {
 
 export default function HomeHero() {
   return (
-    <section className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-gray-950 sm:min-h-[calc(100svh-4.5rem)]">
+    <section className="relative isolate -mt-[4.5rem] flex min-h-[100svh] flex-col overflow-hidden bg-gray-950 sm:mt-0 sm:min-h-[calc(100svh-4.5rem)]">
       <div className="absolute inset-0 z-0 min-h-full">
         <video
           className="h-full min-h-full w-full min-w-full scale-[1.08] object-cover sm:scale-105"
@@ -258,7 +260,7 @@ export default function HomeHero() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(5.5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.75rem))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
         <div className="flex w-full min-w-0 flex-col items-center">
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-2 sm:text-xs sm:tracking-[0.42em]">
             Book · Play · Score
@@ -274,9 +276,10 @@ export default function HomeHero() {
           </p>
 
           <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+            <div className="flex w-full flex-row flex-wrap items-center justify-center gap-2 sm:contents">
             <a
               href={APP_LINKS.appStore}
-              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-white/35 bg-white px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
+              className="inline-flex min-w-0 flex-1 basis-0 items-center justify-center gap-2 rounded-xl border border-white/35 bg-white px-2 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:basis-auto sm:w-fit sm:flex-none sm:justify-start sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div className="shrink-0 rounded-lg bg-white">
                 <Image
@@ -296,7 +299,7 @@ export default function HomeHero() {
             </a>
             <a
               href={APP_LINKS.playStore}
-              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-white/35 bg-white px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
+              className="inline-flex min-w-0 flex-1 basis-0 items-center justify-center gap-2 rounded-xl border border-white/35 bg-white px-2 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:basis-auto sm:w-fit sm:flex-none sm:justify-start sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div className="shrink-0 rounded-lg bg-white">
                 <Image
@@ -314,9 +317,10 @@ export default function HomeHero() {
                 <p className="text-[13px] font-semibold leading-tight text-gray-950 sm:text-sm">Google Play</p>
               </div>
             </a>
+            </div>
             <Link
               href="/onboarding"
-              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-yellow-200/80 bg-yellow-300 px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-200 sm:min-w-[200px] sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
+              className="inline-flex w-fit max-w-full shrink-0 items-center gap-2 rounded-xl border border-yellow-200/80 bg-yellow-300 px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-200 sm:min-w-[200px] sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div
                 className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-white via-amber-50/90 to-amber-100/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_6px_rgba(180,83,9,0.12)] ring-1 ring-amber-900/10 sm:h-12 sm:w-12 sm:rounded-xl"
