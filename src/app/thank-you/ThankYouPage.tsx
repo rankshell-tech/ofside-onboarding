@@ -82,8 +82,8 @@ export default function ThankYouPage() {
           Contact us
         </div>
         <div className="flex items-center justify-center text-sm text-gray-700 gap-3">
-          <a href="mailto:Partnercare@ofside.in" className="underline" style={{ color: "#1976d2" }}>
-            Partnercare@ofside.in
+          <a href="mailto:admin@ofside.in" className="underline" style={{ color: "#1976d2" }}>
+            admin@ofside.in
           </a>
           <span className="text-gray-300">|</span>
           <a href="tel:+919811785330" className="underline" style={{ color: "#1976d2" }}>

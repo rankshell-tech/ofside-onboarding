@@ -1,13 +1,12 @@
+import HomeHero from "./components/HomeHero";
 import {
   CtaBand,
   FaqGrid,
   IconCardGrid,
-  PageHero,
   Section,
   SectionIntro,
   SimpleCardGrid,
   SportPills,
-  StatStrip,
   howItWorksItems,
   partnerBenefitItems,
   siteFacts,
@@ -89,36 +88,7 @@ const faqs = [
 export default function Home() {
   return (
     <main className="bg-white text-gray-950">
-      <PageHero
-        eyebrow="India's Ultimate Sports Ecosystem"
-        title="Book venues, build games, and grow local sports with one Ofside experience."
-        description="Ofside brings together venue discovery, match journeys, scoring, leaderboard thinking, and a stronger bridge between players and venue partners."
-        primaryCta={{ label: "Explore Venue Partner Flow", href: "/venue-partners" }}
-        secondaryCta={{ label: "See What Players Get", href: "/players" }}
-        aside={
-          <div className="space-y-5">
-            <div className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/80 p-3 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur">
-              <video
-                className="h-full w-full rounded-[1.4rem] object-cover"
-                autoPlay
-                loop
-                muted
-                playsInline
-              >
-                <source src="/assets/ofside.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            <StatStrip
-              items={[
-                { value: "40+", label: "Sports categories reflected across the product ecosystem" },
-                { value: "60 sec", label: "Booking promise referenced in the app experience" },
-                { value: "2-sided", label: "Built for players and venue partners together" },
-              ]}
-            />
-          </div>
-        }
-      />
+      <HomeHero />
 
       <Section>
         <SectionIntro

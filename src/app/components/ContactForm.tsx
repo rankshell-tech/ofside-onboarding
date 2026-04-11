@@ -9,12 +9,19 @@ const CONTACT_TOPICS = [
   "Player support",
   "Business partnership",
   "Media or collaboration",
-];
+] as const;
+
+function recipientEmailForTopic(topic: string): string {
+  if (topic === "Venue onboarding" || topic === "Business partnership") {
+    return "admin@ofside.in";
+  }
+  return "play@ofside.in";
+}
 
 export default function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [topic, setTopic] = useState(CONTACT_TOPICS[0]);
+  const [topic, setTopic] = useState<string>(CONTACT_TOPICS[0]);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
 
@@ -37,7 +44,7 @@ export default function ContactForm() {
       message,
     ].join("\n");
 
-    window.location.href = `mailto:play@ofside.in,Partnercare@ofside.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${recipientEmailForTopic(topic)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
 
@@ -76,7 +83,7 @@ export default function ContactForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-yellow-400 focus:bg-white"
-            placeholder="you@example.com"
+            placeholder="Your email address"
           />
         </label>
         <label className="grid gap-2 text-sm font-medium text-gray-800 sm:col-span-2">

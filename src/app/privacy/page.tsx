@@ -110,7 +110,12 @@ const PrivacyPolicyPage = () => (
             <h2 className="text-xl font-semibold text-gray-700 mb-3">X. Contact Us</h2>
             <p>
                 If you have questions or concerns about this Policy, please contact:<br />
-                <strong>Email:</strong> <a href="mailto:Partnercare@ofside.in" className="text-gray-600 underline">Partnercare@ofside.in</a><br />
+                <strong>User queries:</strong>{" "}
+                <a href="mailto:play@ofside.in" className="text-gray-600 underline">play@ofside.in</a>
+                <br />
+                <strong>Onboarding &amp; venues:</strong>{" "}
+                <a href="mailto:admin@ofside.in" className="text-gray-600 underline">admin@ofside.in</a>
+                <br />
                 <strong>Phone:</strong> +91-9811785330<br />
                 <strong>Address:</strong> Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
             </p>

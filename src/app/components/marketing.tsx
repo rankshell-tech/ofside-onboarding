@@ -19,8 +19,6 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
-import playStoreBadge from "../../assets/playstore.webp";
-import appStoreBadge from "../../assets/appstore.webp";
 
 type SectionIntroProps = {
   eyebrow?: string;
@@ -65,8 +63,10 @@ export function AppDownloadButtons({
       >
         <div className="shrink-0 rounded-lg bg-white">
           <Image
-            src={playStoreBadge}
+            src="/assets/playstore.webp"
             alt="Get it on Google Play"
+            width={225}
+            height={225}
             className="h-12 w-auto rounded-lg"
           />
         </div>
@@ -81,8 +81,10 @@ export function AppDownloadButtons({
       >
         <div className="shrink-0 rounded-lg bg-white">
           <Image
-            src={appStoreBadge}
+            src="/assets/appstore.webp"
             alt="Download on the App Store"
+            width={225}
+            height={225}
             className="h-12 w-auto rounded-lg"
           />
         </div>
@@ -495,7 +497,7 @@ export const trustSignals = [
   },
   {
     title: "Human support touchpoints",
-    description: "Ofside already exposes player support, partner care, phone contact, and social channels to help users trust the brand.",
+    description: "Ofside already exposes player support, venue onboarding contact, phone, and social channels to help users trust the brand.",
     icon: HeartHandshake,
   },
 ] satisfies IconCard[];

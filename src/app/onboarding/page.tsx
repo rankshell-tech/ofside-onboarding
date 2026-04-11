@@ -3870,7 +3870,7 @@ export default function VenueOnboardingPage() {
                 <span className="inline-flex items-center bg-gradient-to-r from-[#ffe100] to-[#ffed4e] text-black font-semibold px-4 sm:px-6 py-1 sm:py-2 rounded-md shadow text-xs sm:text-base gap-2 border-2 border-yellow-300">
                   <span className="flex items-center gap-1">Need help?</span>
                   <a
-                    href="mailto:play@ofside.in"
+                    href="mailto:admin@ofside.in"
                     className="underline text-black inline-flex items-center gap-1 font-medium"
                   >
                     <Mail className="inline-block w-4 h-4" /> Connect
