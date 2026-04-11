@@ -273,10 +273,10 @@ export default function HomeHero() {
             Connecting players with sports spaces and helping venues grow digitally.
           </p>
 
-          <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-stretch justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-3">
+          <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
             <a
               href={APP_LINKS.appStore}
-              className="inline-flex items-center gap-2.5 rounded-2xl border border-white/35 bg-white px-3 py-2.5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95"
+              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-white/35 bg-white px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div className="shrink-0 rounded-lg bg-white">
                 <Image
@@ -284,17 +284,19 @@ export default function HomeHero() {
                   alt="App Store badge"
                   width={180}
                   height={180}
-                  className="h-11 w-auto rounded-lg sm:h-12"
+                  className="h-9 w-auto rounded-md sm:h-12 sm:rounded-lg"
                 />
               </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">Download On</p>
-                <p className="text-sm font-semibold text-gray-950">App Store</p>
+              <div className="min-w-0 pr-0.5">
+                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-500 sm:text-[11px] sm:tracking-[0.18em]">
+                  Download On
+                </p>
+                <p className="text-[13px] font-semibold leading-tight text-gray-950 sm:text-sm">App Store</p>
               </div>
             </a>
             <a
               href={APP_LINKS.playStore}
-              className="inline-flex items-center gap-2.5 rounded-2xl border border-white/35 bg-white px-3 py-2.5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95"
+              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-white/35 bg-white px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95 sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div className="shrink-0 rounded-lg bg-white">
                 <Image
@@ -302,30 +304,34 @@ export default function HomeHero() {
                   alt="Google Play badge"
                   width={180}
                   height={180}
-                  className="h-11 w-auto rounded-lg sm:h-12"
+                  className="h-9 w-auto rounded-md sm:h-12 sm:rounded-lg"
                 />
               </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-500">Download On</p>
-                <p className="text-sm font-semibold text-gray-950">Google Play</p>
+              <div className="min-w-0 pr-0.5">
+                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-500 sm:text-[11px] sm:tracking-[0.18em]">
+                  Download On
+                </p>
+                <p className="text-[13px] font-semibold leading-tight text-gray-950 sm:text-sm">Google Play</p>
               </div>
             </a>
             <Link
               href="/onboarding"
-              className="inline-flex w-full items-center gap-2.5 rounded-2xl border border-yellow-200/80 bg-yellow-300 px-3 py-2.5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-200 sm:w-auto sm:min-w-[200px]"
+              className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-yellow-200/80 bg-yellow-300 px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-200 sm:min-w-[200px] sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
             >
               <div
-                className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-white via-amber-50/90 to-amber-100/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_6px_rgba(180,83,9,0.12)] ring-1 ring-amber-900/10 sm:h-12 sm:w-12"
+                className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-white via-amber-50/90 to-amber-100/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_6px_rgba(180,83,9,0.12)] ring-1 ring-amber-900/10 sm:h-12 sm:w-12 sm:rounded-xl"
                 aria-hidden
               >
                 <Building2
-                  className="h-[1.65rem] w-[1.65rem] text-amber-900/90 sm:h-7 sm:w-7"
+                  className="h-6 w-6 text-amber-900/90 sm:h-7 sm:w-7"
                   strokeWidth={1.85}
                 />
               </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-amber-950/65">Be a Partner</p>
-                <p className="text-sm font-semibold text-gray-950">List Your Venue</p>
+              <div className="min-w-0 pr-0.5">
+                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-amber-950/65 sm:text-[11px] sm:tracking-[0.18em]">
+                  Be a Partner
+                </p>
+                <p className="text-[13px] font-semibold leading-tight text-gray-950 sm:text-sm">List Your Venue</p>
               </div>
             </Link>
           </div>
