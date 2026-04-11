@@ -238,10 +238,10 @@ function SportsWeCover() {
 
 export default function HomeHero() {
   return (
-    <section className="relative isolate flex min-h-[calc(100svh-4.5rem)] flex-col overflow-hidden bg-gray-950">
+    <section className="relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-gray-950 sm:min-h-[calc(100svh-4.5rem)]">
       <div className="absolute inset-0 z-0 min-h-full">
         <video
-          className="h-full min-h-full w-full scale-105 object-cover"
+          className="h-full min-h-full w-full min-w-full scale-[1.08] object-cover sm:scale-105"
           autoPlay
           loop
           muted
@@ -251,29 +251,29 @@ export default function HomeHero() {
         >
           <source src="/assets/hero_section_video_ofside.MP4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/48 via-black/38 to-black/72" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/22 to-black/52" aria-hidden />
         <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_88%_68%_at_50%_32%,transparent_0%,rgba(0,0,0,0.48)_100%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_92%_72%_at_50%_28%,transparent_0%,rgba(0,0,0,0.28)_100%)]"
           aria-hidden
         />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-6 px-4 py-8 text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:max-w-6xl">
-        <div className="flex w-full flex-col items-center">
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.38em] text-yellow-200/85 sm:text-xs sm:tracking-[0.42em]">
+      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
+        <div className="flex w-full min-w-0 flex-col items-center">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-2 sm:text-xs sm:tracking-[0.42em]">
             Book · Play · Score
           </p>
-          <h1 className="text-balance text-3xl font-bold italic leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_36px_rgba(0,0,0,0.55)] sm:text-4xl md:text-[2.65rem] lg:text-5xl">
+          <h1 className="text-balance px-1 text-[clamp(1.5rem,5.5vw+0.35rem,3rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] md:text-[2.65rem] lg:text-5xl">
             <span className="block">India&apos;s Ultimate</span>
-            <span className="mt-1.5 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent">
+            <span className="mt-1 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1.5">
               Sports Ecosystem
             </span>
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-pretty text-sm font-medium leading-relaxed text-white/88 sm:mt-4 sm:text-base">
+          <p className="mx-auto mt-2.5 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-4 sm:px-0 sm:text-base sm:leading-relaxed">
             Connecting players with sports spaces and helping venues grow digitally.
           </p>
 
-          <div className="mx-auto mt-6 flex w-full max-w-2xl flex-col items-stretch justify-center gap-2.5 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-3">
+          <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-stretch justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-3">
             <a
               href={APP_LINKS.appStore}
               className="inline-flex items-center gap-2.5 rounded-2xl border border-white/35 bg-white px-3 py-2.5 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-50/95"
