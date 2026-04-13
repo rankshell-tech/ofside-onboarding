@@ -3604,7 +3604,7 @@ export default function VenueOnboardingPage() {
                   <span className="text-white text-3xl font-extrabold ml-2">2%</span>
                   <span className="text-orange-50 text-sm">PG</span>
                 </div>
-                <p className="text-orange-50 text-xs mb-3">Next 3 months after introductory period</p>
+                <p className="text-orange-50 text-xs mb-3">Post 3 months after introductory period</p>
                 <div className="bg-white bg-opacity-20 rounded-xl p-3">
                   <p className="text-white text-xs font-semibold">Fixed &amp; Locked for 3 Months</p>
                   <p className="text-orange-50 text-xs mt-0.5">No changes during this period</p>
@@ -3679,9 +3679,9 @@ export default function VenueOnboardingPage() {
                       <p className="text-sm text-gray-700">• 2% Payment Gateway (PG) Charges only</p>
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-xs font-bold text-amber-700 mb-2">Next 3 Months</p>
+                      <p className="text-xs font-bold text-amber-700 mb-2">Post 3 Months</p>
                       <p className="text-sm text-gray-700">• 4% Commission + 2% PG Charges</p>
-                      <p className="text-sm text-gray-700">• This structure will remain fixed for next 3 months</p>
+                      <p className="text-sm text-gray-700">• This structure will remain fixed for post 3 months</p>
                     </div>
                   </div>
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-3">
