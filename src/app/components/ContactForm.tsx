@@ -11,12 +11,7 @@ const CONTACT_TOPICS = [
   "Media or collaboration",
 ] as const;
 
-function recipientEmailForTopic(topic: string): string {
-  if (topic === "Venue onboarding" || topic === "Business partnership") {
-    return "admin@ofside.in";
-  }
-  return "play@ofside.in";
-}
+const SUPPORT_API_PATH = "/api/support";
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -24,28 +19,48 @@ export default function ContactForm() {
   const [topic, setTopic] = useState<string>(CONTACT_TOPICS[0]);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [ticketId, setTicketId] = useState("");
 
   const isValid = useMemo(() => {
     const emailRegex = /^\S+@\S+\.\S+$/;
     return name.trim() && emailRegex.test(email) && topic.trim() && message.trim();
   }, [email, message, name, topic]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid) {
       return;
     }
-
-    const subject = `Ofside website enquiry: ${topic}`;
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Topic: ${topic}`,
-      "",
-      message,
-    ].join("\n");
-
-    window.location.href = `mailto:${recipientEmailForTopic(topic)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setSending(true);
+    setErrorMessage("");
+    try {
+      const response = await fetch(SUPPORT_API_PATH, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          topic,
+          message: message.trim(),
+          summary: `${topic}: ${message.trim()}`.slice(0, 140),
+          priority: topic === "Business partnership" ? "high" : "medium",
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Unable to submit request right now.");
+      }
+      setTicketId(data?.ticket?.ticketId || "");
+      setSent(true);
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch (error: any) {
+      setErrorMessage(error?.message || "Unable to submit request right now.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -61,7 +76,7 @@ export default function ContactForm() {
         <div>
           <h2 className="text-2xl font-semibold text-gray-950">Send us a message</h2>
           <p className="text-sm text-gray-600">
-            This opens your mail app with the form details filled in.
+            Submit your issue and get an instant ticket confirmation by email.
           </p>
         </div>
       </div>
@@ -116,21 +131,24 @@ export default function ContactForm() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!isValid}
+          disabled={!isValid || sending}
           className="inline-flex items-center justify-center rounded-2xl bg-gray-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           <Send className="mr-2 h-4 w-4" />
-          Send via email
+          {sending ? "Submitting..." : "Submit support request"}
         </button>
         {sent ? (
           <p className="inline-flex items-center gap-2 text-sm text-green-700">
             <CheckCircle2 className="h-4 w-4" />
-            Your message draft has been prepared.
+            Request submitted{ticketId ? ` · Ticket ID: ${ticketId}` : ""}.
           </p>
         ) : (
           <p className="text-sm text-gray-500">Need urgent help? WhatsApp or call us directly below.</p>
         )}
       </div>
+      {errorMessage ? (
+        <p className="mt-3 text-sm text-red-600">{errorMessage}</p>
+      ) : null}
     </div>
   );
 }
