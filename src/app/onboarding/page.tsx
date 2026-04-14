@@ -3575,7 +3575,7 @@ export default function VenueOnboardingPage() {
               {/* Header */}
               <div className="bg-gray-900 rounded-2xl p-5">
                 <h3 className="text-white text-xl font-bold mb-1">How We Charge</h3>
-                <p className="text-gray-400 text-sm">Simple, transparent pricing designed for growth</p>
+                <p className="text-gray-400 text-sm">Simple, transparent pricing with GST clarity</p>
               </div>
 
               {/* Introductory Period — Active Now */}
@@ -3585,10 +3585,16 @@ export default function VenueOnboardingPage() {
                   <span className="bg-white text-green-600 text-xs font-bold px-3 py-1 rounded-full">ACTIVE NOW</span>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-white text-3xl font-extrabold">2%</span>
-                  <span className="text-green-100 text-sm">PG charges only</span>
+                  <span className="text-white text-3xl font-extrabold">0%</span>
+                  <span className="text-green-100 text-sm">Commission</span>
+                  <span className="text-orange-100 text-sm ml-2">+</span>
+                  <span className="text-white text-3xl font-extrabold ml-2">2%</span>
+                  <span className="text-green-100 text-sm">PG</span>
+                  <span className="text-orange-100 text-sm ml-2">+</span>
+                  <span className="text-white text-3xl font-extrabold ml-2">18%</span>
+                  <span className="text-green-100 text-sm">GST</span>
                 </div>
-                <p className="text-green-100 text-xs">Per transaction · No commission · No setup fee</p>
+                <p className="text-green-100 text-xs">For first 4 months · No setup fee</p>
               </div>
 
               {/* Post Introductory Period */}
@@ -3603,10 +3609,13 @@ export default function VenueOnboardingPage() {
                   <span className="text-orange-100 text-sm ml-2">+</span>
                   <span className="text-white text-3xl font-extrabold ml-2">2%</span>
                   <span className="text-orange-50 text-sm">PG</span>
+                  <span className="text-orange-100 text-sm ml-2">+</span>
+                  <span className="text-white text-3xl font-extrabold ml-2">18%</span>
+                  <span className="text-orange-50 text-sm">GST</span>
                 </div>
-                <p className="text-orange-50 text-xs mb-3">Post 3 months after introductory period</p>
+                <p className="text-orange-50 text-xs mb-3">Post 4 months after introductory period</p>
                 <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                  <p className="text-white text-xs font-semibold">Fixed &amp; Locked for 3 Months</p>
+                  {/* <p className="text-white text-xs font-semibold">Fixed &amp; Locked for 3 Months</p> */}
                   <p className="text-orange-50 text-xs mt-0.5">No changes during this period</p>
                 </div>
               </div>
@@ -3674,14 +3683,12 @@ export default function VenueOnboardingPage() {
                   <p className="text-sm font-semibold text-gray-800 mb-2">Commercial Terms Accepted</p>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                      <p className="text-xs font-bold text-green-700 mb-2">First 3 Months</p>
-                      <p className="text-sm text-gray-700">• 0% Commission</p>
-                      <p className="text-sm text-gray-700">• 2% Payment Gateway (PG) Charges only</p>
+                      <p className="text-xs font-bold text-green-700 mb-2">First 4 Months</p>
+                      <p className="text-sm text-gray-700">• 0% Commission + 2% PG Charges + 18% GST</p>
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-xs font-bold text-amber-700 mb-2">Post 3 Months</p>
-                      <p className="text-sm text-gray-700">• 4% Commission + 2% PG Charges</p>
-                      <p className="text-sm text-gray-700">• This structure will remain fixed for post 3 months</p>
+                      <p className="text-xs font-bold text-amber-700 mb-2">Post 4 Months</p>
+                      <p className="text-sm text-gray-700">• 4% Commission + 2% PG Charges + 18% GST</p>
                     </div>
                   </div>
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-3">

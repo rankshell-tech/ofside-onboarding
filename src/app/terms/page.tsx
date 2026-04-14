@@ -58,7 +58,7 @@ const TermsPage = () => (
             <h2 className="text-xl font-semibold mb-2 text-gray-800">V. PAYMENT TERMS</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
                 <li><strong>Methods.</strong> Accepted methods include credit/debit cards, UPI, net banking, and supported wallets.</li>
-                <li><strong>Commission & Fees.</strong> Ofside charges a 10% commission. A 3% handling fee applies to refunds.</li>
+                <li><strong>Commission & Fees.</strong> For first 4 months: 0% Commission + 2% PG charges + 18% GST. Post 4 months: 4% Commission + 2% PG charges + 18% GST.</li>
                 <li><strong>Taxes.</strong> Applicable taxes are added at checkout and borne by the User.</li>
                 <li><strong>Split Payments.</strong> Refunds and rescheduling are calculated on the total slot price, not merely the amount paid.</li>
             </ul>
