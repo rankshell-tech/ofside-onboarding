@@ -29,11 +29,11 @@ export default function Footer() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a
-              href="mailto:play@ofside.in"
+              href="mailto:admin@ofside.in"
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-200 transition hover:bg-white/10"
             >
               <Mail className="h-4 w-4 text-yellow-300" />
-              play@ofside.in
+              admin@ofside.in
             </a>
             <a
               href="tel:+919811785330"
