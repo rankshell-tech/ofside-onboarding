@@ -263,7 +263,8 @@ export default function HomeHero() {
       <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(5.5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.75rem))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
         <div className="flex w-full min-w-0 flex-col items-center">
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-2 sm:text-xs sm:tracking-[0.42em]">
-            Book · Play · Score
+          Book · Play · Learn · Analyze
+       
           </p>
           <h1 className="text-balance px-1 text-[clamp(1.5rem,5.5vw+0.35rem,3rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] md:text-[2.65rem] lg:text-5xl">
             <span className="block">India&apos;s Ultimate</span>
