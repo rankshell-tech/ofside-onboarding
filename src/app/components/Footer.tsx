@@ -93,7 +93,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10" data-reveal="footer-block">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-sm text-gray-400 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>© {new Date().getFullYear()} Ofside. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Rankshell Marketing Solutions. All rights reserved.</p>
           <p>Designed to support better sports discovery, participation, and venue growth.</p>
         </div>
       </div>
