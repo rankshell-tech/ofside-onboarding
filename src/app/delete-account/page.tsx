@@ -4,7 +4,7 @@ import React from "react";
 export const metadata: Metadata = {
     title: "Delete Your Ofside Account",
     description:
-        "Request deletion of your Ofside account and associated data. Email support@ofside.in with subject Account Deletion Request.",
+        "Request deletion of your Ofside account and associated data. Email play@ofside.in with subject Account Deletion Request.",
 };
 
 const SectionBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -32,10 +32,10 @@ const DeleteAccountPage = () => (
                     <li>
                         Send an email to:{" "}
                         <a
-                            href="mailto:support@ofside.in?subject=Account%20Deletion%20Request"
+                            href="mailto:play@ofside.in?subject=Account%20Deletion%20Request"
                             className="text-blue-600 underline underline-offset-2"
                         >
-                            support@ofside.in
+                            play@ofside.in
                         </a>
                     </li>
                     <li>
