@@ -11,7 +11,7 @@ const primaryLinks = [
 ];
 
 const policyLinks = [
-  { label: "Terms and Conditions", href: "/terms" },
+  { label: "Terms and Conditions", href: "https://ofside.in/terms-and-conditions" },
   { label: "Refund Policy", href: "/refund" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Rescheduling Policy", href: "/rescheduling-policy" },
