@@ -13,7 +13,7 @@ const TermsPage = () => (
         <SectionBox>
             <h2 className="text-xl font-semibold mb-2 text-gray-800">I. ACCEPTANCE OF TERMS</h2>
             <p className="mb-2">
-                <strong>Binding Agreement.</strong> These Terms of Use, Privacy Policy, Cancellation Policy, and Rescheduling Policy (collectively, &quot;Policies&quot;) constitute a binding agreement between you and Ofside Technologies Private Limited (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;).
+                <strong>Binding Agreement.</strong> These Terms of Use, Privacy Policy, Cancellation Policy, and Rescheduling Policy (collectively, &quot;Policies&quot;) constitute a binding agreement between you and Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;).
             </p>
             <p className="mb-2">
                 <strong>Eligibility.</strong> You must be at least 18 years old and capable of entering into binding contracts. Use of the Services on behalf of an entity requires authority to bind that entity.

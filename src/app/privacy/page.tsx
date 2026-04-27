@@ -5,7 +5,7 @@ const PrivacyPolicyPage = () => (
         <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Ofside Privacy Policy</h1>
             <p>
-                Ofside Technologies Private Limited (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users (&quot;you&quot;, &quot;your&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal and non-personal information when you access or use our sports venue booking Platform, mobile applications, and related services (collectively, the &quot;Services&quot;). By using the Services, you consent to the practices described in this Policy.
+                Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users (&quot;you&quot;, &quot;your&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal and non-personal information when you access or use our sports venue booking Platform, mobile applications, and related services (collectively, the &quot;Services&quot;). By using the Services, you consent to the practices described in this Policy.
             </p>
         </section>
 
