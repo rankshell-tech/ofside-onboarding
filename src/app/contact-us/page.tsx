@@ -125,7 +125,7 @@ export default function ContactUsPage() {
                 style={{ "--reveal-delay": "180ms" } as React.CSSProperties}
                 className="mt-6 rounded-2xl bg-white/5 p-4 text-sm leading-7 text-gray-300"
               >
-                Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
+                4/270 Vaishali Road, Unique Society, Sector 4, I.E.Sahibabad, Ghaziabad, Uttar Pradesh, India, 201010
               </div>
             </div>
           </div>

@@ -3653,7 +3653,7 @@ export default function VenueOnboardingPage() {
                   <strong>{formData.venueName || "[Venue Name]"}</strong> and that all details submitted in the
                   official Ofside mobile app / website onboarding form are true, complete, and accurate. I
                   understand that Ofside (powered by{" "}
-                  <strong>Rankshell – India’s Ultimate Sports Ecosystem</strong>) will rely on this information
+                  <strong>Rankshell Private Limited – India’s Ultimate Sports Ecosystem</strong>) will rely on this information
                   to list, manage, and promote my venue on the platform.
                 </p>
 

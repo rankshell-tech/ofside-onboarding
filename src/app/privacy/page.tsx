@@ -117,7 +117,7 @@ const PrivacyPolicyPage = () => (
                 <a href="mailto:admin@ofside.in" className="text-gray-600 underline">admin@ofside.in</a>
                 <br />
                 <strong>Phone:</strong> +91-9811785330<br />
-                <strong>Address:</strong> Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
+                <strong>Address:</strong> 4/270 Vaishali Road, Unique Society, Sector 4, I.E.Sahibabad, Ghaziabad, Uttar Pradesh, India, 201010
             </p>
             <p>
                 Thank you for trusting Ofside with your information. We are dedicated to safeguarding your privacy and delivering a secure booking experience.
