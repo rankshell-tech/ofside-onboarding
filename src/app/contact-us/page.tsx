@@ -1,20 +1,20 @@
 import Link from "next/link";
 import ContactForm from "../components/ContactForm";
 import { CtaBand, PageHero, Section, SectionIntro } from "../components/marketing";
-import { BriefcaseBusiness, Instagram, Mail, MessageCircle, Phone } from "lucide-react";
+import { Instagram, Mail, MessageCircle, Phone } from "lucide-react";
 
 const contactCards = [
   {
-    title: "User queries",
+    title: "Player support",
     value: "play@ofside.in",
     href: "mailto:play@ofside.in",
     icon: Mail,
   },
   {
-    title: "Onboarding & venues",
+    title: "General enquiries",
     value: "admin@ofside.in",
     href: "mailto:admin@ofside.in",
-    icon: BriefcaseBusiness,
+    icon: Mail,
   },
   {
     title: "Phone",
@@ -48,16 +48,16 @@ export default function ContactUsPage() {
     <main className="bg-white text-gray-950">
       <PageHero
         eyebrow="Contact Us"
-        title="Talk to Ofside for support, partnerships, venue onboarding, or general questions."
-        description="Trust grows faster when people know how to reach you. This page gives users, venue partners, and business stakeholders multiple ways to start a conversation."
+        title="Talk to Ofside for support, partnerships, or general questions."
+        description="Trust grows faster when people know how to reach you. Reach out for player support, product feedback, partnerships, or anything else."
         primaryCta={{ label: "Send a Message", href: "#contact-form" }}
-        secondaryCta={{ label: "List Your Venue", href: "/onboarding" }}
+        secondaryCta={{ label: "Download the App", href: "/players" }}
         aside={
           <div className="rounded-[2rem] border border-white/70 bg-white p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
-            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">Onboarding &amp; venues</p>
+            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">Get in touch</p>
             <h2 className="mt-4 text-3xl font-semibold text-gray-950">Multiple ways to reach the team</h2>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Reach out for venue listings, player support, partnerships, or commercial discussions. If you prefer a quick route, call or WhatsApp directly.
+              Reach out for player support, product feedback, or partnerships. If you prefer a quick route, call or WhatsApp directly.
             </p>
           </div>
         }
@@ -134,8 +134,8 @@ export default function ContactUsPage() {
 
       <Section>
         <CtaBand
-          title="Need help from the right Ofside team?"
-          description="Use play@ofside.in for user queries and player support, admin@ofside.in for venue onboarding and business, or WhatsApp for a faster conversation."
+          title="Need help from the Ofside team?"
+          description="Use play@ofside.in for player support, or WhatsApp for a faster conversation."
           primaryCta={{ label: "Email Ofside", href: "mailto:play@ofside.in" }}
           secondaryCta={{ label: "WhatsApp Ofside", href: "https://wa.me/919811785330" }}
         />

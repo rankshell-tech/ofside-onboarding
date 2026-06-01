@@ -3,12 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --brand-yellow: #FFF201;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-inter), "Inter", sans-serif;
 }
 
 h1,
@@ -16,8 +17,10 @@ h2,
 h3,
 h4,
 h5,
-h6,button,a {
-  font-family: "Poppins", sans-serif;
+h6,
+button,
+a {
+  font-family: var(--font-poppins), "Poppins", sans-serif;
 }
 
 [data-reveal] {

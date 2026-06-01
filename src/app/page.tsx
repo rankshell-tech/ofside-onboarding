@@ -2,18 +2,22 @@ import HomeHero from "./components/HomeHero";
 import {
   CtaBand,
   FaqGrid,
+  FeatureSpotlight,
   IconCardGrid,
+  MockLeaderboard,
+  MockMatchSetup,
+  MockScoreboard,
   Section,
   SectionIntro,
   SimpleCardGrid,
   SportPills,
-  howItWorksItems,
-  partnerBenefitItems,
-  siteFacts,
-  trustSignals,
-  userBenefitItems,
-  whyOfsideItems,
+  StatsStrip,
   TestimonialGrid,
+  coreFeatureItems,
+  howItWorksItems,
+  platformStats,
+  trustSignals,
+  whyOfsideItems,
 } from "./components/marketing";
 
 const sports = [
@@ -34,21 +38,21 @@ const sports = [
 const testimonials = [
   {
     quote:
-      "We needed one place to discover venues and plan play with fewer back-and-forth messages. Ofside feels built for that habit.",
-    name: "Community Player",
-    role: "Regular weekend football group",
+      "We used to argue about scores in our WhatsApp group. Now we just open Ofside, score live, and share the link — everyone sees the same thing in real time.",
+    name: "Weekend Football Group",
+    role: "Regular pickup players, Gurgaon",
   },
   {
     quote:
-      "The app direction makes sense because it does not stop at booking. Scoring, teams, and leaderboard thinking make it feel more complete.",
-    name: "Competitive User",
-    role: "Badminton and pickleball player",
+      "The rulebook feature alone is worth it. No more 10-minute debates about pickleball serving rules before we even start playing.",
+    name: "Priya M.",
+    role: "Pickleball & badminton player",
   },
   {
     quote:
-      "The venue onboarding flow already asks the kind of operational details a serious partner expects to provide.",
-    name: "Venue Operator",
-    role: "Prospective Ofside partner",
+      "Leaderboards got our whole office league competitive again. People actually show up on time now because they want to climb the rankings.",
+    name: "Rahul K.",
+    role: "Office cricket league organiser",
   },
 ];
 
@@ -56,32 +60,32 @@ const faqs = [
   {
     question: "What is Ofside?",
     answer:
-      "Ofside is a sports ecosystem bringing together venue discovery, bookings, scoring, performance journeys, and local sports engagement.",
+      "Ofside is India's sports ecosystem app — create matches, score live, track stats, climb leaderboards, and stay connected to your local sports scene. It's built for how people actually play, not just how they book.",
   },
   {
-    question: "Who is Ofside built for?",
+    question: "Is Ofside free to download?",
     answer:
-      "It is built for both players and venue partners. Players get a smoother way to discover and engage with sports nearby, while venues get a clearer digital onboarding and visibility path.",
+      "Yes. Download Ofside for free on iOS and Android. Core features like match creation, live scoring, and rulebooks are available to all users. Premium tiers unlock deeper analytics and advanced features.",
   },
   {
     question: "Which sports does Ofside support?",
     answer:
-      "The product direction already spans multiple sports including football, cricket, badminton, tennis, pickleball, volleyball, and several more categories reflected in the app.",
+      "Ofside supports 40+ sports including football, cricket, badminton, tennis, pickleball, volleyball, futsal, box cricket, basketball, table tennis, and many more — each with its own scoring logic and in-app rulebook.",
   },
   {
-    question: "Can venues join Ofside today?",
+    question: "How does live scoring work?",
     answer:
-      "Yes. The website already includes a detailed onboarding flow where venue partners can submit venue, court, pricing, amenity, and document information.",
+      "Create a match, add your teams, and start scoring. Updates broadcast in real time over WebSockets. Share a live score link so friends can follow along, with AI-assisted commentary filling in as the action unfolds.",
   },
   {
-    question: "Is Ofside only about bookings?",
+    question: "Can I share live scores with friends?",
     answer:
-      "No. The broader experience also points to match creation, score tracking, leaderboards, team setup, rulebooks, and community activity.",
+      "Yes. Every live match generates a shareable link. Send it in your group chat and anyone can follow the scoreboard and commentary as the game happens — no app install required to view.",
   },
   {
     question: "How do I get in touch?",
     answer:
-      "You can contact Ofside through the contact page, by email, by phone or WhatsApp, or by using the venue onboarding journey if you are a venue partner.",
+      "Reach us at play@ofside.in for player support, via WhatsApp at +91 98117 85330, or through the contact page on this website.",
   },
 ];
 
@@ -90,22 +94,69 @@ export default function Home() {
     <main className="bg-white text-gray-950">
       <HomeHero />
 
-      <Section>
-        <SectionIntro
-          eyebrow="About Ofside"
-          title="A sports ecosystem designed around how people actually play."
-          description="The frontend app already tells a strong story: discover venues nearby, create matches, track performance, explore leaderboards, and keep the local sports scene moving. This website now carries that same story in a clearer public-facing format."
+      {/* Pillar 1: Play Smarter */}
+      <Section className="py-20 sm:py-24">
+        <FeatureSpotlight
+          eyebrow="Play Smarter"
+          title="Organize your game"
+          titleAccent="in seconds"
+          description="Stop juggling WhatsApp groups and phone calls. Create a match, pick your sport, add teams, and get everyone on the same page before the first whistle."
+          bullets={[
+            "Instant match creation across 40+ sports",
+            "Team setup with player assignment",
+            "Built-in rulebooks to settle disputes on the spot",
+          ]}
+          visual={<MockMatchSetup />}
+          learnMoreHref="/players"
         />
-        <div className="mt-10">
-          <IconCardGrid items={siteFacts} />
-        </div>
       </Section>
 
+      {/* Pillar 2: Score Live */}
+      <Section className="bg-gray-950 py-20 text-white sm:py-24">
+        <FeatureSpotlight
+          eyebrow="Score Live"
+          title="Connect to the action"
+          titleAccent="as it happens"
+          description="Real-time scoreboards with sport-specific logic, live commentary, and shareable links. Turn every pickup game into a moment your crew can follow — even if they're not there."
+          bullets={[
+            "WebSocket-powered live score updates",
+            "AI-assisted commentary that never blocks the scoreboard",
+            "Shareable live score links for friends and followers",
+          ]}
+          visual={<MockScoreboard />}
+          reverse
+          dark
+        />
+      </Section>
+
+      {/* Pillar 3: Track & Compete */}
+      <Section className="py-20 sm:py-24">
+        <FeatureSpotlight
+          eyebrow="Track & Compete"
+          title="Build your sports"
+          titleAccent="identity locally"
+          description="Individual stats, team performance, city leaderboards, and insights that turn casual games into friendly rivalry. Past, Live, and Upcoming — always know where you stand."
+          bullets={[
+            "Individual and team performance tracking",
+            "City and area leaderboards",
+            "Past, Live, and Upcoming match tabs",
+          ]}
+          visual={<MockLeaderboard />}
+          learnMoreHref="/players"
+        />
+      </Section>
+
+      {/* Stats strip */}
+      <Section className="border-y border-gray-100 bg-[linear-gradient(180deg,_#fffdf2_0%,_#ffffff_100%)] py-16">
+        <StatsStrip items={platformStats} />
+      </Section>
+
+      {/* How it works */}
       <Section className="bg-gray-50">
         <SectionIntro
           eyebrow="How It Works"
-          title="Ofside turns scattered sports habits into one connected flow."
-          description="Whether you are a player looking for your next game or a venue partner looking to reach the right audience, the experience is built around simple, repeatable actions."
+          title="From idea to final whistle in three steps"
+          description="Ofside turns scattered sports habits into one connected flow — no more chaos between deciding to play and knowing the score."
           align="center"
         />
         <div className="mt-10">
@@ -113,47 +164,38 @@ export default function Home() {
         </div>
       </Section>
 
+      {/* Core features grid */}
       <Section>
+        <SectionIntro
+          eyebrow="Core Features"
+          title="Robust tools for every player"
+          description="Everything you need to organize, score, track, and compete — built for how sports actually happen in Indian cities."
+          align="center"
+        />
+        <div className="mt-10">
+          <IconCardGrid items={coreFeatureItems} columns={2} />
+        </div>
+      </Section>
+
+      {/* Sports supported */}
+      <Section className="bg-gray-50">
         <SectionIntro
           eyebrow="Sports Supported"
           title="Multi-sport by design"
-          description="The app already references a wide set of sports, helping Ofside feel like a broader sports platform rather than a single-use booking tool."
+          description="One platform for every game you play — from futsal turfs to badminton courts, box cricket to pickleball."
+          align="center"
         />
-        <div className="mt-8">
+        <div className="mt-8 flex justify-center">
           <SportPills sports={sports} />
         </div>
       </Section>
 
-      <Section className="bg-[linear-gradient(180deg,_#ffffff_0%,_#fffdf2_100%)]">
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <SectionIntro
-              eyebrow="For Users"
-              title="For players who want less friction and more sport."
-              description="Ofside helps users discover nearby options, explore venues with more confidence, and stay closer to their local sports ecosystem."
-            />
-            <div className="mt-8">
-              <IconCardGrid items={userBenefitItems} columns={2} />
-            </div>
-          </div>
-          <div>
-            <SectionIntro
-              eyebrow="For Venue Partners"
-              title="For venue teams who want visibility, structure, and momentum."
-              description="The existing onboarding system already points to a partner-friendly setup with operational details, court data, pricing inputs, and support."
-            />
-            <div className="mt-8">
-              <IconCardGrid items={partnerBenefitItems} columns={2} />
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section className="bg-gray-50">
+      {/* Why Ofside */}
+      <Section>
         <SectionIntro
           eyebrow="Why Ofside"
-          title="Why this brand can matter in the local sports stack"
-          description="Ofside is strongest when it connects discovery, play, performance, and partner participation instead of treating each piece like a separate product."
+          title="More than a scoreboard — a sports ecosystem"
+          description="Local sport in India deserves better than scattered chats and guesswork. Ofside is infrastructure for how people actually play."
           align="center"
         />
         <div className="mt-10">
@@ -161,11 +203,13 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section>
+      {/* Testimonials */}
+      <Section className="bg-gray-50">
         <SectionIntro
-          eyebrow="Testimonials / Trust"
-          title="Trust starts with clarity, coverage, and visible product depth."
-          description="These testimonials are positioning-led statements drawn from the product experience already visible across the app and onboarding flow."
+          eyebrow="From the community"
+          title="A few words from our cheering section"
+          description="Players across India are using Ofside to organize games, score live, and stay connected to their local sports scene."
+          align="center"
         />
         <div className="mt-10">
           <TestimonialGrid items={testimonials} />
@@ -175,11 +219,12 @@ export default function Home() {
         </div>
       </Section>
 
-      <Section className="bg-gray-50">
+      {/* FAQ */}
+      <Section>
         <SectionIntro
           eyebrow="FAQ"
           title="Common questions, answered simply"
-          description="A clear top-level explanation helps new users and potential partners understand what Ofside does before they enter the product."
+          description="New to Ofside? Here's what you need to know before downloading."
           align="center"
         />
         <div className="mt-10">
@@ -187,12 +232,13 @@ export default function Home() {
         </div>
       </Section>
 
+      {/* Final CTA */}
       <Section>
         <CtaBand
-          title="Want to explore Ofside from the angle that fits you best?"
-          description="Players can learn how the ecosystem helps them discover and track sport. Venue partners can start the onboarding journey and bring their venue into the Ofside network."
-          primaryCta={{ label: "List Your Venue", href: "/onboarding" }}
-          secondaryCta={{ label: "Contact Ofside", href: "/contact-us" }}
+          title="The only app you need this season"
+          description="Download Ofside free and start creating matches, scoring live, and tracking your performance today."
+          primaryCta={{ label: "Download the App", href: "/players" }}
+          secondaryCta={{ label: "Contact Us", href: "/contact-us" }}
           showAppButtons
         />
       </Section>

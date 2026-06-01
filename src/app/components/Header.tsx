@@ -12,11 +12,10 @@ type NavLink = {
 
 const navLinks: NavLink[] = [
   { name: "Home", href: "/" },
-  { name: "Players", href: "/players" },
-  { name: "Venue Partners", href: "/venue-partners" },
+  { name: "Features", href: "/players" },
   { name: "About Us", href: "/about-us" },
   { name: "Contact Us", href: "/contact-us" },
-  { name: "Get Onboarded", href: "/onboarding", primary: true },
+  { name: "Download App", href: "/players", primary: true },
 ];
 
 export default function Header() {

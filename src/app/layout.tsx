@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter, Poppins } from "next/font/google";
 
 import Header from "./components/Header";
 import ScrollRevealObserver from "./components/ScrollRevealObserver";
@@ -6,18 +7,21 @@ import ScrollRevealObserver from "./components/ScrollRevealObserver";
 import "./globals.css";
 import Footer from "./components/Footer";
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-poppins" });
+
 export const metadata: Metadata = {
   title: {
     default: "Ofside",
     template: "%s | Ofside",
   },
-  description: "Ofside is India's sports ecosystem for players, venue partners, bookings, discovery, and local sports growth.",
+  description: "Ofside is India's sports ecosystem — create matches, score live, track stats, climb leaderboards, and stay connected to local sports.",
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
     title: "Ofside",
-    description: "Explore Ofside for venue discovery, venue onboarding, player journeys, and sports ecosystem growth.",
+    description: "Create matches, score live, track stats, and stay connected to your local sports scene with Ofside.",
     type: "website",
     url: "https://ofside.in/",
     images: [
@@ -33,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Ofside",
-    description: "India's sports ecosystem for players and venue partners.",
+    description: "India's sports ecosystem — match creation, live scoring, stats, and leaderboards.",
     images: ["/og-image.png"],
     site: "@ofsideindia",
   },
@@ -52,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
       <body className="antialiased">
         <ScrollRevealObserver />
         <Header />

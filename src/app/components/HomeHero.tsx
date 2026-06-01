@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 
 const APP_LINKS = {
-  playStore: "mailto:play@ofside.in?subject=Share%20Ofside%20Play%20Store%20link",
-  appStore: "mailto:play@ofside.in?subject=Share%20Ofside%20App%20Store%20link",
+  playStore: PLAY_STORE_URL,
+  appStore: APP_STORE_URL,
 } as const;
 
 /**
@@ -263,17 +265,16 @@ export default function HomeHero() {
       <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(5.5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.75rem))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
         <div className="flex w-full min-w-0 flex-col items-center">
           <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-2 sm:text-xs sm:tracking-[0.42em]">
-          Book · Play · Learn · Analyze
-       
+            Play · Score · Compete · Connect
           </p>
           <h1 className="text-balance px-1 text-[clamp(1.5rem,5.5vw+0.35rem,3rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] md:text-[2.65rem] lg:text-5xl">
-            <span className="block">India&apos;s Ultimate</span>
+            <span className="block">Live the game</span>
             <span className="mt-1 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1.5">
-              Sports Ecosystem
+              like never before
             </span>
           </h1>
           <p className="mx-auto mt-2.5 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-4 sm:px-0 sm:text-base sm:leading-relaxed">
-            Connecting players with sports spaces and helping venues grow digitally.
+            Create matches, score live, track stats, and stay connected to your local sports scene — all in one app.
           </p>
 
           <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
@@ -319,26 +320,6 @@ export default function HomeHero() {
               </div>
             </a>
             </div>
-            <Link
-              href="/onboarding"
-              className="inline-flex w-fit max-w-full shrink-0 items-center gap-2 rounded-xl border border-yellow-200/80 bg-yellow-300 px-2.5 py-2 text-left shadow-[0_12px_40px_rgba(0,0,0,0.25)] transition hover:border-yellow-300 hover:bg-yellow-200 sm:min-w-[200px] sm:gap-2.5 sm:rounded-2xl sm:px-3 sm:py-2.5"
-            >
-              <div
-                className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-white via-amber-50/90 to-amber-100/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.95),0_2px_6px_rgba(180,83,9,0.12)] ring-1 ring-amber-900/10 sm:h-12 sm:w-12 sm:rounded-xl"
-                aria-hidden
-              >
-                <Building2
-                  className="h-6 w-6 text-amber-900/90 sm:h-7 sm:w-7"
-                  strokeWidth={1.85}
-                />
-              </div>
-              <div className="min-w-0 pr-0.5">
-                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-amber-950/65 sm:text-[11px] sm:tracking-[0.18em]">
-                  Be a Partner
-                </p>
-                <p className="text-[13px] font-semibold leading-tight text-gray-950 sm:text-sm">List Your Venue</p>
-              </div>
-            </Link>
           </div>
         </div>
 

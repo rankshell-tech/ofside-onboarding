@@ -4,35 +4,35 @@ const aboutCards = [
   {
     title: "Who we are",
     description:
-      "Ofside is being shaped as a sports ecosystem brand for India, connecting players, venues, and sports activity through one more coherent digital experience.",
+      "Ofside is India's sports ecosystem — a digital platform that connects people who want to play with the tools to organize, score, and track their games.",
   },
   {
     title: "Vision",
     description:
-      "To make local sports easier to discover, easier to organize, and easier to keep coming back to across cities, communities, and venue networks.",
+      "Make local sports easier to discover, organize, and return to — across cities, communities, and sports cultures.",
   },
   {
     title: "Mission",
     description:
-      "To reduce friction between intent and play by giving users and venue partners a more trustworthy, structured, and sports-native platform.",
+      "Reduce friction between intent and play by giving players a trustworthy, structured, sports-native platform for the full journey from match creation to final whistle.",
   },
 ];
 
 const whyExists = [
   {
-    title: "Sports discovery is often fragmented",
+    title: "Sports organization is fragmented",
     description:
-      "Players usually bounce between calls, chats, listings, and guesswork just to figure out where to play next.",
+      "Players bounce between WhatsApp groups, phone calls, and word-of-mouth just to figure out who's playing and what the score is.",
   },
   {
-    title: "Venues need better digital representation",
+    title: "Scoring and stats live in separate tools",
     description:
-      "Operators need a cleaner way to present their venue, explain what they offer, and connect with motivated local demand.",
+      "Match setup, live scoring, performance tracking, and leaderboards should be one connected flow — not four different apps.",
   },
   {
-    title: "The ecosystem should feel connected",
+    title: "Local sport deserves better infrastructure",
     description:
-      "Bookings, scores, leaderboards, teams, support, and venue participation work better when they feel part of one continuous system.",
+      "India's recreational sports market is huge but undersupported by software built for how people actually behave on the ground.",
   },
 ];
 
@@ -41,16 +41,16 @@ export default function AboutUsPage() {
     <main className="bg-white text-gray-950">
       <PageHero
         eyebrow="About Us"
-        title="Ofside exists to make local sport feel easier to find, easier to trust, and easier to grow."
-        description="This brand is being built around a simple belief: sports participation should not feel scattered. Players and venue partners both deserve a smoother system."
+        title="Ofside exists to make local sport feel easier to organize, score, and return to."
+        description="This brand is built around a simple belief: sports participation should not feel scattered. Players deserve a smoother system from the idea of a game to the final whistle."
         primaryCta={{ label: "Contact Ofside", href: "/contact-us" }}
-        secondaryCta={{ label: "Explore Home", href: "/" }}
+        secondaryCta={{ label: "Explore Features", href: "/players" }}
         aside={
           <div className="rounded-[2rem] border border-white/70 bg-white p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
-            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">Human and trust-building</p>
-            <h2 className="mt-4 text-3xl font-semibold text-gray-950">Built with a two-sided sports mindset</h2>
+            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">Our belief</p>
+            <h2 className="mt-4 text-3xl font-semibold text-gray-950">Built for how India plays</h2>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Ofside is trying to serve the player who wants more access and the venue team that wants more visibility, structure, and trust.
+              Local sport in India is often fragmented, informal, and hard to trust. Ofside pulls match management, scoring, performance tracking, and community engagement into one coherent experience.
             </p>
           </div>
         }
@@ -59,8 +59,8 @@ export default function AboutUsPage() {
       <Section>
         <SectionIntro
           eyebrow="Our Direction"
-          title="A practical product vision, not abstract brand talk"
-          description="The product already signals what it wants to become: a sports ecosystem for venue discovery, bookings, matches, scoring, and local engagement."
+          title="A practical product vision"
+          description="Ofside is a sports ecosystem for match creation, live scoring, stats, leaderboards, rulebooks, and local community engagement."
         />
         <div className="mt-10">
           <SimpleCardGrid items={aboutCards} />
@@ -71,7 +71,7 @@ export default function AboutUsPage() {
         <SectionIntro
           eyebrow="Why Ofside Exists"
           title="The gap Ofside is trying to close"
-          description="The idea is simple: local sports should feel less chaotic and more connected for everyone involved."
+          description="The idea is simple: local sports should feel less chaotic and more connected for everyone who plays."
           align="center"
         />
         <div className="mt-10">
@@ -79,29 +79,12 @@ export default function AboutUsPage() {
         </div>
       </Section>
 
-      {/* <Section>
-        <SectionIntro
-          eyebrow="Team"
-          title="Founder / team section"
-          description="This section is intentionally flexible so you can later add founder names, photos, advisor profiles, or team notes without reworking the page structure."
-        />
-        <div
-          data-reveal="feature-card"
-          className="mt-10 rounded-[2rem] border border-dashed border-yellow-400 bg-yellow-50 p-8"
-        >
-          <h3 className="text-2xl font-semibold text-gray-950">A place for the people behind the platform</h3>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-gray-700">
-            Right now this block acts as a trust-building placeholder for founder or team content. Once you are ready, we can swap this with real profiles, portraits, and a more personal origin story.
-          </p>
-        </div>
-      </Section> */}
-
       <Section>
         <CtaBand
-          title="Want to know more about the people and thinking behind Ofside?"
-          description="Use the contact page for partnerships, support, media conversations, or general questions about the brand."
+          title="Want to know more about Ofside?"
+          description="Use the contact page for support, partnerships, media conversations, or general questions about the brand."
           primaryCta={{ label: "Contact Us", href: "/contact-us" }}
-          secondaryCta={{ label: "Venue Partners", href: "/venue-partners" }}
+          secondaryCta={{ label: "See Features", href: "/players" }}
         />
       </Section>
     </main>

@@ -4,17 +4,15 @@ import { AppDownloadButtons } from "./marketing";
 
 const primaryLinks = [
   { label: "Home", href: "/" },
-  { label: "Players", href: "/players" },
-  { label: "Venue Partners", href: "/venue-partners" },
+  { label: "Features", href: "/players" },
   { label: "About Us", href: "/about-us" },
   { label: "Contact Us", href: "/contact-us" },
 ];
 
 const policyLinks = [
   { label: "Terms and Conditions", href: "https://ofside.in/terms-and-conditions" },
-  { label: "Refund Policy", href: "/refund" },
   { label: "Privacy Policy", href: "/privacy" },
-  { label: "Rescheduling Policy", href: "/rescheduling-policy" },
+  { label: "Delete Account", href: "/delete-account" },
 ];
 
 export default function Footer() {
@@ -25,15 +23,15 @@ export default function Footer() {
           <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">Ofside</p>
           <h2 className="mt-4 text-3xl font-semibold">India&apos;s ultimate sports ecosystem</h2>
           <p className="mt-4 max-w-md text-sm leading-7 text-gray-300">
-            Built for players, venue partners, and the local sports communities that deserve a more connected digital experience.
+            Create matches, score live, track stats, and stay connected to your local sports scene — all in one app.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a
-              href="mailto:admin@ofside.in"
+              href="mailto:play@ofside.in"
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-200 transition hover:bg-white/10"
             >
               <Mail className="h-4 w-4 text-yellow-300" />
-              admin@ofside.in
+              play@ofside.in
             </a>
             <a
               href="tel:+919811785330"
@@ -94,7 +92,7 @@ export default function Footer() {
       <div className="border-t border-white/10" data-reveal="footer-block">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-sm text-gray-400 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <p>© {new Date().getFullYear()} Rankshell Marketing Solutions. All rights reserved.</p>
-          <p>Designed to support better sports discovery, participation, and venue growth.</p>
+          <p>Built for how India plays — match creation, live scoring, and local sports culture.</p>
         </div>
       </div>
     </footer>

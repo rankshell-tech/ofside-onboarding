@@ -5,10 +5,10 @@ import { Mail, Send, CheckCircle2 } from "lucide-react";
 
 const CONTACT_TOPICS = [
   "General enquiry",
-  "Venue onboarding",
   "Player support",
   "Business partnership",
   "Media or collaboration",
+  "Product feedback",
 ] as const;
 
 const SUPPORT_API_PATH = "/api/support";

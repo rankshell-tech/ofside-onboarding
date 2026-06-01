@@ -4,20 +4,21 @@ import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
   BadgeCheck,
-  Building2,
+  BookOpen,
   CalendarRange,
   CheckCircle2,
   ChevronRight,
-  Clock3,
   Compass,
-  FileCheck2,
   HeartHandshake,
-  MapPinned,
   Megaphone,
+  Radio,
+  Share2,
   ShieldCheck,
   Sparkles,
+  Swords,
   Trophy,
   Users,
+  Zap,
 } from "lucide-react";
 
 type SectionIntroProps = {
@@ -43,9 +44,11 @@ type FaqItem = {
   answer: string;
 };
 
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
+
 export const APP_LINKS = {
-  playStore: "mailto:play@ofside.in?subject=Share%20Ofside%20Play%20Store%20link",
-  appStore: "mailto:play@ofside.in?subject=Share%20Ofside%20App%20Store%20link",
+  playStore: PLAY_STORE_URL,
+  appStore: APP_STORE_URL,
 } as const;
 
 export function AppDownloadButtons({
@@ -189,6 +192,234 @@ export function PageHero({
         <div>{aside}</div>
       </div>
     </section>
+  );
+}
+
+export function FeatureSpotlight({
+  eyebrow,
+  title,
+  titleAccent,
+  description,
+  bullets,
+  visual,
+  reverse = false,
+  learnMoreHref,
+  dark = false,
+}: {
+  eyebrow: string;
+  title: string;
+  titleAccent?: string;
+  description: string;
+  bullets?: string[];
+  visual: React.ReactNode;
+  reverse?: boolean;
+  learnMoreHref?: string;
+  dark?: boolean;
+}) {
+  return (
+    <div
+      data-reveal="feature-card"
+      className={`grid items-center gap-10 lg:grid-cols-2 lg:gap-16 ${reverse ? "lg:[&>*:first-child]:order-2" : ""}`}
+    >
+      <div>
+        <p
+          className={`mb-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] ${
+            dark
+              ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-300"
+              : "border-yellow-300 bg-yellow-100 text-gray-800"
+          }`}
+        >
+          {eyebrow}
+        </p>
+        <h2
+          className={`text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.12] ${
+            dark ? "text-white" : "text-gray-950"
+          }`}
+        >
+          {title}
+          {titleAccent ? (
+            <>
+              <br />
+              <span
+                className={
+                  dark
+                    ? "bg-gradient-to-r from-white via-yellow-200 to-yellow-400 bg-clip-text text-transparent"
+                    : "bg-gradient-to-r from-gray-950 via-gray-800 to-yellow-600 bg-clip-text text-transparent"
+                }
+              >
+                {titleAccent}
+              </span>
+            </>
+          ) : null}
+        </h2>
+        <p className={`mt-5 max-w-xl text-base leading-7 sm:text-lg ${dark ? "text-gray-300" : "text-gray-600"}`}>
+          {description}
+        </p>
+        {bullets && bullets.length > 0 ? (
+          <ul className="mt-6 space-y-3">
+            {bullets.map((item) => (
+              <li
+                key={item}
+                className={`flex items-start gap-3 text-sm leading-6 ${dark ? "text-gray-300" : "text-gray-700"}`}
+              >
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-yellow-400" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {learnMoreHref ? (
+          <Link
+            href={learnMoreHref}
+            className={`mt-8 inline-flex items-center gap-2 text-sm font-semibold transition ${
+              dark ? "text-yellow-300 hover:text-yellow-200" : "text-gray-950 hover:text-yellow-700"
+            }`}
+          >
+            Learn more
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        ) : null}
+      </div>
+      <div className="relative">{visual}</div>
+    </div>
+  );
+}
+
+export function StatsStrip({ items }: { items: { label: string; value: string }[] }) {
+  return (
+    <div className="grid gap-6 sm:grid-cols-3">
+      {items.map((item) => (
+        <div key={item.label} className="text-center">
+          <p className="text-4xl font-bold tracking-tight text-gray-950 sm:text-5xl">{item.value}</p>
+          <p className="mt-2 text-sm font-medium uppercase tracking-[0.18em] text-gray-500">{item.label}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function MockScoreboard() {
+  return (
+    <div className="rounded-[2rem] border border-gray-200 bg-gray-950 p-6 shadow-[0_32px_80px_rgba(15,23,42,0.18)]">
+      <div className="flex items-center justify-between">
+        <span className="rounded-full bg-red-500/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+          Live
+        </span>
+        <span className="text-xs text-gray-400">Football · 2nd Half</span>
+      </div>
+      <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-400">Team Alpha</p>
+          <p className="mt-1 text-5xl font-bold text-white">3</p>
+        </div>
+        <div className="text-2xl font-light text-gray-600">:</div>
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-400">Team Beta</p>
+          <p className="mt-1 text-5xl font-bold text-[#FFF201]">2</p>
+        </div>
+      </div>
+      <div className="mt-6 space-y-2 rounded-2xl bg-white/5 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-yellow-300">Commentary</p>
+        <p className="text-sm leading-relaxed text-gray-300">
+          GOAL! A brilliant finish from the edge of the box — Team Alpha take the lead!
+        </p>
+      </div>
+      <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
+        <Share2 className="h-3.5 w-3.5" />
+        Share live score link
+      </div>
+    </div>
+  );
+}
+
+export function MockMatchSetup() {
+  return (
+    <div className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_32px_80px_rgba(15,23,42,0.1)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-600">Create Match</p>
+      <h3 className="mt-2 text-xl font-semibold text-gray-950">Weekend Futsal</h3>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        {["Football", "Badminton", "Cricket", "Pickleball"].map((sport) => (
+          <div
+            key={sport}
+            className={`rounded-xl px-3 py-2.5 text-center text-sm font-medium ${
+              sport === "Football"
+                ? "bg-[#FFF201] text-gray-950"
+                : "border border-gray-200 bg-gray-50 text-gray-700"
+            }`}
+          >
+            {sport}
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-2xl bg-gray-50 p-4">
+        <p className="text-xs font-medium text-gray-500">Teams</p>
+        <div className="mt-2 flex items-center justify-between">
+          <div className="flex -space-x-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gray-200 text-xs font-bold text-gray-600"
+              >
+                {i}
+              </div>
+            ))}
+          </div>
+          <span className="text-sm font-semibold text-gray-950">8 players ready</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        className="mt-5 w-full rounded-2xl bg-gray-950 py-3 text-sm font-semibold text-white"
+      >
+        Start Match
+      </button>
+    </div>
+  );
+}
+
+export function MockLeaderboard() {
+  return (
+    <div className="rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_32px_80px_rgba(15,23,42,0.1)]">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-600">Leaderboard</p>
+        <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+          Delhi NCR
+        </span>
+      </div>
+      <div className="mt-5 space-y-3">
+        {[
+          { rank: 1, name: "Arjun S.", stat: "12 wins", highlight: true },
+          { rank: 2, name: "Priya M.", stat: "10 wins", highlight: false },
+          { rank: 3, name: "Rahul K.", stat: "9 wins", highlight: false },
+          { rank: 4, name: "You", stat: "7 wins", highlight: false },
+        ].map((player) => (
+          <div
+            key={player.rank}
+            className={`flex items-center gap-4 rounded-xl px-4 py-3 ${
+              player.highlight ? "bg-[#FFF201]/20 ring-1 ring-[#FFF201]/40" : "bg-gray-50"
+            }`}
+          >
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-950 text-xs font-bold text-white">
+              {player.rank}
+            </span>
+            <span className="flex-1 text-sm font-semibold text-gray-950">{player.name}</span>
+            <span className="text-sm text-gray-500">{player.stat}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 flex gap-2">
+        {["Past", "Live", "Upcoming"].map((tab, i) => (
+          <span
+            key={tab}
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
+              i === 1 ? "bg-gray-950 text-white" : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {tab}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -380,124 +611,130 @@ export function CtaBand({
 
 export const siteFacts = [
   {
-    title: "Book venues faster",
+    title: "Create matches instantly",
     description:
-      "Venue discovery, schedules, and booking journeys are built to reduce friction for players who just want to get on court.",
-    icon: Clock3,
+      "Set up a game in seconds across 40+ sports — pick your sport, add teams, and get on the field without the WhatsApp chaos.",
+    icon: Swords,
   },
   {
-    title: "Track performance",
+    title: "Score live with commentary",
     description:
-      "The app experience brings match creation, score tracking, leaderboards, and team performance into one ecosystem.",
+      "Real-time scoreboards with sport-specific logic and AI-assisted commentary. Share live score links so friends can follow along.",
+    icon: Radio,
+  },
+  {
+    title: "Track stats & compete",
+    description:
+      "Individual and team performance, city leaderboards, and insights that turn casual games into a lightweight competitive identity.",
     icon: Trophy,
-  },
-  {
-    title: "Grow communities",
-    description:
-      "From local players to venue partners, Ofside is designed to help sports communities stay active, visible, and connected.",
-    icon: Users,
   },
 ] satisfies IconCard[];
 
 export const howItWorksItems = [
   {
-    title: "Pick your sport and area",
+    title: "Pick your sport",
     description:
-      "Start with the sport you play and discover relevant venues, matches, and activity happening around you.",
+      "Choose from 40+ sports — football, badminton, cricket, pickleball, volleyball, and many more — with built-in rulebooks for each.",
     icon: Compass,
   },
   {
-    title: "Explore, compare, and book",
+    title: "Create a match & add teams",
     description:
-      "Browse nearby venues, check what fits your game, and move from discovery to booking in a simple flow.",
-    icon: MapPinned,
+      "Instantly set up sides, assign players, and organize your crew. No more scattered group chats to figure out who's playing.",
+    icon: Users,
   },
   {
-    title: "Play, track, and come back",
+    title: "Score live & share",
     description:
-      "Use Ofside beyond bookings with score tracking, leaderboards, team insights, and repeat play behavior.",
-    icon: CalendarRange,
+      "Track every point, goal, and run in real time. Share a live score link so anyone can follow the action as it happens.",
+    icon: Zap,
   },
 ] satisfies IconCard[];
 
 export const userBenefitItems = [
   {
-    title: "Nearby sports discovery",
-    description: "Find playable options around you instead of chasing scattered leads across apps and chats.",
-    icon: MapPinned,
+    title: "Match creation",
+    description: "Create matches instantly across multiple sports with team setup and player assignment built in.",
+    icon: Swords,
   },
   {
-    title: "Venue exploration",
-    description: "Understand what a venue offers before you commit, from sport type to fit for your crew.",
-    icon: Building2,
+    title: "Live scoring",
+    description: "Real-time scoreboards with sport-specific rules, live commentary, and shareable score links.",
+    icon: Radio,
   },
   {
-    title: "Performance and competition",
-    description: "Create matches, track scores, and measure performance with a more connected sports journey.",
+    title: "Stats & leaderboards",
+    description: "Track individual and team performance. Compare standings in your city with Past, Live, and Upcoming tabs.",
     icon: Trophy,
   },
   {
-    title: "Ecosystem updates",
-    description: "Stay closer to what is happening in your local sports scene instead of operating in isolation.",
+    title: "Community & referrals",
+    description: "Follow players, host games, and grow your local sports circle through invite-and-earn links.",
     icon: Megaphone,
   },
 ] satisfies IconCard[];
 
-export const partnerBenefitItems = [
+export const coreFeatureItems = [
   {
-    title: "Reach serious local players",
-    description: "Show up where your next regulars are already looking for sports and venue options.",
+    title: "40+ sport rulebooks",
+    description: "Settle disputes and onboard newcomers with in-app rulebooks covering every sport Ofside supports.",
+    icon: BookOpen,
+  },
+  {
+    title: "Team management",
+    description: "Build teams, assign players to sides, and manage rosters for repeat games and tournaments.",
     icon: Users,
   },
   {
-    title: "Support smoother onboarding",
-    description: "Ofside already has an onboarding flow for venue details, documents, courts, pricing, and amenities.",
-    icon: FileCheck2,
+    title: "Live score sharing",
+    description: "Turn casual games into watchable moments — share live score links with friends and followers mid-match.",
+    icon: Share2,
   },
   {
-    title: "Improve visibility",
-    description: "Bring your venue into a sports-focused discovery environment built around active demand.",
-    icon: Compass,
-  },
-  {
-    title: "Build trust with players",
-    description: "Structured venue information helps players understand your offering faster and book with more confidence.",
-    icon: ShieldCheck,
+    title: "Performance analytics",
+    description: "Individual stats, team insights, and leaderboard rankings that encourage repeat play and friendly rivalry.",
+    icon: CalendarRange,
   },
 ] satisfies IconCard[];
 
 export const whyOfsideItems = [
   {
-    title: "One ecosystem, not isolated tools",
+    title: "One app, the full journey",
     description:
-      "Ofside combines venue discovery, match management, scoring, performance, and community energy in one direction.",
+      "Ofside connects match creation, live scoring, stats, leaderboards, and community — not just one slice of the sports experience.",
   },
   {
-    title: "Built around sports behavior",
+    title: "Built for how India plays",
     description:
-      "The product language from the app points to real player workflows: nearby venues, team setup, rulebooks, stats, and live usage.",
+      "Multi-sport by design, with rulebooks, pickup-game workflows, and local leaderboard energy tuned for Indian cities.",
   },
   {
-    title: "Useful for both sides of the game",
+    title: "From intent to final whistle",
     description:
-      "Players get convenience and continuity; venue partners get visibility, onboarding support, and a clearer digital presence.",
+      "The product is built around real player behavior: organize a game, score it live, track performance, and come back for more.",
   },
 ] satisfies SimpleCard[];
 
 export const trustSignals = [
   {
-    title: "Venue onboarding flow already live",
-    description: "The website already supports a detailed venue onboarding journey with structured operational inputs.",
+    title: "Multi-sport from day one",
+    description: "Football, cricket, badminton, pickleball, volleyball, futsal, and 30+ more — one platform for every game you play.",
     icon: BadgeCheck,
   },
   {
-    title: "Multi-sport product direction",
-    description: "The app references booking, scoring, rulebooks, leaderboards, and support across many sports categories.",
+    title: "Real-time scoring engine",
+    description: "WebSocket-powered live updates with sport-specific logic and async AI commentary that never blocks the scoreboard.",
     icon: Sparkles,
   },
   {
-    title: "Human support touchpoints",
-    description: "Ofside already exposes player support, venue onboarding contact, phone, and social channels to help users trust the brand.",
+    title: "Human support when you need it",
+    description: "Reach the Ofside team via email, phone, or WhatsApp for player support and product questions.",
     icon: HeartHandshake,
   },
 ] satisfies IconCard[];
+
+export const platformStats = [
+  { value: "40+", label: "Sports Supported" },
+  { value: "Live", label: "Real-Time Scoring" },
+  { value: "1 App", label: "Full Sports Journey" },
+];
