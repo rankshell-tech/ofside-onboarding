@@ -49,10 +49,10 @@ function SportTile({
   accent: string;
 }) {
   return (
-    <div className="group flex h-full min-h-[118px] flex-col overflow-hidden rounded-lg bg-white shadow-[0_4px_18px_rgba(0,0,0,0.09)] ring-1 ring-black/[0.06] transition hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)] sm:min-h-[128px] sm:rounded-xl">
+    <div className="group flex h-full min-h-[96px] flex-col overflow-hidden rounded-lg bg-white shadow-[0_4px_18px_rgba(0,0,0,0.09)] ring-1 ring-black/[0.06] transition hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)] sm:min-h-[104px] sm:rounded-xl">
       <div className={`h-0.5 w-full shrink-0 ${accent}`} aria-hidden />
       <div className="flex flex-1 flex-col items-center px-1 py-1 sm:px-1.5 sm:py-1.5">
-        <div className="relative h-16 w-16 shrink-0 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/90 p-1 ring-1 ring-black/[0.04] sm:h-[4.75rem] sm:w-[4.75rem] sm:rounded-xl sm:p-1.5">
+        <div className="relative h-14 w-14 shrink-0 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/90 p-1 ring-1 ring-black/[0.04] sm:h-16 sm:w-16 sm:rounded-xl sm:p-1.5">
           <Image
             src={image}
             alt={label}
@@ -174,16 +174,16 @@ function SportsWeCover() {
 
   return (
     <div className="mx-auto w-full max-w-md shrink-0 sm:max-w-lg md:max-w-xl">
-      <div className="mb-1.5 text-center sm:mb-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.35em]">
+      <div className="mb-1 text-center sm:mb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.35em]">
           Sports we cover
         </p>
-        <p className="mt-0 text-[13px] leading-snug text-white/60 sm:mt-0.5 sm:text-sm sm:leading-normal">
+        <p className="mt-0 text-xs leading-snug text-white/60 sm:text-[13px]">
           Swipe or use arrows to explore
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/12 bg-white/[0.06] p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:rounded-[1.35rem] sm:p-2.5">
+      <div className="rounded-2xl border border-white/12 bg-white/[0.06] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:rounded-[1.35rem] sm:p-2">
         <div
           ref={scrollerRef}
           className="relative flex snap-x snap-mandatory gap-1.5 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
@@ -198,7 +198,7 @@ function SportsWeCover() {
           ))}
         </div>
 
-        <div className="mt-2.5 flex flex-col items-center gap-2 sm:mt-3 sm:gap-2.5">
+        <div className="mt-2 flex flex-col items-center gap-1.5 sm:mt-2.5 sm:gap-2">
           <div
             className="flex w-full max-w-[min(100%,220px)] gap-1.5"
             role="group"
@@ -242,10 +242,10 @@ function SportsWeCover() {
 
 export default function HomeHero() {
   return (
-    <section className="relative isolate -mt-[4.5rem] flex min-h-[100svh] flex-col overflow-hidden bg-gray-950 sm:mt-0 sm:min-h-[calc(100svh-4.5rem)]">
-      <div className="absolute inset-0 z-0 min-h-full">
+    <section className="relative isolate -mt-[4.5rem] flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-gray-950 sm:mt-0 sm:h-[calc(100dvh-4.5rem)] sm:max-h-[calc(100dvh-4.5rem)]">
+      <div className="absolute inset-0 z-0">
         <video
-          className="h-full min-h-full w-full min-w-full scale-[1.08] object-cover sm:scale-105"
+          className="h-full w-full object-cover"
           autoPlay
           loop
           muted
@@ -266,21 +266,21 @@ export default function HomeHero() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(5.5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.75rem))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
-        <div className="flex w-full min-w-0 flex-col items-center">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-2 sm:text-xs sm:tracking-[0.42em]">
+      <div className="relative z-10 mx-auto flex h-full w-full min-w-0 max-w-3xl flex-col px-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-[max(5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.5rem))] text-center sm:max-w-4xl sm:px-8 sm:pt-8 sm:pb-6 md:px-10 lg:max-w-6xl">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+          <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-1.5 sm:text-xs sm:tracking-[0.42em]">
             Play · Score · Compete · Connect
           </p>
-          <h1 className="text-balance px-1 text-[clamp(1.5rem,5.5vw+0.35rem,3rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] md:text-[2.65rem] lg:text-5xl">
+          <h1 className="text-balance px-1 text-[clamp(1.45rem,4.8vw+0.35rem,2.75rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] lg:text-[2.65rem]">
             <span className="block">Live the game</span>
-            <span className="mt-1 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1.5">
+            <span className="mt-0.5 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1">
               like never before
             </span>
           </h1>
-          <p className="mx-auto mt-2.5 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-4 sm:px-0 sm:text-base sm:leading-relaxed">
+          <p className="mx-auto mt-2 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-3 sm:px-0 sm:text-[15px] sm:leading-relaxed">
             Create matches, score live, track stats, and stay connected to your local sports scene — all in one app.
           </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 sm:mt-5">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:mt-4">
             <span className="rounded-full border border-yellow-300/40 bg-yellow-300/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-yellow-200">
               40+ Sports
             </span>
@@ -292,7 +292,7 @@ export default function HomeHero() {
             </span>
           </div>
 
-          <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
+          <div className="mx-auto mt-4 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-5 sm:flex-row sm:flex-wrap sm:gap-3">
             <div className="flex w-full flex-row flex-wrap items-center justify-center gap-2 sm:contents">
             <a
               href={APP_LINKS.appStore}
@@ -304,7 +304,7 @@ export default function HomeHero() {
                   alt="App Store badge"
                   width={180}
                   height={180}
-                  className="h-9 w-auto rounded-md sm:h-12 sm:rounded-lg"
+                  className="h-9 w-auto rounded-md sm:h-11 sm:rounded-lg"
                 />
               </div>
               <div className="min-w-0 pr-0.5">
@@ -324,7 +324,7 @@ export default function HomeHero() {
                   alt="Google Play badge"
                   width={180}
                   height={180}
-                  className="h-9 w-auto rounded-md sm:h-12 sm:rounded-lg"
+                  className="h-9 w-auto rounded-md sm:h-11 sm:rounded-lg"
                 />
               </div>
               <div className="min-w-0 pr-0.5">
@@ -338,7 +338,9 @@ export default function HomeHero() {
           </div>
         </div>
 
-        <SportsWeCover />
+        <div className="shrink-0 pt-2 sm:pt-3">
+          <SportsWeCover />
+        </div>
       </div>
     </section>
   );
