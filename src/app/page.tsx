@@ -91,11 +91,15 @@ const faqs = [
 
 export default function Home() {
   return (
-    <main className="bg-white text-gray-950">
+    <main className="bg-[linear-gradient(180deg,#ffffff_0%,#fffef9_36%,#ffffff_100%)] text-gray-950">
       <HomeHero />
 
       {/* Pillar 1: Play Smarter */}
-      <Section className="py-20 sm:py-24">
+      <Section className="relative py-20 sm:py-24">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 top-6 h-52 w-52 rounded-full bg-yellow-200/30 blur-3xl"
+        />
         <FeatureSpotlight
           eyebrow="Play Smarter"
           title="Organize your game"
@@ -112,7 +116,11 @@ export default function Home() {
       </Section>
 
       {/* Pillar 2: Score Live */}
-      <Section className="bg-gray-950 py-20 text-white sm:py-24">
+      <Section className="relative overflow-hidden bg-gray-950 py-20 text-white sm:py-24">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 top-6 h-56 w-56 rounded-full bg-yellow-300/15 blur-3xl"
+        />
         <FeatureSpotlight
           eyebrow="Score Live"
           title="Connect to the action"
@@ -130,7 +138,11 @@ export default function Home() {
       </Section>
 
       {/* Pillar 3: Track & Compete */}
-      <Section className="py-20 sm:py-24">
+      <Section className="relative py-20 sm:py-24">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 top-12 h-52 w-52 rounded-full bg-amber-200/30 blur-3xl"
+        />
         <FeatureSpotlight
           eyebrow="Track & Compete"
           title="Build your sports"
@@ -152,7 +164,7 @@ export default function Home() {
       </Section>
 
       {/* How it works */}
-      <Section className="bg-gray-50">
+      <Section className="bg-[linear-gradient(180deg,#fafafa_0%,#fffef7_100%)]">
         <SectionIntro
           eyebrow="How It Works"
           title="From idea to final whistle in three steps"
@@ -178,7 +190,7 @@ export default function Home() {
       </Section>
 
       {/* Sports supported */}
-      <Section className="bg-gray-50">
+      <Section className="bg-[linear-gradient(180deg,#fafafa_0%,#fffef7_100%)]">
         <SectionIntro
           eyebrow="Sports Supported"
           title="Multi-sport by design"
@@ -204,7 +216,7 @@ export default function Home() {
       </Section>
 
       {/* Testimonials */}
-      <Section className="bg-gray-50">
+      <Section className="bg-[linear-gradient(180deg,#fafafa_0%,#fffef7_100%)]">
         <SectionIntro
           eyebrow="From the community"
           title="A few words from our cheering section"

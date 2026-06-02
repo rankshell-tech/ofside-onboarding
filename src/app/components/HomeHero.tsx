@@ -260,6 +260,10 @@ export default function HomeHero() {
           className="absolute inset-0 bg-[radial-gradient(ellipse_92%_72%_at_50%_28%,transparent_0%,rgba(0,0,0,0.28)_100%)]"
           aria-hidden
         />
+        <div
+          className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(255,242,1,0.23),transparent_70%)]"
+          aria-hidden
+        />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full min-w-0 max-w-3xl flex-1 flex-col items-center justify-center gap-5 px-3.5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-[max(5.5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.75rem))] text-center sm:max-w-4xl sm:gap-8 sm:px-8 sm:pt-10 sm:pb-10 md:px-10 md:pt-12 md:pb-12 lg:max-w-6xl">
@@ -276,6 +280,17 @@ export default function HomeHero() {
           <p className="mx-auto mt-2.5 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-4 sm:px-0 sm:text-base sm:leading-relaxed">
             Create matches, score live, track stats, and stay connected to your local sports scene — all in one app.
           </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 sm:mt-5">
+            <span className="rounded-full border border-yellow-300/40 bg-yellow-300/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-yellow-200">
+              40+ Sports
+            </span>
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/85">
+              Live Scoring
+            </span>
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/85">
+              Leaderboards
+            </span>
+          </div>
 
           <div className="mx-auto mt-5 flex w-full max-w-2xl min-w-0 flex-col items-center justify-center gap-2 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-3">
             <div className="flex w-full flex-row flex-wrap items-center justify-center gap-2 sm:contents">

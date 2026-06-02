@@ -3,18 +3,13 @@
 export const APP_BUNDLE_ID = 'com.ofside.ofside';
 export const APP_SCHEME = process.env.NEXT_PUBLIC_APP_SCHEME ?? 'ofside';
 
-/** Google Play — package id works even before the listing is public in some regions. */
 export const PLAY_STORE_URL =
   process.env.NEXT_PUBLIC_ANDROID_PLAY_STORE_URL ??
-  `https://play.google.com/store/apps/details?id=${APP_BUNDLE_ID}`;
+  'https://play.google.com/store/apps/details?id=com.ofside.ofside';
 
-/**
- * App Store — set NEXT_PUBLIC_IOS_APP_STORE_URL to
- * https://apps.apple.com/app/id<APPLE_APP_STORE_APP_ID> once the app is live.
- */
 export const APP_STORE_URL =
   process.env.NEXT_PUBLIC_IOS_APP_STORE_URL ??
-  'https://apps.apple.com/us/app/ofside/id0000000000';
+  'https://apps.apple.com/in/app/ofside/id6762059751';
 
 export type OpenInAppTarget = {
   /** Expo Router path, e.g. /scoring/scoringScreen */

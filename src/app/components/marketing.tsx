@@ -125,14 +125,14 @@ export function SectionIntro({
   return (
     <div className={alignment}>
       {eyebrow ? (
-        <p className="mb-3 inline-flex rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800">
+        <p className="mb-4 inline-flex rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-100 to-amber-100 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800 shadow-[0_8px_24px_rgba(250,204,21,0.18)]">
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="text-3xl font-semibold tracking-tight text-gray-950 sm:text-4xl">
+      <h2 className="text-balance text-3xl font-semibold tracking-tight text-gray-950 sm:text-4xl md:text-[2.65rem] md:leading-[1.12]">
         {title}
       </h2>
-      <p className="mt-4 text-base leading-7 text-gray-600 sm:text-lg">{description}</p>
+      <p className="mt-5 text-base leading-7 text-gray-600 sm:text-lg">{description}</p>
     </div>
   );
 }
@@ -280,18 +280,29 @@ export function FeatureSpotlight({
           </Link>
         ) : null}
       </div>
-      <div className="relative">{visual}</div>
+      <div className="relative">
+        {!dark ? (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.5rem] bg-[radial-gradient(circle_at_35%_30%,rgba(255,242,1,0.28),transparent_62%)] blur-xl"
+          />
+        ) : null}
+        {visual}
+      </div>
     </div>
   );
 }
 
 export function StatsStrip({ items }: { items: { label: string; value: string }[] }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-3">
+    <div className="grid gap-5 sm:grid-cols-3">
       {items.map((item) => (
-        <div key={item.label} className="text-center">
+        <div
+          key={item.label}
+          className="rounded-3xl border border-yellow-100 bg-white/80 p-6 text-center shadow-[0_16px_40px_rgba(15,23,42,0.06)] backdrop-blur"
+        >
           <p className="text-4xl font-bold tracking-tight text-gray-950 sm:text-5xl">{item.value}</p>
-          <p className="mt-2 text-sm font-medium uppercase tracking-[0.18em] text-gray-500">{item.label}</p>
+          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">{item.label}</p>
         </div>
       ))}
     </div>
@@ -448,9 +459,9 @@ export function IconCardGrid({ items, columns = 3 }: { items: IconCard[]; column
       {items.map(({ title, description, icon: Icon }) => (
         <div
           key={title}
-          className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+          className="group rounded-3xl border border-gray-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fffef8_100%)] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1.5 hover:border-yellow-200 hover:shadow-[0_26px_70px_rgba(15,23,42,0.1)]"
         >
-          <div className="inline-flex rounded-2xl bg-yellow-100 p-3 text-gray-950">
+          <div className="inline-flex rounded-2xl bg-gradient-to-br from-yellow-100 to-amber-100 p-3 text-gray-950 ring-1 ring-yellow-200/80 transition group-hover:scale-105">
             <Icon className="h-5 w-5" />
           </div>
           <h3 className="mt-5 text-xl font-semibold text-gray-950">{title}</h3>
@@ -469,7 +480,7 @@ export function SimpleCardGrid({ items, columns = 3 }: { items: SimpleCard[]; co
       {items.map((item) => (
         <div
           key={item.title}
-          className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+          className="rounded-3xl border border-gray-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fffef8_100%)] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:border-yellow-200"
         >
           <h3 className="text-xl font-semibold text-gray-950">{item.title}</h3>
           <p className="mt-3 text-sm leading-7 text-gray-600">{item.description}</p>
@@ -506,11 +517,11 @@ export function Checklist({
 
 export function SportPills({ sports }: { sports: string[] }) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap justify-center gap-3">
       {sports.map((sport) => (
         <div
           key={sport}
-          className="rounded-full border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm font-medium text-gray-900"
+          className="rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-2 text-sm font-medium text-gray-900 shadow-[0_8px_20px_rgba(250,204,21,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(250,204,21,0.2)]"
         >
           {sport}
         </div>
@@ -529,7 +540,7 @@ export function TestimonialGrid({
       {items.map((item) => (
         <div
           key={item.name}
-          className="rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)]"
+          className="rounded-3xl border border-gray-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#fefce8_100%)] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,23,42,0.1)]"
         >
           <Sparkles className="h-5 w-5 text-yellow-600" />
           <p className="mt-4 text-base leading-7 text-gray-700">“{item.quote}”</p>
@@ -549,7 +560,7 @@ export function FaqGrid({ items }: { items: FaqItem[] }) {
       {items.map((item) => (
         <details
           key={item.question}
-          className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)]"
+          className="group rounded-3xl border border-gray-200/80 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] transition duration-300 hover:border-yellow-200 hover:shadow-[0_24px_60px_rgba(15,23,42,0.08)]"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-gray-950">
             <span>{item.question}</span>
@@ -576,7 +587,11 @@ export function CtaBand({
   showAppButtons?: boolean;
 }) {
   return (
-    <div className="rounded-[2rem] border border-gray-950 bg-gray-950 p-8 text-white shadow-[0_24px_80px_rgba(15,23,42,0.28)] sm:p-10">
+    <div className="relative overflow-hidden rounded-[2rem] border border-gray-950 bg-gray-950 p-8 text-white shadow-[0_24px_80px_rgba(15,23,42,0.28)] sm:p-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-yellow-300/20 blur-3xl"
+      />
       <p className="text-sm uppercase tracking-[0.24em] text-yellow-300">Ready to move</p>
       <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
