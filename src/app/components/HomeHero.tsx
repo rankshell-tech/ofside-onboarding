@@ -37,14 +37,14 @@ const SPORT_CARD_CLASS =
 
 function SportTile({ label, image }: { label: string; image: string }) {
   return (
-    <div className={`${SPORT_CARD_CLASS} flex flex-col items-center gap-2`}>
-      <div className="relative flex h-[4.25rem] w-full items-center justify-center rounded-2xl bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.28)] ring-1 ring-white/50 transition duration-200 group-hover:ring-yellow-300/60 sm:h-[4.75rem] sm:rounded-[1.15rem] sm:p-3">
+    <div className={`${SPORT_CARD_CLASS} group flex flex-col items-center gap-2.5`}>
+      <div className="h-14 w-14 overflow-hidden rounded-2xl shadow-[0_8px_22px_rgba(0,0,0,0.35)] transition duration-200 group-hover:shadow-[0_10px_28px_rgba(0,0,0,0.45)] sm:h-16 sm:w-16 sm:rounded-[1.15rem]">
         <Image
           src={image}
           alt={label}
-          width={56}
-          height={56}
-          className="h-full w-full object-contain"
+          width={80}
+          height={80}
+          className="h-full w-full scale-[1.18] object-cover"
         />
       </div>
       <p className="line-clamp-2 w-full text-center text-[11px] font-medium leading-tight text-white/85 sm:text-xs">
@@ -213,9 +213,7 @@ function SportsWeCover() {
           className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-9 py-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3.5 sm:px-11 [&::-webkit-scrollbar]:hidden"
         >
           {HOMEPAGE_SPORTS.map((sport) => (
-            <div key={sport.id} className="group">
-              <SportTile label={sport.label} image={sport.image} />
-            </div>
+            <SportTile key={sport.id} label={sport.label} image={sport.image} />
           ))}
         </div>
       </div>
