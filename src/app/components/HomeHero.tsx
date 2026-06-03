@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -18,53 +17,39 @@ const APP_LINKS = {
 /** How many sport cards each arrow click scrolls (12 sports → 4 arrow steps end-to-end). */
 const SPORTS_SCROLL_STEP = 3;
 
-const HOMEPAGE_SPORTS: {
-  id: string;
-  label: string;
-  image: string;
-  /** Top accent strip only — avoids noisy full borders */
-  accent: string;
-}[] = [
-  { id: "badminton", label: "Badminton", image: "/assets/sports/badminton.webp", accent: "bg-amber-500" },
-  { id: "pickleball", label: "Pickleball", image: "/assets/sports/pickleball.webp", accent: "bg-lime-500" },
-  { id: "tennis", label: "Tennis", image: "/assets/sports/tennis.webp", accent: "bg-yellow-400" },
-  { id: "futsal", label: "Futsal / Turf Football", image: "/assets/sports/futsal.webp", accent: "bg-emerald-500" },
-  { id: "box_cricket", label: "Box Cricket", image: "/assets/sports/box_cricket.webp", accent: "bg-sky-500" },
-  { id: "cricket_nets", label: "Cricket Nets", image: "/assets/sports/cricket_nets.webp", accent: "bg-blue-600" },
-  { id: "padel_ball", label: "Padel Ball", image: "/assets/sports/padel_ball.webp", accent: "bg-violet-500" },
-  { id: "cricket", label: "Cricket", image: "/assets/sports/cricket.webp", accent: "bg-indigo-500" },
-  { id: "table_tennis", label: "Table Tennis", image: "/assets/sports/table_tennis.webp", accent: "bg-rose-500" },
-  { id: "football", label: "Football", image: "/assets/sports/football.webp", accent: "bg-teal-500" },
-  { id: "basketball", label: "Basketball", image: "/assets/sports/basketball.webp", accent: "bg-orange-500" },
-  { id: "swimming", label: "Swimming", image: "/assets/sports/swimming.webp", accent: "bg-cyan-500" },
+const HOMEPAGE_SPORTS: { id: string; label: string; image: string }[] = [
+  { id: "badminton", label: "Badminton", image: "/assets/sports/badminton.webp" },
+  { id: "pickleball", label: "Pickleball", image: "/assets/sports/pickleball.webp" },
+  { id: "tennis", label: "Tennis", image: "/assets/sports/tennis.webp" },
+  { id: "futsal", label: "Futsal", image: "/assets/sports/futsal.webp" },
+  { id: "box_cricket", label: "Box Cricket", image: "/assets/sports/box_cricket.webp" },
+  { id: "cricket_nets", label: "Cricket Nets", image: "/assets/sports/cricket_nets.webp" },
+  { id: "padel_ball", label: "Padel", image: "/assets/sports/padel_ball.webp" },
+  { id: "cricket", label: "Cricket", image: "/assets/sports/cricket.webp" },
+  { id: "table_tennis", label: "Table Tennis", image: "/assets/sports/table_tennis.webp" },
+  { id: "football", label: "Football", image: "/assets/sports/football.webp" },
+  { id: "basketball", label: "Basketball", image: "/assets/sports/basketball.webp" },
+  { id: "swimming", label: "Swimming", image: "/assets/sports/swimming.webp" },
 ];
 
-function SportTile({
-  label,
-  image,
-  accent,
-}: {
-  label: string;
-  image: string;
-  accent: string;
-}) {
+const SPORT_CARD_CLASS =
+  "w-[4.75rem] shrink-0 snap-center sm:w-[5.5rem]";
+
+function SportTile({ label, image }: { label: string; image: string }) {
   return (
-    <div className="group flex h-full min-h-[96px] flex-col overflow-hidden rounded-lg bg-white shadow-[0_4px_18px_rgba(0,0,0,0.09)] ring-1 ring-black/[0.06] transition hover:shadow-[0_8px_22px_rgba(0,0,0,0.12)] sm:min-h-[104px] sm:rounded-xl">
-      <div className={`h-0.5 w-full shrink-0 ${accent}`} aria-hidden />
-      <div className="flex flex-1 flex-col items-center px-1 py-1 sm:px-1.5 sm:py-1.5">
-        <div className="relative h-14 w-14 shrink-0 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/90 p-1 ring-1 ring-black/[0.04] sm:h-16 sm:w-16 sm:rounded-xl sm:p-1.5">
-          <Image
-            src={image}
-            alt={label}
-            fill
-            sizes="(max-width: 640px) 64px, 80px"
-            className="object-contain"
-          />
-        </div>
-        <p className="mt-0.5 line-clamp-2 min-h-[2rem] max-w-[6rem] text-center text-[10px] font-medium leading-snug text-gray-800 sm:mt-1 sm:min-h-[1.95rem] sm:max-w-[6rem] sm:text-[9px] sm:leading-tight">
-          {label}
-        </p>
+    <div className={`${SPORT_CARD_CLASS} flex flex-col items-center gap-2`}>
+      <div className="relative flex h-[4.25rem] w-full items-center justify-center rounded-2xl bg-white/95 p-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.28)] ring-1 ring-white/50 transition duration-200 group-hover:ring-yellow-300/60 sm:h-[4.75rem] sm:rounded-[1.15rem] sm:p-3">
+        <Image
+          src={image}
+          alt={label}
+          width={56}
+          height={56}
+          className="h-full w-full object-contain"
+        />
       </div>
+      <p className="line-clamp-2 w-full text-center text-[11px] font-medium leading-tight text-white/85 sm:text-xs">
+        {label}
+      </p>
     </div>
   );
 }
@@ -171,70 +156,93 @@ function SportsWeCover() {
     pageCount - 1,
     lockedSegment ?? Math.floor(active / SPORTS_SCROLL_STEP),
   );
+  const canGoPrev = currentPage > 0;
+  const canGoNext = currentPage < pageCount - 1;
+
+  const navBtnClass =
+    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white shadow-lg backdrop-blur-sm transition sm:h-9 sm:w-9";
 
   return (
-    <div className="mx-auto w-full max-w-md shrink-0 sm:max-w-lg md:max-w-xl">
-      <div className="mb-1 text-center sm:mb-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.35em]">
+    <div className="mx-auto w-full max-w-2xl shrink-0 px-1 sm:px-0">
+      <div className="mb-2.5 text-center sm:mb-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-yellow-200/95 sm:tracking-[0.38em]">
           Sports we cover
-        </p>
-        <p className="mt-0 text-xs leading-snug text-white/60 sm:text-[13px]">
-          Swipe or use arrows to explore
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/12 bg-white/[0.06] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:rounded-[1.35rem] sm:p-2">
+      <div className="relative">
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-black/75 via-black/30 to-transparent sm:w-12"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-black/75 via-black/30 to-transparent sm:w-12"
+          aria-hidden
+        />
+
+        <button
+          type="button"
+          aria-label="Previous sports"
+          disabled={!canGoPrev}
+          className={`absolute left-0 top-[1.35rem] z-20 -translate-x-0.5 sm:top-[1.5rem] ${navBtnClass} ${
+            canGoPrev
+              ? "hover:border-yellow-300/60 hover:bg-black/50"
+              : "cursor-not-allowed opacity-35"
+          }`}
+          onClick={() => canGoPrev && scrollByDir(-1)}
+        >
+          <ChevronLeft className="h-4 w-4" strokeWidth={2.25} />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Next sports"
+          disabled={!canGoNext}
+          className={`absolute right-0 top-[1.35rem] z-20 translate-x-0.5 sm:top-[1.5rem] ${navBtnClass} ${
+            canGoNext
+              ? "hover:border-yellow-300/60 hover:bg-black/50"
+              : "cursor-not-allowed opacity-35"
+          }`}
+          onClick={() => canGoNext && scrollByDir(1)}
+        >
+          <ChevronRight className="h-4 w-4" strokeWidth={2.25} />
+        </button>
+
         <div
           ref={scrollerRef}
-          className="relative flex snap-x snap-mandatory gap-1.5 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-9 py-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3.5 sm:px-11 [&::-webkit-scrollbar]:hidden"
         >
           {HOMEPAGE_SPORTS.map((sport) => (
-            <div
-              key={sport.id}
-              className="w-[min(62vw,128px)] min-w-[min(62vw,128px)] shrink-0 snap-center sm:w-[124px] sm:min-w-[124px]"
-            >
-              <SportTile label={sport.label} image={sport.image} accent={sport.accent} />
+            <div key={sport.id} className="group">
+              <SportTile label={sport.label} image={sport.image} />
             </div>
           ))}
         </div>
+      </div>
 
-        <div className="mt-2 flex flex-col items-center gap-1.5 sm:mt-2.5 sm:gap-2">
-          <div
-            className="flex w-full max-w-[min(100%,220px)] gap-1.5"
-            role="group"
-            aria-label={`Sports group ${currentPage + 1} of ${pageCount}`}
-          >
-            {Array.from({ length: pageCount }, (_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 min-w-0 flex-1 rounded-full transition-colors duration-300 ease-out ${
-                  i === currentPage
-                    ? "bg-gradient-to-r from-yellow-300 to-amber-400 shadow-[0_0_12px_rgba(253,224,71,0.3)]"
-                    : "bg-white/12"
-                }`}
-              />
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              aria-label="Previous sports"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-yellow-300/50 hover:bg-white/15"
-              onClick={() => scrollByDir(-1)}
-            >
-              <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-            </button>
-            <button
-              type="button"
-              aria-label="Next sports"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-yellow-300/50 hover:bg-white/15"
-              onClick={() => scrollByDir(1)}
-            >
-              <ChevronRight className="h-4 w-4" strokeWidth={2} />
-            </button>
-          </div>
-        </div>
+      <div
+        className="mt-3 flex items-center justify-center gap-2"
+        role="group"
+        aria-label={`Sports group ${currentPage + 1} of ${pageCount}`}
+      >
+        {Array.from({ length: pageCount }, (_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to sports group ${i + 1}`}
+            aria-current={i === currentPage ? "true" : undefined}
+            className={`rounded-full transition-all duration-300 ${
+              i === currentPage
+                ? "h-2 w-6 bg-yellow-300 shadow-[0_0_10px_rgba(253,224,71,0.45)]"
+                : "h-2 w-2 bg-white/25 hover:bg-white/40"
+            }`}
+            onClick={() => {
+              const target = Math.min(n - 1, i * SPORTS_SCROLL_STEP);
+              setLockedSegment(i);
+              scrollToIndex(target);
+            }}
+          />
+        ))}
       </div>
     </div>
   );
