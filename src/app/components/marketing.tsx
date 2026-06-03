@@ -743,7 +743,7 @@ export const trustSignals = [
   },
   {
     title: "Human support when you need it",
-    description: "Reach the Ofside team via email, phone, or WhatsApp for player support and product questions.",
+    description: "Reach the Ofside team via email for player support and product questions.",
     icon: HeartHandshake,
   },
 ] satisfies IconCard[];

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Mail, MessageCircle, Phone } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 import { AppDownloadButtons } from "./marketing";
 
 const primaryLinks = [
@@ -32,13 +32,6 @@ export default function Footer() {
             >
               <Mail className="h-4 w-4 text-yellow-300" />
               play@ofside.in
-            </a>
-            <a
-              href="tel:+919811785330"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-200 transition hover:bg-white/10"
-            >
-              <Phone className="h-4 w-4 text-yellow-300" />
-              +91 98117 85330
             </a>
           </div>
           <div className="mt-6">
@@ -77,13 +70,11 @@ export default function Footer() {
               <Instagram className="h-5 w-5 text-yellow-300" />
             </a>
             <a
-              href="https://wa.me/919811785330"
-              target="_blank"
-              rel="noreferrer"
+              href="mailto:play@ofside.in"
               className="inline-flex rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10"
-              aria-label="WhatsApp"
+              aria-label="Email"
             >
-              <MessageCircle className="h-5 w-5 text-yellow-300" />
+              <Mail className="h-5 w-5 text-yellow-300" />
             </a>
           </div>
         </div>

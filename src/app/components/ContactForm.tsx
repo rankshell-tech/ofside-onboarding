@@ -143,7 +143,7 @@ export default function ContactForm() {
             Request submitted{ticketId ? ` · Ticket ID: ${ticketId}` : ""}.
           </p>
         ) : (
-          <p className="text-sm text-gray-500">Need urgent help? WhatsApp or call us directly below.</p>
+          <p className="text-sm text-gray-500">Need urgent help? Email us at play@ofside.in.</p>
         )}
       </div>
       {errorMessage ? (

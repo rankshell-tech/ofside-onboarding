@@ -153,7 +153,6 @@ const TermsPage = () => (
                     <strong>Onboarding &amp; venues:</strong>{" "}
                     <a href="mailto:admin@ofside.in" className="text-blue-600 underline">admin@ofside.in</a>
                     <br />
-                    <strong>Phone:</strong> +91-9811785330<br />
                     <strong>Address:</strong> 4/270 Vaishali Road, Unique Society, Sector 4, I.E.Sahibabad, Ghaziabad, Uttar Pradesh, India, 201010
                 </p>
             </div>

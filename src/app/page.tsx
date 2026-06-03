@@ -85,7 +85,7 @@ const faqs = [
   {
     question: "How do I get in touch?",
     answer:
-      "Reach us at play@ofside.in for player support, via WhatsApp at +91 98117 85330, or through the contact page on this website.",
+      "Reach us at play@ofside.in for player support or through the contact page on this website.",
   },
 ];
 

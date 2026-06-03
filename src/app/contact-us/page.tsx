@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ContactForm from "../components/ContactForm";
 import { CtaBand, PageHero, Section, SectionIntro } from "../components/marketing";
-import { Instagram, Mail, MessageCircle, Phone } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 
 const contactCards = [
   {
@@ -11,22 +11,10 @@ const contactCards = [
     icon: Mail,
   },
   {
-    title: "General enquiries",
+    title: "For Partnership and collaboration",
     value: "admin@ofside.in",
     href: "mailto:admin@ofside.in",
     icon: Mail,
-  },
-  {
-    title: "Phone",
-    value: "+91 98117 85330",
-    href: "tel:+919811785330",
-    icon: Phone,
-  },
-  {
-    title: "WhatsApp",
-    value: "Chat with Ofside",
-    href: "https://wa.me/919811785330",
-    icon: MessageCircle,
   },
 ];
 
@@ -57,7 +45,7 @@ export default function ContactUsPage() {
             <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">Get in touch</p>
             <h2 className="mt-4 text-3xl font-semibold text-gray-950">Multiple ways to reach the team</h2>
             <p className="mt-4 text-base leading-7 text-gray-600">
-              Reach out for player support, product feedback, or partnerships. If you prefer a quick route, call or WhatsApp directly.
+              Reach out for player support, product feedback, or partnerships by email or the form below.
             </p>
           </div>
         }
@@ -73,8 +61,8 @@ export default function ContactUsPage() {
             >
               <SectionIntro
                 eyebrow="Direct Contact"
-                title="Email, phone, and WhatsApp"
-                description="Choose the route that matches the urgency and type of conversation."
+                title="Email"
+                description="Choose the inbox that matches your question."
               />
               <div className="mt-8 grid gap-4">
                 {contactCards.map(({ title, value, href, icon: Icon }, index) => (
@@ -135,9 +123,9 @@ export default function ContactUsPage() {
       <Section>
         <CtaBand
           title="Need help from the Ofside team?"
-          description="Use play@ofside.in for player support, or WhatsApp for a faster conversation."
+          description="Use play@ofside.in for player support or admin@ofside.in for partnerships."
           primaryCta={{ label: "Email Ofside", href: "mailto:play@ofside.in" }}
-          secondaryCta={{ label: "WhatsApp Ofside", href: "https://wa.me/919811785330" }}
+          secondaryCta={{ label: "Partnerships", href: "mailto:admin@ofside.in" }}
         />
       </Section>
     </main>
