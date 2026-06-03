@@ -556,11 +556,11 @@ export function TestimonialGrid({
 
 export function FaqGrid({ items }: { items: FaqItem[] }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
       {items.map((item) => (
         <details
           key={item.question}
-          className="group rounded-3xl border border-gray-200/80 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] transition duration-300 hover:border-yellow-200 hover:shadow-[0_24px_60px_rgba(15,23,42,0.08)]"
+          className="group w-full rounded-3xl border border-gray-200/80 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.05)] transition duration-300 hover:border-yellow-200 hover:shadow-[0_24px_60px_rgba(15,23,42,0.08)]"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-gray-950">
             <span>{item.question}</span>
