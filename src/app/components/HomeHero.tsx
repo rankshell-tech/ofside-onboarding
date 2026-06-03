@@ -261,13 +261,13 @@ export default function HomeHero() {
         >
           <source src="/assets/hero_section_video_ofside.MP4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/22 to-black/52" aria-hidden />
+        {/* Single full-bleed scrim — avoids stacked overlays that read as a dark horizontal band */}
         <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_92%_72%_at_50%_28%,transparent_0%,rgba(0,0,0,0.28)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.5)_38%,rgba(0,0,0,0.58)_68%,rgba(0,0,0,0.72)_100%)]"
           aria-hidden
         />
         <div
-          className="absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(255,242,1,0.23),transparent_70%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_120%_90%_at_50%_38%,rgba(255,242,1,0.14)_0%,transparent_62%)]"
           aria-hidden
         />
       </div>
