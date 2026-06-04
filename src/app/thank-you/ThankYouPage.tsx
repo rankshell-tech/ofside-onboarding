@@ -60,10 +60,14 @@ export default function ThankYouPage() {
         </h1>
 
         <p className="text-lg mb-8" style={{ color: BRAND_ACCENT, lineHeight: 1.6 }}>
-          {"We've received your venue submission."}
+          Thank you for reaching out.
           <br />
-          Our team will review it and get in touch with you soon.
+          Our team will get back to you soon.
         </p>
+        {/* VENUE PARTNER — disabled:
+          We've received your venue submission.
+          Our team will review it and get in touch with you soon.
+        */}
 
         <Link
           href="/"

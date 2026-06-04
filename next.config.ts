@@ -8,16 +8,17 @@ const nextConfig: NextConfig = {
         destination: '/scoring/scoringScreen',
         permanent: false,
       },
-      {
-        source: '/venue-partners',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/onboarding',
-        destination: '/',
-        permanent: false,
-      },
+      // VENUE PARTNER — disabled
+      // {
+      //   source: '/venue-partners',
+      //   destination: '/',
+      //   permanent: false,
+      // },
+      // {
+      //   source: '/onboarding',
+      //   destination: '/',
+      //   permanent: false,
+      // },
     ];
   },
 };

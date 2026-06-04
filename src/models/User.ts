@@ -25,11 +25,12 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
-  totalVenueCreated: {
-    type: Number,
-    default: 0,
-    required: false,
-  },
+  // VENUE PARTNER — disabled
+  // totalVenueCreated: {
+  //   type: Number,
+  //   default: 0,
+  //   required: false,
+  // },
 
   createdOn: {
     type: Date,

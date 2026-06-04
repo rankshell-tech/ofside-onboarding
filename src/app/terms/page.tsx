@@ -13,7 +13,7 @@ const TermsPage = () => (
         <SectionBox>
             <h2 className="text-xl font-semibold mb-2 text-gray-800">I. ACCEPTANCE OF TERMS</h2>
             <p className="mb-2">
-                <strong>Binding Agreement.</strong> These Terms of Use, Privacy Policy, Cancellation Policy, and Rescheduling Policy (collectively, &quot;Policies&quot;) constitute a binding agreement between you and Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;).
+                <strong>Binding Agreement.</strong> These Terms of Use, Privacy Policy, and Subscription Cancellation &amp; Refund Policy (collectively, &quot;Policies&quot;) constitute a binding agreement between you and Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;).
             </p>
             <p className="mb-2">
                 <strong>Eligibility.</strong> You must be at least 18 years old and capable of entering into binding contracts. Use of the Services on behalf of an entity requires authority to bind that entity.
@@ -27,106 +27,82 @@ const TermsPage = () => (
             <h2 className="text-xl font-semibold mb-2 text-gray-800">II. DEFINITIONS</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
                 <li><strong>User:</strong> An individual or entity accessing or using the Platform.</li>
-                <li><strong>Venue Partner:</strong> A proprietor or manager listing sports venues on the Platform.</li>
-                <li><strong>Booking:</strong> Reservation of one or more Slots at a Venue via the Platform.</li>
-                <li><strong>Slot:</strong> A specific date and time interval at a Venue.</li>
-                <li><strong>Booking Fee:</strong> Total amount payable for a Booking, inclusive of venue charges and Ofside commission.</li>
-                <li><strong>Handling Fee:</strong> Non-refundable fee charged by Ofside on cancellations and refunds.</li>
+                <li><strong>Platform:</strong> The Ofside website, mobile applications, and related services for match creation, live scoring, stats, leaderboards, and community features.</li>
+                <li><strong>Free Plan:</strong> Core app features available without a paid Subscription.</li>
+                <li><strong>Pro Plan / Subscription:</strong> A recurring paid plan (e.g., Ofside Pro monthly or yearly) that unlocks premium in-app features for the subscription period.</li>
+                <li><strong>Subscription Fee:</strong> The amount charged for a Subscription, as shown in the app at checkout (including any introductory or promotional pricing).</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
             <h2 className="text-xl font-semibold mb-2 text-gray-800">III. ACCOUNT REGISTRATION & SECURITY</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Account Creation.</strong> To book venues, you must register an account, providing accurate and complete information. You may link third-party accounts (e.g., Google, Facebook).</li>
+                <li><strong>Account Creation.</strong> To use the app, you must register an account with accurate and complete information. You may link third-party accounts (e.g., Google, Facebook).</li>
                 <li><strong>Credentials.</strong> You are responsible for maintaining your password privacy. Notify us immediately of unauthorized access.</li>
                 <li><strong>Termination.</strong> We may suspend or terminate accounts for breach of these Terms or for illegal or harmful activities.</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">IV. BOOKING PROCESS</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">IV. APP SUBSCRIPTIONS & PAYMENTS</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Search & Selection.</strong> Users may search, filter, and sort Venues by sport, location, price, ratings, and availability.</li>
-                <li><strong>Booking Request.</strong> Upon selecting a Slot, enter required details (name, contact, team size, special requests).</li>
-                <li><strong>Payment.</strong> Full or partial payment options as offered. Ofside collects payments via secure gateways.</li>
-                <li><strong>Booking Confirmation.</strong> A unique Booking ID is generated. Confirmation sent via in-app notification, email, and WhatsApp with details: Booking ID, Venue, Date, Time, Payment status.</li>
+                <li><strong>Paid offering.</strong> Ofside&apos;s only paid offering on the Platform is the <strong>app Subscription</strong> (Ofside Pro). We do not sell venue bookings or other paid services through this Platform.</li>
+                <li><strong>Plans.</strong> Subscription plans, prices, billing period, and included features are displayed in the app before purchase and may change from time to time.</li>
+                <li><strong>Payment processors.</strong> On Android, Subscriptions are billed through Razorpay. On iOS, Subscriptions are billed through Apple&apos;s App Store. You agree to the applicable store or processor terms.</li>
+                <li><strong>Auto-renewal.</strong> Unless cancelled before the renewal date, Subscriptions renew automatically for the same billing period at the then-current price (or promotional renewal price, if applicable).</li>
+                <li><strong>Activation.</strong> Pro features activate after successful payment verification. Restore purchases (where supported) links an existing store subscription to your Ofside account.</li>
+                <li><strong>Taxes.</strong> Applicable taxes may be added as required by law.</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">V. PAYMENT TERMS</h2>
-            <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Methods.</strong> Accepted methods include credit/debit cards, UPI, net banking, and supported wallets.</li>
-                <li><strong>Commission & Fees.</strong> For first 4 months: 0% Commission + 2% PG charges + 18% GST. Post 4 months: 4% Commission + 2% PG charges + 18% GST.</li>
-                <li><strong>Taxes.</strong> Applicable taxes are added at checkout and borne by the User.</li>
-                <li><strong>Split Payments.</strong> Refunds and rescheduling are calculated on the total slot price, not merely the amount paid.</li>
-            </ul>
-        </SectionBox>
-
-        <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">VI. REFUND POLICY</h2>
-            <p>
-                Our Refund Policy is incorporated by reference and available here: <a href="/refund" className="text-blue-600 underline">Refund Policy</a>.
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">V. SUBSCRIPTION CANCELLATION & REFUNDS</h2>
+            <p className="text-gray-700">
+                Cancellation, refunds, and billing disputes for Subscriptions are governed by our{" "}
+                <a href="/refund" className="text-blue-600 underline">Subscription Cancellation &amp; Refund Policy</a>.
+                iOS users must manage or cancel App Store subscriptions in Apple ID settings; Android users may cancel through the app or Razorpay as described in that policy.
             </p>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">VII. RESCHEDULING POLICY</h2>
-            <p>
-                Our Rescheduling Policy is incorporated by reference and available here: <a href="/rescheduling-policy" className="text-blue-600 underline">Rescheduling Policy</a>.
-            </p>
-        </SectionBox>
-
-        <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">VIII. USER CONDUCT</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">VI. USER CONDUCT</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Compliance.</strong> You must follow Venue Partner rules, safety guidelines, and all applicable laws.</li>
-                <li><strong>Prohibited Activities.</strong> Illegal, defamatory, harassing, or disruptive behavior; spamming; unauthorized data scraping; hacking; infringement of third-party rights.</li>
-                <li><strong>No-Shows.</strong> Late cancellations and no-shows may incur fees or affect future booking privileges.</li>
+                <li><strong>Compliance.</strong> You must follow applicable laws, community guidelines, and safety best practices when using the Services.</li>
+                <li><strong>Prohibited Activities.</strong> Illegal, defamatory, harassing, or disruptive behavior; spamming; unauthorized data scraping; hacking; infringement of third-party rights; sharing account or Subscription access in violation of these Terms.</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">IX. VENUE PARTNER OBLIGATIONS</h2>
-            <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Accuracy.</strong> Maintain up-to-date venue details, pricing, and slot availability.</li>
-                <li><strong>Confirmation.</strong> Promptly confirm or reject Bookings. Update Ofside of any changes.</li>
-                <li><strong>Venue Condition.</strong> Ensure safe, playable conditions. Offer rescheduling if unplayable due to weather or calamity.</li>
-            </ul>
-        </SectionBox>
-
-        <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">X. INTELLECTUAL PROPERTY</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">VII. INTELLECTUAL PROPERTY</h2>
             <p>
                 All content, trademarks, logos, and software on the Platform are owned or licensed by Ofside. Unauthorized use is prohibited.
             </p>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XI. DISCLAIMERS & LIMITATION OF LIABILITY</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">VIII. DISCLAIMERS & LIMITATION OF LIABILITY</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
                 <li><strong>As Is Basis.</strong> Services provided without warranties. To the maximum extent permitted by law, Ofside disclaims all warranties.</li>
-                <li><strong>Liability Cap.</strong> Ofside’s maximum liability for any claim is limited to the Booking Fee paid for the disputed Booking.</li>
+                <li><strong>Liability Cap.</strong> Ofside&apos;s maximum liability for any claim arising from your use of the Services is limited to the greater of (a) Subscription Fees you paid to Ofside for the Services giving rise to the claim in the twelve months before the claim, or (b) ₹1,000.</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XII. INDEMNIFICATION</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">IX. INDEMNIFICATION</h2>
             <p>
                 You agree to indemnify and hold Ofside, its officers, directors, and employees harmless from claims arising from your breach of these Terms or your use of the Services.
             </p>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XIII. PRIVACY</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">X. PRIVACY</h2>
             <p>
-                Our Privacy Policy, available here: <a href="/privacy-policy" className="text-blue-600 underline">Privacy Policy</a>, explains how we collect, use, and share your information.
+                Our Privacy Policy, available here: <a href="/privacy" className="text-blue-600 underline">Privacy Policy</a>, explains how we collect, use, and share your information.
             </p>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XIV. DISPUTE RESOLUTION</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">XI. DISPUTE RESOLUTION</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
                 <li><strong>Governing Law.</strong> These Terms are governed by the laws of India.</li>
                 <li><strong>Arbitration.</strong> Disputes shall be resolved by arbitration under the Arbitration and Conciliation Act, 1996, in Delhi, India.</li>
@@ -134,26 +110,26 @@ const TermsPage = () => (
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XV. MISCELLANEOUS</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">XII. MISCELLANEOUS</h2>
             <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                <li><strong>Assignment.</strong> Ofside may assign rights or delegate obligations under these Terms. Users may not assign without Ofside’s consent.</li>
+                <li><strong>Assignment.</strong> Ofside may assign rights or delegate obligations under these Terms. Users may not assign without Ofside&apos;s consent.</li>
                 <li><strong>Severability.</strong> If any provision is held invalid, the remainder will remain in effect.</li>
                 <li><strong>Entire Agreement.</strong> These Terms and incorporated Policies constitute the entire agreement between you and Ofside regarding the Services.</li>
             </ul>
         </SectionBox>
 
         <SectionBox>
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">XVI. CONTACT US</h2>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">XIII. CONTACT US</h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <p>
                     For questions or support, contact us at:<br />
                     <strong>User queries:</strong>{" "}
                     <a href="mailto:play@ofside.in" className="text-blue-600 underline">play@ofside.in</a>
                     <br />
-                    <strong>Onboarding &amp; venues:</strong>{" "}
+                    <strong>Partnerships:</strong>{" "}
                     <a href="mailto:admin@ofside.in" className="text-blue-600 underline">admin@ofside.in</a>
                     <br />
-                    <strong>Address:</strong> 4/270 Vaishali Road, Unique Society, Sector 4, I.E.Sahibabad, Ghaziabad, Uttar Pradesh, India, 201010
+                    <strong>Address:</strong> Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
                 </p>
             </div>
         </SectionBox>

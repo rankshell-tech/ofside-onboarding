@@ -60,12 +60,12 @@ const faqs = [
   {
     question: "What is Ofside?",
     answer:
-      "Ofside is India's sports ecosystem app — create matches, score live, track stats, climb leaderboards, and stay connected to your local sports scene. It's built for how people actually play, not just how they book.",
+      "Ofside is India's sports ecosystem app — create matches, score live, track stats, climb leaderboards, and stay connected to your local sports scene.",
   },
   {
     question: "Is Ofside free to download?",
     answer:
-      "Yes. Download Ofside for free on iOS and Android. Core features like match creation, live scoring, and rulebooks are available to all users. Premium tiers unlock deeper analytics and advanced features.",
+      "Yes. Download Ofside for free on iOS and Android. Core features like match creation, live scoring, and rulebooks are free. Ofside Pro is a paid app subscription (monthly or yearly) for premium analytics and advanced features — managed in the app.",
   },
   {
     question: "Which sports does Ofside support?",

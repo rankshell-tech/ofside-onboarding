@@ -1,95 +1,81 @@
+// VENUE PARTNER — disabled (mongoose Venue model for partner onboarding)
+
+/*
 import mongoose, { Schema, models } from 'mongoose';
 
-// Sports Facility Schema (Each facility is a court for a specific sport)
 const courtSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },                  // courtName
-    sportType: { type: String, required: true },             // courtSportType (e.g., "Football", "Tennis")
-    surfaceType: { type: String },                           // surfaceType
-    size: { type: String },                                  // courtSize (e.g., 5-a-side, Standard)
-    isIndoor: { type: Boolean, default: false },             // isIndoor
-    hasLighting: { type: Boolean, default: false },          // hasLighting
+    name: { type: String, required: true },
+    sportType: { type: String, required: true },
+    surfaceType: { type: String },
+    size: { type: String },
+    isIndoor: { type: Boolean, default: false },
+    hasLighting: { type: Boolean, default: false },
     images: {
-      cover: { type: String, default: null },                // URL or path to cover image
-      logo: { type: String, default: null },                 // URL or path to logo image
-      others: { type: [String], default: [] }                // Array of URLs/paths for other images
+      cover: { type: String, default: null },
+      logo: { type: String, default: null },
+      others: { type: [String], default: [] },
     },
-    slotDuration: { type: Number },                          // courtSlotDuration (in minutes)
-    maxPeople: { type: Number },                             // courtMaxPeople
-    pricePerSlot: { type: Number },                          // courtPricePerSlot
-    peakEnabled: { type: Boolean, default: false },          // courtPeakEnabled
-    peakDays: { type: [String], default: [] },               // courtPeakDays
-    peakStart: { type: String },                             // courtPeakStart
-    peakEnd: { type: String },                               // courtPeakEnd
-    peakPricePerSlot: { type: Number },                      // courtPeakPricePerSlot
-
-
-    
+    slotDuration: { type: Number },
+    maxPeople: { type: Number },
+    pricePerSlot: { type: Number },
+    peakEnabled: { type: Boolean, default: false },
+    peakDays: { type: [String], default: [] },
+    peakStart: { type: String },
+    peakEnd: { type: String },
+    peakPricePerSlot: { type: Number },
   },
-  { _id: false }
+  { _id: false },
 );
 
-// Main Venue Schema
 const venueSchema = new mongoose.Schema({
-  venueName: { type: String, required: true },               // venueName
-  venueType: { type: String },                               // venueType (Turf, Stadium, etc.)
-  sportsOffered: { type: [String], default: [] },            // sportsOffered
+  venueName: { type: String, required: true },
+  venueType: { type: String },
+  sportsOffered: { type: [String], default: [] },
   description: { type: String, required: true },
-
-  amenities: { type: [String], default: [] },                // e.g., Parking, Washroom, etc.
-
+  amenities: { type: [String], default: [] },
   is24HoursOpen: { type: Boolean, default: false },
-
-  availableDays: { type: [String], default: [] },            // <-- Added as per route.ts
-
-  revenueModel: { type: String },                            // <-- Added as per route.ts
-
+  availableDays: { type: [String], default: [] },
+  revenueModel: { type: String },
   location: {
-    address: { type: String, required: true },               // fullAddress (shopNo, floorTower, areaSectorLocality)
+    address: { type: String, required: true },
     city: { type: String, required: true },
-    state: { type: String, default: "" },                    // <-- Added as per route.ts
+    state: { type: String, default: "" },
     country: { type: String, default: "India" },
     pincode: { type: String, required: true },
-    fullAddress: { type: String, default: "" },              // <-- Added as per route.ts
+    fullAddress: { type: String, default: "" },
     coordinates: {
       type: { type: String, enum: ["Point"], default: "Point" },
-      coordinates: { type: [Number], index: "2dsphere" },    // [lng, lat]
+      coordinates: { type: [Number], index: "2dsphere" },
     },
   },
-
   contact: {
-    name: { type: String, required: true },                  // contactPersonName
-    phone: { type: String, required: true },                 // contactPhone
-    email: { type: String, required: true },                 // contactEmail
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String, required: true },
   },
-
   owner: {
     name: { type: String },
     phone: { type: String },
-    email: { type: String }
+    email: { type: String },
   },
-
   courts: { type: [courtSchema], default: [] },
-
   declarationAgreed: { type: Boolean, default: false },
-  declarationConsent: { type: Boolean, default: false },     // <-- Added as per route.ts
-  declarationAgree: { type: Boolean, default: false },       // <-- Added as per route.ts
-
-  venuePartnerAcknowledgment: { type: Boolean, default: false }, // <-- Added as per route.ts
-
+  declarationConsent: { type: Boolean, default: false },
+  declarationAgree: { type: Boolean, default: false },
+  venuePartnerAcknowledgment: { type: Boolean, default: false },
   rating: { type: Number, default: 0 },
   reviewsCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   isTrending: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
-
   pendingChanges: { type: mongoose.Schema.Types.Mixed, default: null },
-
   rawVenueData: { type: mongoose.Schema.Types.Mixed, default: null },
-
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default models.Venue || mongoose.model('Venue', venueSchema);
+export default models.Venue || mongoose.model("Venue", venueSchema);
+*/
+
+export {};

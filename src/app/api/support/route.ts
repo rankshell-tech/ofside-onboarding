@@ -7,7 +7,8 @@ function resolveAdminEmail(topic: string): string {
   const partnershipsEmail = process.env.ADMIN_EMAIL_FOR_PARTNERSHIPS || usersEmail;
   const t = (topic || "").toLowerCase();
   const isPartnership =
-    t.includes("partnership") || t.includes("business") || t.includes("onboarding");
+    t.includes("partnership") || t.includes("business");
+  // VENUE PARTNER — disabled: || t.includes("onboarding")
   return (isPartnership ? partnershipsEmail : usersEmail).trim();
 }
 

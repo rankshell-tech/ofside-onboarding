@@ -5,7 +5,7 @@ const PrivacyPolicyPage = () => (
         <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Ofside Privacy Policy</h1>
             <p>
-                Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users (&quot;you&quot;, &quot;your&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal and non-personal information when you access or use our sports venue booking Platform, mobile applications, and related services (collectively, the &quot;Services&quot;). By using the Services, you consent to the practices described in this Policy.
+                Ofside (Rankshell marketing solutions) (&quot;Ofside&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the privacy of our users (&quot;you&quot;, &quot;your&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your personal and non-personal information when you access or use our sports app, website, mobile applications, and related services (collectively, the &quot;Services&quot;). Paid features are offered only through <strong>app Subscriptions</strong> (Ofside Pro). By using the Services, you consent to the practices described in this Policy.
             </p>
         </section>
 
@@ -14,9 +14,9 @@ const PrivacyPolicyPage = () => (
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Account:</strong> The password-protected user profile you create on the Platform.</li>
                 <li><strong>Personal Information:</strong> Data that identifies or can identify an individual, such as name, email, phone, and address.</li>
-                <li><strong>Payment Information:</strong> Financial details used to process transactions, including card or UPI data.</li>
+                <li><strong>Payment Information:</strong> Financial details used to process Subscription payments (handled by Razorpay or Apple; we do not store full card or UPI credentials).</li>
                 <li><strong>Device Information:</strong> Technical data about your device and connection (e.g., operating system, browser type, IP address).</li>
-                <li><strong>Location Information:</strong> GPS or other positioning data from your device.</li>
+                <li><strong>Location Information:</strong> GPS or other positioning data from your device, when you grant permission.</li>
                 <li><strong>Non-Personal Information:</strong> Aggregated or anonymized data that cannot identify you.</li>
                 <li><strong>Third Party:</strong> Any entity other than you or Ofside.</li>
             </ul>
@@ -26,9 +26,9 @@ const PrivacyPolicyPage = () => (
             <h2 className="text-xl font-semibold text-gray-700 mb-3">II. Information Collection</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li><strong>Account Registration:</strong> When you register, we collect Personal Information such as your name, email address, phone number, and address.</li>
-                <li><strong>Payment Processing:</strong> We do not store your payment details. Payment Information is processed directly by secure, PCI-compliant gateways.</li>
+                <li><strong>Subscriptions:</strong> We receive subscription status, plan type, transaction identifiers, and billing metadata from Razorpay (Android) or Apple (iOS) to activate and manage Ofside Pro.</li>
                 <li><strong>Device &amp; Usage Data:</strong> We automatically collect Device Information and usage patterns (e.g., pages viewed, clicks).</li>
-                <li><strong>Location Services:</strong> With your consent, we collect Location Information to show nearby venues and real-time availability.</li>
+                <li><strong>Location Services:</strong> With your consent, we may collect Location Information for app features that use location (not for venue booking).</li>
                 <li><strong>Contacts Access:</strong> If you grant permission, we may access your address book to help you connect with friends; this data is stored temporarily and only used to facilitate in-app features.</li>
                 <li><strong>Cookies &amp; Tracking:</strong> We use cookies, web beacons, and similar technologies to authenticate sessions, enhance security, personalize content, and deliver targeted promotions. You may disable cookies in your browser, but some features may not function.</li>
             </ul>
@@ -38,11 +38,11 @@ const PrivacyPolicyPage = () => (
             <h2 className="text-xl font-semibold text-gray-700 mb-3">III. Use of Information</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
                 <li>Provide, operate, and maintain the Services.</li>
-                <li>Process and confirm your Bookings and payments.</li>
+                <li>Process, verify, and manage app Subscriptions and account plan status.</li>
                 <li>Send confirmations, receipts, and important notices.</li>
                 <li>Personalize user experience and deliver relevant promotions.</li>
                 <li>Improve Platform functionality, conduct analytics, and generate usage statistics.</li>
-                <li>Enforce our Terms of Use, Cancellation, and Rescheduling Policies.</li>
+                <li>Enforce our Terms of Use and Subscription policies.</li>
                 <li>Communicate with you regarding updates, offers, and support.</li>
             </ul>
         </section>
@@ -50,7 +50,7 @@ const PrivacyPolicyPage = () => (
         <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">IV. Information Sharing</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
-                <li><strong>Venue Partners:</strong> To confirm and manage your Bookings, we share necessary Booking details (name, contact, date/time, payment status).</li>
+                <li><strong>Payment processors:</strong> Razorpay and Apple receive information needed to complete Subscription purchases; their privacy policies apply to that processing.</li>
                 <li><strong>Service Providers:</strong> Third parties who help operate the Platform (e.g., hosting, analytics, customer support).</li>
                 <li><strong>Legal &amp; Safety:</strong> When required by law, to comply with legal processes, or to protect the rights, safety, or property of users or Ofside.</li>
                 <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets, subject to confidentiality safeguards.</li>
@@ -78,7 +78,7 @@ const PrivacyPolicyPage = () => (
         <section data-reveal="feature-card" className="mb-8 p-6 bg-white rounded-xl shadow">
             <h2 className="text-xl font-semibold text-gray-700 mb-3">VI. Data Retention &amp; Your Rights</h2>
             <ul className="list-disc pl-6 mb-3 space-y-1">
-                <li><strong>Retention:</strong> We retain your Personal Information as long as necessary to provide Services and comply with legal obligations.</li>
+                <li><strong>Retention:</strong> We retain your Personal Information as long as necessary to provide Services and comply with legal obligations (including subscription and tax records).</li>
                 <li><strong>Access &amp; Correction:</strong> You may access and update your Account information in the app or by contacting support.</li>
                 <li><strong>Deletion:</strong> You may request deletion of your Personal Information, subject to legal and operational constraints (e.g., transaction records).</li>
                 <li><strong>Opt-Out:</strong> You may opt out of promotional communications by following unsubscribe links or updating your preferences.</li>
@@ -113,13 +113,13 @@ const PrivacyPolicyPage = () => (
                 <strong>User queries:</strong>{" "}
                 <a href="mailto:play@ofside.in" className="text-gray-600 underline">play@ofside.in</a>
                 <br />
-                <strong>Onboarding &amp; venues:</strong>{" "}
+                <strong>Partnerships:</strong>{" "}
                 <a href="mailto:admin@ofside.in" className="text-gray-600 underline">admin@ofside.in</a>
                 <br />
-                <strong>Address:</strong> 4/270 Vaishali Road, Unique Society, Sector 4, I.E.Sahibabad, Ghaziabad, Uttar Pradesh, India, 201010
+                <strong>Address:</strong> Metro 55, Lane 2, Westend Marg, Saidulajab, Saiyad Ul Ajaib Extension, Saket, New Delhi, Delhi 110030
             </p>
             <p>
-                Thank you for trusting Ofside with your information. We are dedicated to safeguarding your privacy and delivering a secure booking experience.
+                Thank you for trusting Ofside with your information. We are dedicated to safeguarding your privacy and delivering a secure experience.
             </p>
         </section>
     </main>
