@@ -21,37 +21,29 @@ function toSearchParams(
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const raw = await searchParams;
   const qs = toSearchParams(raw);
-  const signupParams = new URLSearchParams();
-  const code = qs.get('code');
-  if (code) signupParams.set('referralCode', code);
-
-  const canonicalWebUrl = `https://ofside.in/invite${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const canonicalWebUrl = `https://ofside.in/community${qs.toString() ? `?${qs.toString()}` : ''}`;
 
   return appLinkMetaToNextMetadata(
-    { appPath: '/login/signup', searchParams: signupParams },
+    { appPath: '/community', searchParams: qs },
     canonicalWebUrl,
-    'Join Ofside',
-    'Install the Ofside app to sign up with your referral.'
+    'Community game on Ofside',
+    'View and join this community game in the Ofside app.'
   );
 }
 
-/** Referral links from the app: https://ofside.in/invite?code=… */
-export default async function InviteOpenPage({ searchParams }: PageProps) {
+export default async function CommunityGameOpenPage({ searchParams }: PageProps) {
   const raw = await searchParams;
   const qs = toSearchParams(raw);
-  const code = qs.get('code');
-  const signupParams = new URLSearchParams();
-  if (code) signupParams.set('referralCode', code);
 
-  const target = { appPath: '/login/signup', searchParams: signupParams };
+  const target = { appPath: '/community', searchParams: qs };
 
   return (
     <>
       <AppLinkInstantRedirect target={target} />
       <OpenInAppGate
         target={target}
-        title="Join Ofside"
-        description="Install the Ofside app to sign up with your friend's referral and start playing."
+        title="Community game on Ofside"
+        description="View and join this community game in the Ofside app."
       />
     </>
   );
