@@ -1,7 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Mail, Send, CheckCircle2 } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Mail, Send, CheckCircle2, Paperclip, X } from "lucide-react";
+import {
+  MAX_SUPPORT_ATTACHMENT_COUNT,
+  SupportAttachment,
+  uploadSupportAttachment,
+} from "@/lib/supportAttachmentUpload";
 
 const CONTACT_TOPICS = [
   "General enquiry",
@@ -22,6 +27,9 @@ export default function ContactForm() {
   const [sending, setSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [ticketId, setTicketId] = useState("");
+  const [attachments, setAttachments] = useState<SupportAttachment[]>([]);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isValid = useMemo(() => {
     const emailRegex = /^\S+@\S+\.\S+$/;
@@ -33,8 +41,38 @@ export default function ContactForm() {
     );
   }, [email, message, name, topic]);
 
+  const handleAttachmentSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (attachments.length >= MAX_SUPPORT_ATTACHMENT_COUNT) {
+      setErrorMessage(
+        `You can attach up to ${MAX_SUPPORT_ATTACHMENT_COUNT} files.`
+      );
+      return;
+    }
+
+    setUploadingAttachment(true);
+    setErrorMessage("");
+    try {
+      const uploaded = await uploadSupportAttachment(file);
+      setAttachments((prev) => [...prev, uploaded]);
+    } catch (error: any) {
+      setErrorMessage(error?.message || "Unable to upload attachment.");
+    } finally {
+      setUploadingAttachment(false);
+    }
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
+  };
+
   const handleSubmit = async () => {
-    if (!isValid) return;
+    if (!isValid || uploadingAttachment) return;
     setSending(true);
     setErrorMessage("");
     try {
@@ -46,6 +84,7 @@ export default function ContactForm() {
           email: email.trim(),
           topic,
           message: message.trim(),
+          attachments,
           summary: `${topic}: ${message.trim()}`.slice(0, 140),
           priority: topic === "Business partnership" ? "high" : "medium",
           source: "website",
@@ -60,6 +99,7 @@ export default function ContactForm() {
       setName("");
       setEmail("");
       setMessage("");
+      setAttachments([]);
     } catch (error: any) {
       setErrorMessage(error?.message || "Unable to submit request right now.");
     } finally {
@@ -129,13 +169,59 @@ export default function ContactForm() {
             placeholder="Tell us what you need and we'll point you in the right direction."
           />
         </label>
+        <div className="grid gap-2 text-sm font-medium text-gray-800 sm:col-span-2">
+          <span>Attachments (optional)</span>
+          <p className="text-xs font-normal text-gray-500">
+            Add screenshots, images, or PDFs to help us understand your issue (max{" "}
+            {MAX_SUPPORT_ATTACHMENT_COUNT}, 5 MB each).
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,.pdf,.doc,.docx"
+            className="hidden"
+            onChange={handleAttachmentSelect}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={
+              uploadingAttachment ||
+              attachments.length >= MAX_SUPPORT_ATTACHMENT_COUNT
+            }
+            className="inline-flex items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Paperclip className="mr-2 h-4 w-4" />
+            {uploadingAttachment ? "Uploading..." : "Add attachment"}
+          </button>
+          {attachments.length > 0 ? (
+            <ul className="grid gap-2">
+              {attachments.map((attachment, index) => (
+                <li
+                  key={`${attachment.url}-${index}`}
+                  className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700"
+                >
+                  <span className="truncate pr-3">{attachment.fileName}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveAttachment(index)}
+                    className="rounded-full p-1 text-gray-500 transition hover:bg-gray-200 hover:text-gray-800"
+                    aria-label={`Remove ${attachment.fileName}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!isValid || sending}
+          disabled={!isValid || sending || uploadingAttachment}
           className="inline-flex items-center justify-center rounded-2xl bg-gray-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           <Send className="mr-2 h-4 w-4" />
