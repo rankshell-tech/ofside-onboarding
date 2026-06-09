@@ -1,4 +1,4 @@
-import HomeHero from "./components/HomeHero";
+import HomeHero, { SportsWeCover } from "./components/HomeHero";
 import {
   CtaBand,
   FaqGrid,
@@ -93,6 +93,27 @@ export default function Home() {
   return (
     <main className="bg-[linear-gradient(180deg,#ffffff_0%,#fffef9_36%,#ffffff_100%)] text-gray-950">
       <HomeHero />
+
+      {/* Sports carousel */}
+      <Section className="relative overflow-hidden border-b border-gray-100/80 bg-[linear-gradient(180deg,#fffef9_0%,#ffffff_55%,#fafafa_100%)] py-16 sm:py-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-20 top-4 h-56 w-56 rounded-full bg-yellow-200/30 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 bottom-0 h-48 w-48 rounded-full bg-amber-100/40 blur-3xl"
+        />
+        <SectionIntro
+          eyebrow="Sports We Cover"
+          title="40+ sports, one platform"
+          description="From futsal turfs to badminton courts — every game you play, scored and tracked the right way."
+          align="center"
+        />
+        <div className="relative mt-10 sm:mt-12">
+          <SportsWeCover />
+        </div>
+      </Section>
 
       {/* Pillar 1: Play Smarter */}
       <Section className="relative py-20 sm:py-24">

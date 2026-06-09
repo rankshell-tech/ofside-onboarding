@@ -3,7 +3,7 @@
 export const APP_BUNDLE_ID = 'com.ofside.ofside';
 export const APP_SCHEME = process.env.NEXT_PUBLIC_APP_SCHEME ?? 'ofside';
 export const APP_LINK_ORIGIN =
-  process.env.NEXT_PUBLIC_APP_LINK_ORIGIN?.replace(/\/$/, '') ?? 'https://api.ofside.in';
+  process.env.NEXT_PUBLIC_APP_LINK_ORIGIN?.replace(/\/$/, '') ?? 'https://ofside.in';
 
 export const PLAY_STORE_URL =
   process.env.NEXT_PUBLIC_ANDROID_PLAY_STORE_URL ??

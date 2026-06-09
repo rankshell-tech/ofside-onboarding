@@ -33,12 +33,12 @@ const HOMEPAGE_SPORTS: { id: string; label: string; image: string }[] = [
 ];
 
 const SPORT_CARD_CLASS =
-  "w-[4.75rem] shrink-0 snap-center sm:w-[5.5rem]";
+  "w-[4.75rem] shrink-0 snap-center sm:w-[5.5rem] md:w-[6rem]";
 
 function SportTile({ label, image }: { label: string; image: string }) {
   return (
-    <div className={`${SPORT_CARD_CLASS} group flex flex-col items-center gap-2.5`}>
-      <div className="h-14 w-14 overflow-hidden rounded-2xl shadow-[0_8px_22px_rgba(0,0,0,0.35)] transition duration-200 group-hover:shadow-[0_10px_28px_rgba(0,0,0,0.45)] sm:h-16 sm:w-16 sm:rounded-[1.15rem]">
+    <div className={`${SPORT_CARD_CLASS} group flex flex-col items-center gap-3`}>
+      <div className="h-14 w-14 overflow-hidden rounded-2xl border border-gray-100/80 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)] transition duration-300 group-hover:-translate-y-0.5 group-hover:border-yellow-200/80 group-hover:shadow-[0_14px_36px_rgba(15,23,42,0.12)] sm:h-[4.25rem] sm:w-[4.25rem] sm:rounded-[1.15rem] md:h-[4.75rem] md:w-[4.75rem]">
         <Image
           src={image}
           alt={label}
@@ -47,14 +47,14 @@ function SportTile({ label, image }: { label: string; image: string }) {
           className="h-full w-full scale-[1.18] object-cover"
         />
       </div>
-      <p className="line-clamp-2 w-full text-center text-[11px] font-medium leading-tight text-white/85 sm:text-xs">
+      <p className="line-clamp-2 w-full text-center text-[11px] font-semibold leading-tight text-gray-700 transition-colors duration-300 group-hover:text-gray-950 sm:text-xs">
         {label}
       </p>
     </div>
   );
 }
 
-function SportsWeCover() {
+export function SportsWeCover() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef(0);
   const settleUnlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -160,23 +160,17 @@ function SportsWeCover() {
   const canGoNext = currentPage < pageCount - 1;
 
   const navBtnClass =
-    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white shadow-lg backdrop-blur-sm transition sm:h-9 sm:w-9";
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200/90 bg-white/95 text-gray-800 shadow-[0_8px_24px_rgba(15,23,42,0.08)] backdrop-blur-sm transition duration-200 sm:h-10 sm:w-10";
 
   return (
-    <div className="mx-auto w-full max-w-2xl shrink-0 px-1 sm:px-0">
-      <div className="mb-2.5 text-center sm:mb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-yellow-200/95 sm:tracking-[0.38em]">
-          Sports we cover
-        </p>
-      </div>
-
+    <div className="mx-auto w-full max-w-4xl shrink-0 px-1 sm:px-0">
       <div className="relative">
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-black/75 via-black/30 to-transparent sm:w-12"
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#fffef9] via-[#fffef9]/70 to-transparent sm:w-16"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-black/75 via-black/30 to-transparent sm:w-12"
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#fffef9] via-[#fffef9]/70 to-transparent sm:w-16"
           aria-hidden
         />
 
@@ -184,10 +178,10 @@ function SportsWeCover() {
           type="button"
           aria-label="Previous sports"
           disabled={!canGoPrev}
-          className={`absolute left-0 top-[1.35rem] z-20 -translate-x-0.5 sm:top-[1.5rem] ${navBtnClass} ${
+          className={`absolute left-0 top-[1.5rem] z-20 -translate-x-1 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
             canGoPrev
-              ? "hover:border-yellow-300/60 hover:bg-black/50"
-              : "cursor-not-allowed opacity-35"
+              ? "hover:border-yellow-300 hover:bg-yellow-50 hover:text-gray-950"
+              : "cursor-not-allowed opacity-40"
           }`}
           onClick={() => canGoPrev && scrollByDir(-1)}
         >
@@ -198,10 +192,10 @@ function SportsWeCover() {
           type="button"
           aria-label="Next sports"
           disabled={!canGoNext}
-          className={`absolute right-0 top-[1.35rem] z-20 translate-x-0.5 sm:top-[1.5rem] ${navBtnClass} ${
+          className={`absolute right-0 top-[1.5rem] z-20 translate-x-1 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
             canGoNext
-              ? "hover:border-yellow-300/60 hover:bg-black/50"
-              : "cursor-not-allowed opacity-35"
+              ? "hover:border-yellow-300 hover:bg-yellow-50 hover:text-gray-950"
+              : "cursor-not-allowed opacity-40"
           }`}
           onClick={() => canGoNext && scrollByDir(1)}
         >
@@ -210,7 +204,7 @@ function SportsWeCover() {
 
         <div
           ref={scrollerRef}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-9 py-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-3.5 sm:px-11 [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-10 py-2 [-ms-overflow-style:none] [scrollbar-width:none] sm:gap-5 sm:px-14 md:px-16 [&::-webkit-scrollbar]:hidden"
         >
           {HOMEPAGE_SPORTS.map((sport) => (
             <SportTile key={sport.id} label={sport.label} image={sport.image} />
@@ -219,7 +213,7 @@ function SportsWeCover() {
       </div>
 
       <div
-        className="mt-3 flex items-center justify-center gap-2"
+        className="mt-5 flex items-center justify-center gap-2"
         role="group"
         aria-label={`Sports group ${currentPage + 1} of ${pageCount}`}
       >
@@ -231,8 +225,8 @@ function SportsWeCover() {
             aria-current={i === currentPage ? "true" : undefined}
             className={`rounded-full transition-all duration-300 ${
               i === currentPage
-                ? "h-2 w-6 bg-yellow-300 shadow-[0_0_10px_rgba(253,224,71,0.45)]"
-                : "h-2 w-2 bg-white/25 hover:bg-white/40"
+                ? "h-2 w-7 bg-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.35)]"
+                : "h-2 w-2 bg-gray-300/70 hover:bg-gray-400/80"
             }`}
             onClick={() => {
               const target = Math.min(n - 1, i * SPORTS_SCROLL_STEP);
@@ -277,16 +271,13 @@ export default function HomeHero() {
           <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-1.5 sm:text-xs sm:tracking-[0.42em]">
             Play · Score · Compete · Connect
           </p>
-          <h1 className="text-balance px-1 text-[clamp(1.45rem,4.8vw+0.35rem,2.75rem)] font-bold italic leading-[1.06] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.08] lg:text-[2.65rem]">
+          <h1 className="text-balance px-1 text-[clamp(2.1rem,7.5vw+0.5rem,4rem)] font-bold italic leading-[1.04] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.06] lg:text-[3.75rem] xl:text-[4.25rem]">
             <span className="block">Live the game</span>
             <span className="mt-0.5 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1">
               like never before
             </span>
           </h1>
-          <p className="mx-auto mt-2 max-w-xl text-pretty px-1 text-[13px] font-medium leading-snug text-white/90 sm:mt-3 sm:px-0 sm:text-[15px] sm:leading-relaxed">
-            Create matches, score live, track stats, and stay connected to your local sports scene — all in one app.
-          </p>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:mt-4">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:mt-5">
             <span className="rounded-full border border-yellow-300/40 bg-yellow-300/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-yellow-200">
               40+ Sports
             </span>
@@ -342,10 +333,6 @@ export default function HomeHero() {
             </a>
             </div>
           </div>
-        </div>
-
-        <div className="shrink-0 pt-2 sm:pt-3">
-          <SportsWeCover />
         </div>
       </div>
     </section>

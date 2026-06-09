@@ -56,7 +56,7 @@ export default function OpenInAppGate({
 
     const storeUrl = storeUrlForUserAgent(ua);
     let appOpened = false;
-    let storeTimer: ReturnType<typeof setTimeout> | null = null;
+    let storeTimer: number | null = null;
 
     const clearStoreTimer = () => {
       if (storeTimer != null) {
@@ -168,7 +168,13 @@ export default function OpenInAppGate({
             href={storeHref}
             className="rounded-2xl border border-gray-200 bg-white px-5 py-3.5 text-sm font-semibold text-gray-950"
           >
-            {phase === 'desktop' ? 'Get the app' : 'Install Ofside'}
+            {isAndroid
+              ? 'Get it on Google Play'
+              : isIos
+                ? 'Download on the App Store'
+                : phase === 'desktop'
+                  ? 'Get the app'
+                  : 'Install Ofside'}
           </a>
           {phase === 'desktop' && (
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">

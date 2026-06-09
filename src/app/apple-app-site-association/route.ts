@@ -1,11 +1,13 @@
-import { buildAppleAppSiteAssociationBody } from '@/lib/universalLinks';
+import { buildAppleAppSiteAssociationPayload } from '@/lib/universalLinks';
 
 /** Alternate path Apple may request: https://ofside.in/apple-app-site-association */
 export async function GET() {
-  return Response.json(buildAppleAppSiteAssociationBody(), {
+  const payload = buildAppleAppSiteAssociationPayload();
+  return Response.json(payload.body, {
+    status: payload.ok ? 200 : payload.status,
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=300',
+      'Cache-Control': payload.ok ? 'public, max-age=300' : 'no-store',
     },
   });
 }
