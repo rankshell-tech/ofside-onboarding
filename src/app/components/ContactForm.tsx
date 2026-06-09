@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback, useEffect, useRef } from "react";
+import { useMemo, useState } from "react";
 import { Mail, Send, CheckCircle2 } from "lucide-react";
 
 const CONTACT_TOPICS = [
@@ -12,79 +12,6 @@ const CONTACT_TOPICS = [
 ] as const;
 
 const SUPPORT_API_PATH = "/api/support";
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() ?? "";
-
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-      remove: (widgetId: string) => void;
-    };
-    onTurnstileLoad?: () => void;
-  }
-}
-
-function TurnstileWidget({
-  resetKey,
-  onToken,
-  onExpire,
-}: {
-  resetKey: number;
-  onToken: (token: string) => void;
-  onExpire: () => void;
-}) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const widgetIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!TURNSTILE_SITE_KEY) return;
-
-    const renderWidget = () => {
-      if (!containerRef.current || !window.turnstile) return;
-      if (widgetIdRef.current) {
-        window.turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-      widgetIdRef.current = window.turnstile.render(containerRef.current, {
-        sitekey: TURNSTILE_SITE_KEY,
-        callback: (token: string) => onToken(token),
-        "expired-callback": () => onExpire(),
-        "error-callback": () => onExpire(),
-      });
-    };
-
-    if (window.turnstile) {
-      renderWidget();
-      return () => {
-        if (widgetIdRef.current && window.turnstile) {
-          window.turnstile.remove(widgetIdRef.current);
-          widgetIdRef.current = null;
-        }
-      };
-    }
-
-    window.onTurnstileLoad = renderWidget;
-    if (!document.querySelector("script[data-ofside-turnstile]")) {
-      const script = document.createElement("script");
-      script.src =
-        "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad";
-      script.async = true;
-      script.defer = true;
-      script.setAttribute("data-ofside-turnstile", "1");
-      document.head.appendChild(script);
-    }
-
-    return () => {
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
-        widgetIdRef.current = null;
-      }
-    };
-  }, [resetKey, onToken, onExpire]);
-
-  if (!TURNSTILE_SITE_KEY) return null;
-  return <div ref={containerRef} className="min-h-[70px]" />;
-}
 
 export default function ContactForm() {
   const [name, setName] = useState("");
@@ -95,35 +22,19 @@ export default function ContactForm() {
   const [sending, setSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [ticketId, setTicketId] = useState("");
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [captchaResetKey, setCaptchaResetKey] = useState(0);
-
-  const turnstileEnabled = TURNSTILE_SITE_KEY.length > 0;
 
   const isValid = useMemo(() => {
     const emailRegex = /^\S+@\S+\.\S+$/;
-    const captchaOk = !turnstileEnabled || Boolean(captchaToken);
     return (
       name.trim() &&
       emailRegex.test(email) &&
       topic.trim() &&
-      message.trim() &&
-      captchaOk
+      message.trim()
     );
-  }, [email, message, name, topic, captchaToken, turnstileEnabled]);
-
-  const handleCaptchaExpire = useCallback(() => {
-    setCaptchaToken(null);
-    setCaptchaResetKey((k) => k + 1);
-  }, []);
+  }, [email, message, name, topic]);
 
   const handleSubmit = async () => {
-    if (!isValid) {
-      if (turnstileEnabled && !captchaToken) {
-        setErrorMessage("Please complete the security check before submitting.");
-      }
-      return;
-    }
+    if (!isValid) return;
     setSending(true);
     setErrorMessage("");
     try {
@@ -138,7 +49,6 @@ export default function ContactForm() {
           summary: `${topic}: ${message.trim()}`.slice(0, 140),
           priority: topic === "Business partnership" ? "high" : "medium",
           source: "website",
-          ...(captchaToken ? { captchaToken } : {}),
         }),
       });
       const data = await response.json().catch(() => ({}));
@@ -150,12 +60,8 @@ export default function ContactForm() {
       setName("");
       setEmail("");
       setMessage("");
-      setCaptchaToken(null);
-      setCaptchaResetKey((k) => k + 1);
     } catch (error: any) {
       setErrorMessage(error?.message || "Unable to submit request right now.");
-      setCaptchaToken(null);
-      setCaptchaResetKey((k) => k + 1);
     } finally {
       setSending(false);
     }
@@ -223,14 +129,6 @@ export default function ContactForm() {
             placeholder="Tell us what you need and we'll point you in the right direction."
           />
         </label>
-      </div>
-
-      <div className="mt-4">
-        <TurnstileWidget
-          resetKey={captchaResetKey}
-          onToken={setCaptchaToken}
-          onExpire={handleCaptchaExpire}
-        />
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
