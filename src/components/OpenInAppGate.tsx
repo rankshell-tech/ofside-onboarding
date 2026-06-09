@@ -112,6 +112,7 @@ export default function OpenInAppGate({
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent ?? '' : '';
   const isMobile = isMobileUserAgent(ua);
   const isAndroid = isAndroidUserAgent(ua);
+  const isIos = isIosUserAgent(ua);
   const openHref = isAndroid ? androidAppLinkIntentUrl : appUrl;
   const showOpenButton = isMobile && (phase === 'trying' || phase === 'fallback');
 
