@@ -21,7 +21,7 @@ const contactCards = [
 const socialLinks = [
   {
     label: "Instagram",
-    href: "https://instagram.com/ofsideapp",
+    href: "https://instagram.com/getofside",
     icon: Instagram,
   },
   {

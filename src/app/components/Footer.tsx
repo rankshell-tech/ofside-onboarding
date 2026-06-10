@@ -61,7 +61,7 @@ export default function Footer() {
           </div>
           <div className="mt-6 flex gap-3">
             <a
-              href="https://instagram.com/ofsideapp"
+              href="https://instagram.com/getofside"
               target="_blank"
               rel="noreferrer"
               className="inline-flex rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/10"
