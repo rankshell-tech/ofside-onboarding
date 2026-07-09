@@ -12,6 +12,9 @@ export const UNIVERSAL_LINK_PATHS = [
   '/community/*',
   '/invite',
   '/invite/*',
+  '/nearYou/venueDetailPage',
+  '/nearYou/venueDetailPage/*',
+  '/nearYou/*',
 ];
 
 export type UniversalLinkConfigStatus = {
@@ -80,8 +83,13 @@ export function buildAppleAppSiteAssociationBody() {
 }
 
 export function buildAssetLinksBody() {
-  const fingerprint = process.env.ANDROID_SHA256_CERT_FINGERPRINT?.trim();
-  if (!fingerprint) return [];
+  // Comma/space-separated list so BOTH the Play App Signing cert and the upload/EAS keystore
+  // cert can be listed — verification needs whichever key signed the installed build.
+  const fingerprints = (process.env.ANDROID_SHA256_CERT_FINGERPRINT || '')
+    .split(/[,\s]+/)
+    .map((f) => f.trim())
+    .filter(Boolean);
+  if (fingerprints.length === 0) return [];
 
   return [
     {
@@ -89,7 +97,7 @@ export function buildAssetLinksBody() {
       target: {
         namespace: 'android_app',
         package_name: APP_BUNDLE_ID,
-        sha256_cert_fingerprints: [fingerprint],
+        sha256_cert_fingerprints: fingerprints,
       },
     },
   ];

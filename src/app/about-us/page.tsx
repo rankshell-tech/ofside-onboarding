@@ -1,4 +1,20 @@
+import Image from "next/image";
 import { CtaBand, PageHero, Section, SectionIntro, SimpleCardGrid } from "../components/marketing";
+
+const teamMembers = [
+  {
+    name: "Hardik Jain",
+    role: "Co-Founder",
+    image: "/assets/Hardik_jain.jpeg",
+    bio: "With 5+ years of experience in client servicing, public relations, marketing, and strategic partnerships, Hardik brings a strong understanding of brand building and customer engagement. Having worked with leading brands like Decathlon, Domino's, Pizza Hut, and Tata, he focuses on partnerships, community growth, and creating meaningful experiences that connect athletes, venues, and sports enthusiasts across India.",
+  },
+  {
+    name: "Aakansha Gangwal",
+    role: "Chief Technology Officer (CTO)",
+    image: "/assets/Aakansha_gangwal.PNG",
+    bio: "With 7.4+ years of experience in Full-Stack Development, Aakansha leads the technology vision at Ofside. Having worked with global organizations like Ericsson, IHG Hotels & Resorts, and Rapiscan Systems, she specializes in building secure, scalable, and high-performance digital products. At Ofside, she is driving the technology that powers India's next-generation sports ecosystem.",
+  },
+];
 
 const aboutCards = [
   {
@@ -64,6 +80,40 @@ export default function AboutUsPage() {
         />
         <div className="mt-10">
           <SimpleCardGrid items={aboutCards} />
+        </div>
+      </Section>
+
+      <Section>
+        <SectionIntro
+          eyebrow="Our Team"
+          title="The people building India's sports ecosystem"
+          description="Ofside is shaped by operators and engineers who care about how local sport actually works — on the ground, in communities, and at scale."
+          align="center"
+        />
+        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          {teamMembers.map((member) => (
+            <article
+              key={member.name}
+              className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
+            >
+              <div className="relative aspect-[4/5] w-full bg-gray-50 sm:aspect-[5/4]">
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  className="object-contain object-center p-4"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+              <div className="p-8">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-yellow-600">
+                  {member.role}
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold text-gray-950">{member.name}</h3>
+                <p className="mt-4 text-base leading-7 text-gray-600">{member.bio}</p>
+              </div>
+            </article>
+          ))}
         </div>
       </Section>
 

@@ -1,7 +1,6 @@
 import {
-  buildAndroidAppLinkIntentUrl,
+  buildAndroidIntentUrl,
   buildCustomSchemeUrl,
-  buildUniversalWebUrl,
   type OpenInAppTarget,
 } from '@/lib/mobileAppLinks';
 
@@ -11,8 +10,9 @@ import {
  */
 export default function AppLinkInstantRedirect({ target }: { target: OpenInAppTarget }) {
   const appUrl = buildCustomSchemeUrl(target);
-  const universalWebUrl = buildUniversalWebUrl(target);
-  const androidAppLinkIntent = buildAndroidAppLinkIntentUrl(universalWebUrl);
+  // Custom-scheme (ofside://) intent opens the installed app without needing App Links
+  // verification; the https-scheme intent falls back to the Play Store when unverified.
+  const androidIntent = buildAndroidIntentUrl(target);
 
   const script = `(function(){
   var ua=navigator.userAgent||'';
@@ -21,7 +21,7 @@ export default function AppLinkInstantRedirect({ target }: { target: OpenInAppTa
   var inApp=/WhatsApp|Instagram|FBAN|FBAV|Twitter|Line\\/|Snapchat|TikTok|LinkedInApp|Telegram|Messenger/i.test(ua);
   if(!isIos&&!isAndroid||inApp)return;
   try{
-    if(isAndroid)window.location.replace(${JSON.stringify(androidAppLinkIntent)});
+    if(isAndroid)window.location.replace(${JSON.stringify(androidIntent)});
     else window.location.href=${JSON.stringify(appUrl)};
   }catch(e){}
 })();`;

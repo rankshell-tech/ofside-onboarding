@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   APP_STORE_URL,
   APP_SCHEME,
-  buildAndroidAppLinkIntentUrl,
   buildAndroidIntentUrl,
   buildCustomSchemeUrl,
   buildUniversalWebUrl,
@@ -35,11 +34,10 @@ export default function OpenInAppGate({
   const [phase, setPhase] = useState<'trying' | 'fallback' | 'desktop'>('trying');
   const appUrl = useMemo(() => buildCustomSchemeUrl(target), [target]);
   const universalWebUrl = useMemo(() => buildUniversalWebUrl(target), [target]);
+  // Custom-scheme (ofside://) intent — opens the installed app even when Android App Links
+  // verification isn't active. The https-scheme intent falls back to the Play Store when the
+  // app isn't a *verified* handler, which is exactly the "installed but sent to Play Store" bug.
   const androidIntentUrl = useMemo(() => buildAndroidIntentUrl(target), [target]);
-  const androidAppLinkIntentUrl = useMemo(
-    () => buildAndroidAppLinkIntentUrl(universalWebUrl),
-    [universalWebUrl]
-  );
 
   useEffect(() => {
     const ua = navigator.userAgent ?? '';
@@ -87,7 +85,7 @@ export default function OpenInAppGate({
     window.addEventListener('pagehide', onHide);
 
     if (isAndroidUserAgent(ua)) {
-      window.location.replace(androidAppLinkIntentUrl);
+      window.location.replace(androidIntentUrl);
       scheduleStoreFallback(900);
     } else if (isIosUserAgent(ua)) {
       window.location.href = appUrl;
@@ -102,7 +100,7 @@ export default function OpenInAppGate({
       document.removeEventListener('visibilitychange', onHide);
       window.removeEventListener('pagehide', onHide);
     };
-  }, [appUrl, androidAppLinkIntentUrl]);
+  }, [appUrl, androidIntentUrl]);
 
   const storeHref =
     typeof navigator !== 'undefined'
@@ -113,7 +111,7 @@ export default function OpenInAppGate({
   const isMobile = isMobileUserAgent(ua);
   const isAndroid = isAndroidUserAgent(ua);
   const isIos = isIosUserAgent(ua);
-  const openHref = isAndroid ? androidAppLinkIntentUrl : appUrl;
+  const openHref = isAndroid ? androidIntentUrl : appUrl;
   const showOpenButton = isMobile && (phase === 'trying' || phase === 'fallback');
 
   return (
