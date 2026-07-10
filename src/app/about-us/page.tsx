@@ -100,11 +100,11 @@ export default function AboutUsPage() {
           description="Ofside is shaped by operators and engineers who care about how local sport actually works - on the ground, in communities, and at scale."
           align="center"
         />
-        <div className="mt-12 grid gap-8 lg:grid-cols-2">
+        <div className="mt-12 flex flex-wrap justify-center gap-8">
           {teamMembers.map((member) => (
             <article
               key={member.name}
-              className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
+              className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]"
             >
               <div className="relative aspect-[4/5] w-full bg-gray-50 sm:aspect-[5/4]">
                 <Image
