@@ -8,12 +8,12 @@ const teamMembers = [
     image: "/assets/Hardik_jain.jpeg",
     bio: "With 5+ years of experience in client servicing, public relations, marketing, and strategic partnerships, Hardik brings a strong understanding of brand building and customer engagement. Having worked with leading brands like Decathlon, Domino's, Pizza Hut, and Tata, he focuses on partnerships, community growth, and creating meaningful experiences that connect athletes, venues, and sports enthusiasts across India.",
   },
-  {
-    name: "Aakansha Gangwal",
-    role: "Chief Technology Officer (CTO)",
-    image: "/assets/Aakansha_gangwal.PNG",
-    bio: "With 7.4+ years of experience in Full-Stack Development, Aakansha leads the technology vision at Ofside. Having worked with global organizations like Ericsson, IHG Hotels & Resorts, and Rapiscan Systems, she specializes in building secure, scalable, and high-performance digital products. At Ofside, she is driving the technology that powers India's next-generation sports ecosystem.",
-  },
+  // {
+  //   name: "Aakansha Gangwal",
+  //   role: "Chief Technology Officer (CTO)",
+  //   image: "/assets/Aakansha_gangwal.PNG",
+  //   bio: "With 7.4+ years of experience in Full-Stack Development, Aakansha leads the technology vision at Ofside. Having worked with global organizations like Ericsson, IHG Hotels & Resorts, and Rapiscan Systems, she specializes in building secure, scalable, and high-performance digital products. At Ofside, she is driving the technology that powers India's next-generation sports ecosystem.",
+  // },
 ];
 
 const aboutCards = [

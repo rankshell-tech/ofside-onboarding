@@ -273,8 +273,11 @@ export default function HomeHero() {
           </p>
           <h1 className="overflow-visible px-3 text-[clamp(2.1rem,7.5vw+0.5rem,4rem)] font-bold italic leading-[1.08] tracking-normal text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-4 sm:leading-[1.1] lg:text-[3.75rem] xl:text-[4.25rem]">
             <span className="block">Live the game</span>
-            <span className="mt-0.5 inline-block overflow-visible pr-[0.18em] pb-px sm:mt-1">
-              <span className="bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent">
+            <span className="mt-0.5 inline-block overflow-visible pb-px sm:mt-1">
+              {/* pr on the clipped span itself: the gradient paints the element box, and the
+                  italic slant of the final "e" overhangs it — without this padding that
+                  overhang falls outside the gradient and renders transparent (looks cut off). */}
+              <span className="inline-block pr-[0.28em] bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent">
                 like never before
               </span>
             </span>
