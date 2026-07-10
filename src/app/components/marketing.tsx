@@ -147,7 +147,7 @@ export function PageHero({
   showAppButtons = true,
 }: {
   eyebrow: string;
-  title: string;
+  title: React.ReactNode;
   description: string;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
@@ -158,11 +158,11 @@ export function PageHero({
     <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,226,0,0.45),_transparent_38%),linear-gradient(180deg,_#fffdf2_0%,_#ffffff_65%,_#f8fafc_100%)]">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
-        <div>
+        <div className="relative z-10 min-w-0 lg:pr-2">
           <p className="inline-flex rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800">
             {eyebrow}
           </p>
-          <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-gray-950 sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.12] tracking-tight text-gray-950 sm:text-5xl sm:leading-[1.1] lg:max-w-xl lg:text-6xl lg:leading-[1.08] xl:max-w-2xl">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">{description}</p>
@@ -189,7 +189,7 @@ export function PageHero({
             </div>
           ) : null}
         </div>
-        <div>{aside}</div>
+        <div className="relative z-0 min-w-0">{aside}</div>
       </div>
     </section>
   );

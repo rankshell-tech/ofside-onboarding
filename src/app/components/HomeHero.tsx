@@ -267,14 +267,16 @@ export default function HomeHero() {
       </div>
 
       <div className="relative z-10 mx-auto flex h-full w-full min-w-0 max-w-3xl flex-col px-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] pt-[max(5rem,calc(4.5rem+env(safe-area-inset-top,0px)+0.5rem))] text-center sm:max-w-4xl sm:px-8 sm:pt-8 sm:pb-6 md:px-10 lg:max-w-6xl">
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-visible">
           <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-yellow-200/90 sm:mb-1.5 sm:text-xs sm:tracking-[0.42em]">
             Play · Score · Compete · Connect
           </p>
-          <h1 className="text-balance px-1 text-[clamp(2.1rem,7.5vw+0.5rem,4rem)] font-bold italic leading-[1.04] tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-0 sm:leading-[1.06] lg:text-[3.75rem] xl:text-[4.25rem]">
+          <h1 className="overflow-visible px-3 text-[clamp(2.1rem,7.5vw+0.5rem,4rem)] font-bold italic leading-[1.08] tracking-normal text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.45)] sm:px-4 sm:leading-[1.1] lg:text-[3.75rem] xl:text-[4.25rem]">
             <span className="block">Live the game</span>
-            <span className="mt-0.5 block bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent sm:mt-1">
-              like never before
+            <span className="mt-0.5 inline-block overflow-visible pr-[0.18em] pb-px sm:mt-1">
+              <span className="bg-gradient-to-b from-[#fffef8] via-[#FFE94D] to-[#ca8a04] bg-clip-text text-transparent">
+                like never before
+              </span>
             </span>
           </h1>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:mt-5">

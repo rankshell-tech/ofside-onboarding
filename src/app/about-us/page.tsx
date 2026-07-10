@@ -25,7 +25,7 @@ const aboutCards = [
   {
     title: "Vision",
     description:
-      "Make local sports easier to discover, organize, and return to — across cities, communities, and sports cultures.",
+      "Make local sports easier to discover, organize, and return to - across cities, communities, and sports cultures.",
   },
   {
     title: "Mission",
@@ -43,7 +43,7 @@ const whyExists = [
   {
     title: "Scoring and stats live in separate tools",
     description:
-      "Match setup, live scoring, performance tracking, and leaderboards should be one connected flow — not four different apps.",
+      "Match setup, live scoring, performance tracking, and leaderboards should be one connected flow - not four different apps.",
   },
   {
     title: "Local sport deserves better infrastructure",
@@ -57,7 +57,17 @@ export default function AboutUsPage() {
     <main className="bg-white text-gray-950">
       <PageHero
         eyebrow="About Us"
-        title="Ofside exists to make local sport feel easier to organize, score, and return to."
+        title={
+          <>
+            Ofside exists to make
+            <br />
+            local sport feel easier to
+            <br />
+            organize, score, and
+            <br />
+            return to.
+          </>
+        }
         description="This brand is built around a simple belief: sports participation should not feel scattered. Players deserve a smoother system from the idea of a game to the final whistle."
         primaryCta={{ label: "Contact Ofside", href: "/contact-us" }}
         secondaryCta={{ label: "Explore Features", href: "/players" }}
@@ -87,7 +97,7 @@ export default function AboutUsPage() {
         <SectionIntro
           eyebrow="Our Team"
           title="The people building India's sports ecosystem"
-          description="Ofside is shaped by operators and engineers who care about how local sport actually works — on the ground, in communities, and at scale."
+          description="Ofside is shaped by operators and engineers who care about how local sport actually works - on the ground, in communities, and at scale."
           align="center"
         />
         <div className="mt-12 grid gap-8 lg:grid-cols-2">

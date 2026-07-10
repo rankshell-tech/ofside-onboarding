@@ -61,19 +61,27 @@ export default function PlayersPage() {
     <main className="bg-white text-gray-950">
       <PageHero
         eyebrow="Features"
-        title="Everything you need to play, score, and compete — in one app."
-        description="Ofside is built for players who want more than a one-off game. Create matches, score live, track stats, climb leaderboards, and stay connected to your local sports world."
+        title={
+          <>
+            Play, score, and follow
+            <br />
+            the game — without
+            <br />
+            the WhatsApp chaos.
+          </>
+        }
+        description="Finding players, tracking the score, checking who's ahead — it usually means three different chats. Ofside keeps match setup, live scoring, and your stats in one place."
         primaryCta={{ label: "Download the App", href: "#download" }}
         aside={
           <div className="rounded-[2rem] border border-white/70 bg-white p-8 shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
-            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">What you get</p>
-            <h2 className="mt-4 text-3xl font-semibold text-gray-950">A connected player experience</h2>
+            <p className="text-sm uppercase tracking-[0.24em] text-yellow-600">In the app</p>
+            <h2 className="mt-4 text-3xl font-semibold text-gray-950">What you&apos;ll actually use</h2>
             <div className="mt-8 grid gap-4">
               {[
-                "Instant match creation",
-                "Live scoring & commentary",
-                "Stats & city leaderboards",
-                "40+ sport rulebooks",
+                "Create a match and invite your team",
+                "Score live — friends can follow along",
+                "Your stats and city rankings",
+                "Rulebooks when someone asks the rules",
               ].map((item) => (
                 <div key={item} className="rounded-2xl bg-yellow-50 px-4 py-3 text-sm font-medium text-gray-800">
                   {item}
