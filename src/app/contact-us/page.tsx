@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ContactForm from "../components/ContactForm";
-import { CtaBand, PageHero, Section, SectionIntro } from "../components/marketing";
+import { CtaBand, heroTitleAccentClass, heroTitleMutedClass, PageHero, Section, SectionIntro } from "../components/marketing";
 import { Instagram, Mail } from "lucide-react";
 
 const contactCards = [
@@ -36,7 +36,15 @@ export default function ContactUsPage() {
     <main className="bg-white text-gray-950">
       <PageHero
         eyebrow="Contact Us"
-        title="Talk to Ofside for support, partnerships, or general questions."
+        title={
+          <>
+            <span className="font-medium text-gray-900">Talk to Ofside</span>
+            <br />
+            <span className={heroTitleAccentClass}>for support & partnerships</span>
+            <br />
+            <span className={heroTitleMutedClass}>or general questions.</span>
+          </>
+        }
         description="Trust grows faster when people know how to reach you. Reach out for player support, product feedback, partnerships, or anything else."
         primaryCta={{ label: "Send a Message", href: "#contact-form" }}
         secondaryCta={{ label: "Download the App", href: "/players" }}

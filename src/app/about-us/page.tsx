@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CtaBand, PageHero, Section, SectionIntro, SimpleCardGrid } from "../components/marketing";
+import { CtaBand, heroTitleAccentClass, heroTitleMutedClass, PageHero, Section, SectionIntro, SimpleCardGrid } from "../components/marketing";
 
 const teamMembers = [
   {
@@ -59,13 +59,11 @@ export default function AboutUsPage() {
         eyebrow="About Us"
         title={
           <>
-            Ofside exists to make
+            <span className="font-medium text-gray-900">Ofside exists to make</span>
             <br />
-            local sport feel easier to
+            <span className={heroTitleAccentClass}>local sport feel easier</span>
             <br />
-            organize, score, and
-            <br />
-            return to.
+            <span className={heroTitleMutedClass}>to organize, score, and return to.</span>
           </>
         }
         description="This brand is built around a simple belief: sports participation should not feel scattered. Players deserve a smoother system from the idea of a game to the final whistle."

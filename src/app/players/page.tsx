@@ -1,6 +1,8 @@
 import {
   AppDownloadButtons,
   CtaBand,
+  heroTitleAccentClass,
+  heroTitleMutedClass,
   IconCardGrid,
   PageHero,
   Section,
@@ -63,11 +65,11 @@ export default function PlayersPage() {
         eyebrow="Features"
         title={
           <>
-            Play, score, and follow
+            <span className="font-medium text-gray-900">Play, score, and follow</span>
             <br />
-            the game — without
+            <span className="font-medium text-gray-900">the game</span>
             <br />
-            the WhatsApp chaos.
+            <span className={heroTitleAccentClass}>without the WhatsApp chaos</span>
           </>
         }
         description="Finding players, tracking the score, checking who's ahead — it usually means three different chats. Ofside keeps match setup, live scoring, and your stats in one place."

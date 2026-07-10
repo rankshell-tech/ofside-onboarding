@@ -23,9 +23,10 @@ import {
 
 type SectionIntroProps = {
   eyebrow?: string;
-  title: string;
+  title: React.ReactNode;
   description: string;
   align?: "left" | "center";
+  singleLine?: boolean;
 };
 
 type IconCard = {
@@ -119,8 +120,14 @@ export function SectionIntro({
   title,
   description,
   align = "left",
+  singleLine = false,
 }: SectionIntroProps) {
-  const alignment = align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl";
+  const alignment =
+    align === "center"
+      ? `mx-auto text-center ${singleLine ? "max-w-5xl" : "max-w-3xl"}`
+      : singleLine
+        ? "max-w-5xl"
+        : "max-w-3xl";
 
   return (
     <div className={alignment}>
@@ -129,13 +136,24 @@ export function SectionIntro({
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="text-balance text-3xl font-semibold tracking-tight text-gray-950 sm:text-4xl md:text-[2.65rem] md:leading-[1.12]">
+      <h2
+        className={
+          singleLine
+            ? "whitespace-nowrap text-[clamp(1.35rem,3.8vw,2.65rem)] font-semibold leading-[1.12] tracking-tight text-gray-950"
+            : "text-balance text-3xl font-semibold tracking-tight text-gray-950 sm:text-4xl md:text-[2.65rem] md:leading-[1.12]"
+        }
+      >
         {title}
       </h2>
       <p className="mt-5 text-base leading-7 text-gray-600 sm:text-lg">{description}</p>
     </div>
   );
 }
+
+export const heroTitleAccentClass =
+  "bg-gradient-to-r from-gray-950 via-gray-800 to-yellow-600 bg-clip-text font-semibold text-transparent";
+
+export const heroTitleMutedClass = "font-normal text-gray-500";
 
 export function PageHero({
   eyebrow,
@@ -162,7 +180,7 @@ export function PageHero({
           <p className="inline-flex rounded-full border border-yellow-300 bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800">
             {eyebrow}
           </p>
-          <h1 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.12] tracking-tight text-gray-950 sm:text-5xl sm:leading-[1.1] lg:max-w-xl lg:text-6xl lg:leading-[1.08] xl:max-w-2xl">
+          <h1 className="mt-6 max-w-2xl text-balance text-3xl leading-[1.18] tracking-tight sm:text-4xl sm:leading-[1.14] lg:max-w-xl lg:text-[2.75rem] lg:leading-[1.1] xl:max-w-2xl">
             {title}
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">{description}</p>
@@ -517,13 +535,12 @@ export function Checklist({
 
 export function SportPills({ sports }: { sports: string[] }) {
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
       {sports.map((sport) => (
-        <div
-          key={sport}
-          className="rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-2 text-sm font-medium text-gray-900 shadow-[0_8px_20px_rgba(250,204,21,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(250,204,21,0.2)]"
-        >
-          {sport}
+        <div key={sport} className="flex justify-center">
+          <div className="rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-2 text-sm font-medium text-gray-900 shadow-[0_8px_20px_rgba(250,204,21,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(250,204,21,0.2)]">
+            {sport}
+          </div>
         </div>
       ))}
     </div>

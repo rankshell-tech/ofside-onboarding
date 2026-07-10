@@ -230,6 +230,7 @@ export default function Home() {
           title="More than a scoreboard — a sports ecosystem"
           description="Local sport in India deserves better than scattered chats and guesswork. Ofside is infrastructure for how people actually play."
           align="center"
+          singleLine
         />
         <div className="mt-10">
           <SimpleCardGrid items={whyOfsideItems} />
