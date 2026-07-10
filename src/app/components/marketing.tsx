@@ -534,13 +534,21 @@ export function Checklist({
 }
 
 export function SportPills({ sports }: { sports: string[] }) {
+  const midpoint = Math.ceil(sports.length / 2);
+  const rows = [sports.slice(0, midpoint), sports.slice(midpoint)];
+
   return (
-    <div className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      {sports.map((sport) => (
-        <div key={sport} className="flex justify-center">
-          <div className="rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-50 to-amber-50 px-4 py-2 text-sm font-medium text-gray-900 shadow-[0_8px_20px_rgba(250,204,21,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(250,204,21,0.2)]">
-            {sport}
-          </div>
+    <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 sm:gap-6">
+      {rows.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex flex-wrap justify-center gap-3 sm:gap-4">
+          {row.map((sport) => (
+            <div
+              key={sport}
+              className="rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-50 to-amber-50 px-3.5 py-2 text-sm font-medium text-gray-900 shadow-[0_8px_20px_rgba(250,204,21,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_24px_rgba(250,204,21,0.2)] sm:px-4"
+            >
+              {sport}
+            </div>
+          ))}
         </div>
       ))}
     </div>
