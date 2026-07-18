@@ -67,3 +67,38 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee { animation: none; }
 }
+
+/* Event hero — ambient motion */
+@keyframes ofside-glow {
+  0%, 100% { opacity: 0.45; transform: translate3d(0, 0, 0) scale(1); }
+  50% { opacity: 0.85; transform: translate3d(0, -12px, 0) scale(1.08); }
+}
+.animate-glow { animation: ofside-glow 7s ease-in-out infinite; }
+.animate-glow-slow { animation: ofside-glow 11s ease-in-out infinite; }
+
+@keyframes ofside-sheen {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  60%, 100% { transform: translateX(220%) skewX(-20deg); }
+}
+.animate-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+  transform: translateX(-120%) skewX(-20deg);
+  animation: ofside-sheen 3.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-glow, .animate-glow-slow { animation: none; }
+  .animate-sheen::after { animation: none; content: none; }
+}
+
+/* Event page — gentle float */
+@keyframes ofside-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: ofside-float 5.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-float { animation: none; }
+}

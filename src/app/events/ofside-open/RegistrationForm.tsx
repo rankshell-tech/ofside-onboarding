@@ -193,19 +193,27 @@ export default function RegistrationForm() {
   }, [registrationId, totalPeople]);
 
   return (
-    <div className="w-full rounded-3xl bg-white p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-7">
+    <div className="relative w-full overflow-hidden rounded-3xl bg-white p-5 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.6)] ring-1 ring-black/5 sm:p-7">
+      {/* Top accent bar */}
+      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500" />
+
       {/* Header + price */}
-      <div className="mb-5 flex items-start justify-between gap-3">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Register now</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-600">Register now</p>
           <h3 className="mt-1 text-xl font-bold text-gray-950">Reserve your spot</h3>
         </div>
-        <div className="rounded-2xl bg-gray-950 px-4 py-2 text-right">
-          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-yellow-300">Total</p>
-          <p className="text-lg font-extrabold text-white">
+        <div className="rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-400 px-4 py-2 text-right shadow-[0_8px_22px_-6px_rgba(255,190,0,0.75)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-900/70">Total</p>
+          <p className="text-lg font-extrabold text-gray-950">
             ₹{amountInr.toLocaleString("en-IN")}
           </p>
         </div>
+      </div>
+
+      {/* Urgency */}
+      <div className="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
+        <span className="text-sm">⚡</span> Limited spots at ₹{EVENT.pricePerPersonInr} — lock yours in now.
       </div>
 
       {/* Stepper */}
@@ -265,7 +273,7 @@ export default function RegistrationForm() {
             type="button"
             onClick={submitDetails}
             disabled={loading}
-            className="mt-1 w-full rounded-xl bg-gray-950 py-3.5 text-[15px] font-bold text-white transition hover:bg-gray-800 disabled:opacity-60"
+            className="mt-1 w-full rounded-xl bg-gray-950 py-3.5 text-[15px] font-bold text-white shadow-[0_14px_32px_-12px_rgba(0,0,0,0.8)] transition hover:-translate-y-0.5 hover:bg-gray-800 disabled:translate-y-0 disabled:opacity-60"
           >
             {loading ? "Sending code…" : `Continue · ₹${amountInr.toLocaleString("en-IN")}`}
           </button>

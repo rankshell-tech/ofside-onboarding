@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { EVENT } from "@/lib/eventConfig";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 import RegistrationForm from "./RegistrationForm";
+import CountUp from "./CountUp";
 
 export const metadata: Metadata = {
   title: `${EVENT.name} — Register`,
@@ -56,6 +58,44 @@ const highlightIcons = [
     <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>,
 ];
+const statCards = [
+  {
+    n: "5",
+    l: "Sports",
+    icon: (
+      <svg {...iconProps} width={18} height={18}>
+        <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+      </svg>
+    ),
+  },
+  {
+    n: "12h",
+    l: "Non-stop play",
+    icon: (
+      <svg {...iconProps} width={18} height={18}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+    ),
+  },
+  {
+    n: "₹1L",
+    l: "In prizes",
+    icon: (
+      <svg {...iconProps} width={18} height={18}>
+        <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" />
+        <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
+      </svg>
+    ),
+  },
+  {
+    n: "Live",
+    l: "Scoring",
+    live: true,
+    icon: (
+      <svg {...iconProps} width={18} height={18}><path d="M3 12h4l2.5 7 4-14 2.5 7H21" /></svg>
+    ),
+  },
+];
+
 const marqueeItems = ["Live Scoring", "Real Leaderboards", "5 Sports", "₹1,00,000 Prizes", "One Community", "Match Day"];
 
 export default function EventPage() {
@@ -79,6 +119,18 @@ export default function EventPage() {
         <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(90deg,rgba(8,9,12,0.94)_0%,rgba(8,9,12,0.72)_45%,rgba(8,9,12,0.55)_100%)]" />
         <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_top,#08090c_2%,transparent_45%)]" />
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_85%_10%,rgba(255,242,1,0.16)_0%,transparent_55%)]" />
+        {/* Animated glow blobs for energy */}
+        <div className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-yellow-400/25 blur-[100px] animate-glow" />
+        <div className="pointer-events-none absolute right-10 top-1/3 -z-10 h-80 w-80 rounded-full bg-amber-500/20 blur-[120px] animate-glow-slow" />
+        {/* Fine grain texture */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.08] mix-blend-soft-light"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
 
         <div className="mx-auto flex w-full max-w-6xl flex-1 items-center px-4 py-16 sm:px-8 sm:py-20">
           <div className="grid w-full gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
@@ -91,6 +143,9 @@ export default function EventPage() {
                 </span>
                 <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 backdrop-blur-sm">
                   {EVENT.city} · {EVENT.dateShort}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-red-300 ring-1 ring-inset ring-red-400/30">
+                  <span className="h-1.5 w-1.5 animate-ping rounded-full bg-red-400" /> Spots filling fast
                 </span>
               </div>
 
@@ -105,12 +160,30 @@ export default function EventPage() {
               <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-white/75">{EVENT.shortDescription}</p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <a href="#register" className="rounded-full bg-yellow-400 px-7 py-3.5 text-[15px] font-extrabold text-gray-950 shadow-[0_12px_34px_-8px_rgba(255,242,1,0.6)] transition hover:bg-yellow-300 hover:shadow-[0_16px_44px_-8px_rgba(255,242,1,0.7)]">
+                <a href="#register" className="animate-sheen relative overflow-hidden rounded-full bg-yellow-400 px-7 py-3.5 text-[15px] font-extrabold text-gray-950 shadow-[0_12px_34px_-8px_rgba(255,242,1,0.6)] transition hover:bg-yellow-300 hover:shadow-[0_16px_44px_-8px_rgba(255,242,1,0.7)]">
                   Register now · ₹{EVENT.pricePerPersonInr}
                 </a>
-                <a href="#lineup" className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white/90 backdrop-blur-sm transition hover:border-white/70">
+                <a href="#lineup" className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white/90 backdrop-blur-sm transition hover:border-white/70 hover:bg-white/5">
                   Explore the lineup
                 </a>
+              </div>
+
+              {/* Social proof */}
+              <div className="mt-5 flex items-center gap-3">
+                <div className="flex -space-x-2.5">
+                  {["#FFF201", "#38bdf8", "#f472b6", "#34d399"].map((c, i) => (
+                    <span
+                      key={i}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#08090c] text-[11px] font-bold text-gray-950"
+                      style={{ backgroundColor: c }}
+                    >
+                      {["A", "R", "S", "K"][i]}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-sm text-white/70">
+                  <span className="font-bold text-white">300+ players</span> already registered
+                </p>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-6 text-sm">
@@ -128,11 +201,24 @@ export default function EventPage() {
             </div>
 
             {/* Right: registration form */}
-            <div id="register" className="scroll-mt-24" data-reveal>
+            <div id="register" className="relative scroll-mt-24" data-reveal>
+              <div className="animate-glow pointer-events-none absolute -inset-6 -z-10 rounded-[2.75rem] bg-[radial-gradient(circle_at_50%_25%,rgba(255,242,1,0.4),transparent_70%)] blur-2xl" />
               <RegistrationForm />
             </div>
           </div>
         </div>
+
+        {/* Scroll cue */}
+        <a
+          href="#lineup"
+          aria-label="Scroll to lineup"
+          className="absolute bottom-5 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1 text-white/50 transition hover:text-white/90 sm:flex"
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">Scroll</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="animate-bounce">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </a>
       </section>
 
       {/* ===================== MARQUEE ===================== */}
@@ -161,23 +247,31 @@ export default function EventPage() {
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5" data-reveal>
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {SPORTS.map((s, i) => (
             <div
               key={s.name}
-              className={`group relative aspect-[3/4] overflow-hidden rounded-2xl bg-gray-200 ${i === 0 ? "col-span-2 sm:col-span-1" : ""}`}
+              data-reveal
+              style={{ "--reveal-delay": `${i * 80}ms` } as CSSProperties}
+              className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-amber-300 hover:shadow-[0_26px_55px_-22px_rgba(0,0,0,0.4)]"
             >
-              <Image
-                src={s.img}
-                alt={s.name}
-                fill
-                sizes="(max-width:640px) 50vw, 20vw"
-                className="object-cover transition duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-yellow-300">0{i + 1}</span>
-                <p className="text-base font-bold text-white">{s.name}</p>
+              <div className="relative aspect-square overflow-hidden bg-gradient-to-b from-[#f4f2eb] to-[#e6e3d8]">
+                <Image
+                  src={s.img}
+                  alt={s.name}
+                  fill
+                  sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 20vw"
+                  className="object-cover transition duration-700 ease-out group-hover:scale-[1.12]"
+                />
+                <span className="absolute left-3 top-3 translate-y-1 rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-yellow-300 opacity-0 backdrop-blur-sm transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  ● Live scored
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2 bg-[#0b0c10] px-4 py-3">
+                <span className="text-sm font-bold text-white">{s.name}</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-[11px] font-extrabold text-gray-950 transition group-hover:scale-110">
+                  {i + 1}
+                </span>
               </div>
             </div>
           ))}
@@ -240,7 +334,7 @@ export default function EventPage() {
 
           {/* Right: live-score app card mock */}
           <div className="flex justify-center lg:justify-end" data-reveal>
-            <div className="relative w-full max-w-xs">
+            <div className="animate-float relative w-full max-w-xs">
               <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-yellow-400/20 blur-3xl" />
               <div className="rounded-[1.75rem] border border-white/10 bg-[#111318] p-5 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]">
                 <div className="flex items-center justify-between">
@@ -306,15 +400,23 @@ export default function EventPage() {
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 self-center">
-              {[
-                { n: "5", l: "Sports" },
-                { n: "12h", l: "Non-stop play" },
-                { n: "₹1L", l: "In prizes" },
-                { n: "Live", l: "Scoring" },
-              ].map((s) => (
-                <div key={s.l} className="rounded-2xl border border-gray-200 bg-[#f6f4ec] p-5 text-center">
-                  <div className="text-3xl font-extrabold text-gray-950">{s.n}</div>
-                  <div className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-500">{s.l}</div>
+              {statCards.map((s) => (
+                <div
+                  key={s.l}
+                  className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 transition duration-300 hover:-translate-y-1 hover:border-amber-300 hover:shadow-[0_20px_44px_-20px_rgba(0,0,0,0.4)]"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-950 text-yellow-400 ring-1 ring-inset ring-white/10 transition group-hover:bg-yellow-400 group-hover:text-gray-950">
+                      {s.icon}
+                    </span>
+                    {s.live ? (
+                      <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide text-emerald-600">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> On
+                      </span>
+                    ) : null}
+                  </div>
+                  <CountUp value={s.n} className="mt-4 block text-[2rem] font-extrabold leading-none tracking-tight text-gray-950" />
+                  <div className="mt-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-500">{s.l}</div>
                 </div>
               ))}
             </div>
