@@ -55,3 +55,15 @@ a {
     transition: none;
   }
 }
+
+/* Event page — marquee ticker */
+@keyframes ofside-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: ofside-marquee 32s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}
