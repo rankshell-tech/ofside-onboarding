@@ -149,8 +149,13 @@ export default function EventPage() {
                 </span>
               </div>
 
-              <h1 className="mt-6 text-[clamp(2.7rem,6.5vw+0.5rem,5.25rem)] font-extrabold italic leading-[0.95] tracking-[-0.02em]">
-                <span className="block text-white">{EVENT.name.split(" ").slice(0, -1).join(" ")}</span>
+              <h1 className="mt-6 text-[clamp(2.1rem,4.2vw+0.5rem,3.75rem)] font-extrabold italic leading-[0.98] tracking-[-0.02em]">
+                <span className="block text-white">
+                  <span className="inline-block bg-gradient-to-b from-[#FFE94D] to-[#e0a400] bg-clip-text pr-[0.1em] text-transparent">
+                    {EVENT.name.split(" ")[0]}
+                  </span>
+                  {EVENT.name.split(" ").slice(1, -1).length ? ` ${EVENT.name.split(" ").slice(1, -1).join(" ")}` : ""}
+                </span>
                 <span className="inline-block bg-gradient-to-br from-[#fffef0] via-[#FFE94D] to-[#e0a400] bg-clip-text pr-[0.3em] text-transparent">
                   {EVENT.name.split(" ").slice(-1)}
                 </span>
