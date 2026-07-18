@@ -26,7 +26,35 @@ const SPORTS = [
   { name: "Table Tennis", img: "/assets/sports/table_tennis.webp" },
 ];
 
-const highlightIcons = ["📊", "🏟️", "🏆", "🤝"];
+const iconProps = {
+  width: 22,
+  height: 22,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+const highlightIcons = [
+  // Live scoring — activity pulse
+  <svg key="0" {...iconProps}><path d="M3 12h4l2.5 7 4-14 2.5 7H21" /></svg>,
+  // Sports / arena — grid
+  <svg key="1" {...iconProps}>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+  </svg>,
+  // Prizes — trophy
+  <svg key="2" {...iconProps}>
+    <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z" />
+    <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3" />
+  </svg>,
+  // Community — people
+  <svg key="3" {...iconProps}>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>,
+];
 const marqueeItems = ["Live Scoring", "Real Leaderboards", "5 Sports", "₹1,00,000 Prizes", "One Community", "Match Day"];
 
 export default function EventPage() {
@@ -123,7 +151,7 @@ export default function EventPage() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end" data-reveal>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-600">The lineup</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-950 sm:text-[2.75rem] sm:leading-[1.05]">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 sm:text-[2rem] sm:leading-[1.15]">
               Five sports. Pick your battle.
             </h2>
           </div>
@@ -161,7 +189,7 @@ export default function EventPage() {
           <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-600">About the event</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-950 sm:text-[2.75rem] sm:leading-[1.05]">
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 sm:text-[2rem] sm:leading-[1.15]">
                 One arena. A whole community showing up to play.
               </h2>
               <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-gray-600 sm:text-base">
@@ -193,7 +221,7 @@ export default function EventPage() {
                 className="group rounded-2xl border border-gray-200 bg-[#f6f4ec] p-5 transition hover:-translate-y-1 hover:border-amber-300 hover:bg-white hover:shadow-lg"
                 data-reveal
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-yellow-400 text-xl shadow-[0_6px_18px_-6px_rgba(255,242,1,0.9)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-950 text-yellow-400 ring-1 ring-inset ring-white/10 transition group-hover:bg-yellow-400 group-hover:text-gray-950">
                   {highlightIcons[i % highlightIcons.length]}
                 </div>
                 <h3 className="mt-4 text-base font-bold text-gray-950">{h.title}</h3>
@@ -211,7 +239,7 @@ export default function EventPage() {
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
             <div data-reveal>
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300">Match day</p>
-              <h2 className="mt-2 text-3xl font-bold sm:text-[2.75rem] sm:leading-[1.05]">How the day unfolds</h2>
+              <h2 className="mt-2 text-2xl font-bold sm:text-[2rem] sm:leading-[1.15]">How the day unfolds</h2>
               <p className="mt-4 max-w-sm text-sm text-white/60">
                 Doors at 8, finals under the lights. Here&apos;s the run of play for {EVENT.dateShort}.
               </p>
