@@ -7,12 +7,18 @@ import { useEffect, useRef, useState } from "react";
  * Handles plain numbers ("5"), suffixed ("12h"), and prefixed ("₹1L").
  * Non-numeric values ("Live") render as-is. Respects reduced-motion.
  */
-export default function CountUp({ value, className }: { value: string; className?: string }) {
-  const match = value.match(/^(\D*)(\d+)(\D*)$/);
-  const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(match ? `${match[1]}0${match[3]}` : value);
+const PATTERN = /^(\D*)(\d+)(\D*)$/;
 
+export default function CountUp({ value, className }: { value: string; className?: string }) {
+  const initial = value.match(PATTERN);
+  const ref = useRef<HTMLSpanElement>(null);
+  const [display, setDisplay] = useState(initial ? `${initial[1]}0${initial[3]}` : value);
+
+  // NOTE: depend only on `value`. A regex match returns a fresh array each render,
+  // so putting it in the deps would re-run this effect on every setDisplay and
+  // cancel the animation frame mid-flight (the counter would freeze at 0).
   useEffect(() => {
+    const match = value.match(PATTERN);
     if (!match) {
       setDisplay(value);
       return;
@@ -65,7 +71,7 @@ export default function CountUp({ value, className }: { value: string; className
       io.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, [value, match]);
+  }, [value]);
 
   return (
     <span ref={ref} className={className}>
