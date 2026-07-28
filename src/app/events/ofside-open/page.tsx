@@ -61,8 +61,8 @@ const highlightIcons = [
 
 const perks = [
   { label: "2 guaranteed matches", hint: "no sitting out" },
-  { label: "FREE Ofside PRO", hint: "with every entry" },
-  { label: "Photos & reels", hint: "on the night" },
+  { label: "FREE Ofside PRO", hint: "worth ₹399/year" },
+  { label: "Photos", hint: "on the night" },
   { label: "Community drops", hint: "show up for giveaways" },
 ];
 

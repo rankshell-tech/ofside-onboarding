@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     const leadLevel = String(body?.leadLevel || "").trim() as EventPlayerLevel;
     const emergencyContact = body?.emergencyContact ? String(body.emergencyContact).trim() : null;
     const partnerName = String(body?.partnerName || "").trim();
+    const partnerEmail = String(body?.partnerEmail || "").trim().toLowerCase();
     const partnerPhone = String(body?.partnerPhone || "").trim();
     const partnerGender = String(body?.partnerGender || "").trim() as EventGender;
     const waiverOwnRisk = Boolean(body?.waiverOwnRisk);
@@ -37,6 +38,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Please select your player level." }, { status: 400 });
     if (!partnerName)
       return NextResponse.json({ success: false, message: "Partner name is required." }, { status: 400 });
+    if (!EMAIL_RE.test(partnerEmail))
+      return NextResponse.json({ success: false, message: "A valid partner email is required." }, { status: 400 });
+    if (partnerEmail === leadEmail)
+      return NextResponse.json({ success: false, message: "Partner email must be different from yours." }, { status: 400 });
     if (!PHONE_RE.test(partnerPhone))
       return NextResponse.json({ success: false, message: "A valid partner phone number is required." }, { status: 400 });
     if (!GENDERS.has(partnerGender))
@@ -91,6 +96,7 @@ export async function POST(req: NextRequest) {
       leadLevel,
       emergencyContact,
       partnerName,
+      partnerEmail,
       partnerPhone,
       partnerGender,
       totalPeople: EVENT.playersPerCheckout,
@@ -125,6 +131,13 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log("[event/register] error:", err);
+    const msg = err instanceof Error ? err.message : "";
+    if (msg.includes("MONGODB_URI")) {
+      return NextResponse.json(
+        { success: false, message: "Registration is temporarily unavailable. Please try again shortly." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ success: false, message: "Could not start registration. Please try again." }, { status: 500 });
   }
 }

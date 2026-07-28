@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   EVENT,
   formatInr,
@@ -69,17 +69,22 @@ function ChipGroup<T extends string>({
   value,
   onChange,
   label,
+  aside,
 }: {
   options: readonly T[];
   value: T | "";
   onChange: (v: T) => void;
   label: string;
+  aside?: ReactNode;
 }) {
   return (
     <div>
-      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#888]">
-        {label}
-      </p>
+      <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#888]">
+          {label}
+        </p>
+        {aside}
+      </div>
       <div className="flex flex-wrap gap-1.5">
         {options.map((opt) => {
           const on = value === opt;
@@ -121,8 +126,8 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const [leadPhone, setLeadPhone] = useState("");
   const [leadGender, setLeadGender] = useState<EventGender | "">("");
   const [leadLevel, setLeadLevel] = useState<EventPlayerLevel | "">("");
-  const [emergencyContact, setEmergencyContact] = useState("");
   const [partnerName, setPartnerName] = useState("");
+  const [partnerEmail, setPartnerEmail] = useState("");
   const [partnerPhone, setPartnerPhone] = useState("");
   const [partnerGender, setPartnerGender] = useState<EventGender | "">("");
   const [waiverOwnRisk, setWaiverOwnRisk] = useState(false);
@@ -132,10 +137,13 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const [registrationId, setRegistrationId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const payAutoStarted = useRef(false);
 
   const bothFemale = leadGender === "Female" && partnerGender === "Female";
   const amountInr = useMemo(() => priceForCheckout(bothFemale), [bothFemale]);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
+  const mapsUrl =
+    EVENT.mapsUrl ??
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
 
   const payload = useCallback(
     () => ({
@@ -144,8 +152,8 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       leadPhone,
       leadGender,
       leadLevel,
-      emergencyContact: emergencyContact || undefined,
       partnerName,
+      partnerEmail,
       partnerPhone,
       partnerGender,
       waiverOwnRisk,
@@ -158,8 +166,8 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       leadPhone,
       leadGender,
       leadLevel,
-      emergencyContact,
       partnerName,
+      partnerEmail,
       partnerPhone,
       partnerGender,
       waiverOwnRisk,
@@ -247,7 +255,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
         amount: order.amount,
         currency: order.currency,
         name: order.eventName,
-        description: "Doubles entry + FREE Ofside PRO",
+        description: "Badminton doubles entry + goodies + FREE Ofside PRO (worth ₹399/year)",
         order_id: order.orderId,
         prefill: order.prefill,
         theme: { color: "#1c1c1c" },
@@ -277,6 +285,16 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     }
   }, [registrationId]);
 
+  useEffect(() => {
+    if (step !== "pay") {
+      payAutoStarted.current = false;
+      return;
+    }
+    if (payAutoStarted.current || !registrationId) return;
+    payAutoStarted.current = true;
+    void pay();
+  }, [step, registrationId, pay]);
+
   if (soldOut) {
     return (
       <div className="rounded-2xl border border-[#e8e8e8] bg-white p-6 text-center shadow-[0_8px_30px_-12px_rgba(0,0,0,0.1)]">
@@ -297,8 +315,8 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     <div className="rounded-2xl border border-[#e8e8e8] bg-white p-4 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.1)] sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-base font-bold tracking-tight text-[#1c1c1c]">Doubles entry</h3>
-          <p className="text-xs text-[#888]">2 players · email verify · pay once</p>
+          <h3 className="text-base font-bold tracking-tight text-[#1c1c1c]">Badminton doubles entry</h3>
+          <p className="text-xs text-[#888]">₹{EVENT.displayPriceInr} / player · goodies included</p>
         </div>
         <div className="shrink-0 rounded-xl bg-[#FFF201] px-3 py-2 text-right text-[#1c1c1c]">
           <p className="text-[10px] font-bold uppercase tracking-wide opacity-70">Total</p>
@@ -309,35 +327,18 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       {step !== "done" ? (
         <div className="mb-4">
           <div className="mb-2 flex items-center justify-between text-[12px]">
-            <span className="flex items-center gap-1.5 font-bold tracking-tight text-[#1c1c1c]">
-              <span className="inline-block h-1.5 w-1.5 animate-progress-tip rounded-full bg-[#FFF201] ring-1 ring-[#e8d600]" />
+            <span className="font-semibold text-[#1c1c1c]">
               {STEP_LABELS[STEPS[stepIndex] as Exclude<Step, "done">]}
             </span>
-            <span className="tabular-nums font-bold text-[#1c1c1c]">
-              {stepIndex + 1}
-              <span className="text-[#c4c4c4]">/{STEPS.length}</span>
+            <span className="tabular-nums text-[#888]">
+              {stepIndex + 1}/{STEPS.length}
             </span>
           </div>
-          <div className="relative h-2.5 overflow-hidden rounded-full bg-[#ececec] shadow-[inset_0_1px_2px_rgba(0,0,0,0.09)]">
+          <div className="h-1.5 overflow-hidden rounded-full bg-[#ececec]">
             <div
-              className="relative h-full overflow-hidden rounded-full bg-[linear-gradient(90deg,#FFD400_0%,#FFF201_55%,#FFF773_100%)] shadow-[0_0_14px_rgba(255,226,0,0.9)] transition-[width] duration-500 ease-out"
+              className="h-full rounded-full bg-[#FFF201] transition-[width] duration-300 ease-out"
               style={{ width: `${((stepIndex + 1) / STEPS.length) * 100}%` }}
-            >
-              <div className="absolute inset-0 animate-progress-stripes" />
-              {/* bright leading tip */}
-              <div className="absolute inset-y-0 right-0 w-1.5 rounded-full bg-white/80 blur-[1px]" />
-            </div>
-          </div>
-          {/* step ticks */}
-          <div className="mt-2 flex items-center justify-between px-0.5">
-            {STEPS.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
-                  i <= stepIndex ? "bg-[#1c1c1c]" : "bg-[#d8d8d8]"
-                }`}
-              />
-            ))}
+            />
           </div>
         </div>
       ) : null}
@@ -353,16 +354,18 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
           <input className={fieldCls} placeholder="Full name *" value={leadName} onChange={(e) => setLeadName(e.target.value)} autoComplete="name" />
           <input className={fieldCls} type="tel" inputMode="tel" placeholder="Mobile number *" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} autoComplete="tel" />
           <input className={fieldCls} type="email" inputMode="email" placeholder="Email address *" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} autoComplete="email" />
-          <ChipGroup options={EVENT.genders} value={leadGender} onChange={setLeadGender} label="Gender *" />
-          <ChipGroup options={EVENT.playerLevels} value={leadLevel} onChange={setLeadLevel} label="Player level *" />
-          <input
-            className={fieldCls}
-            type="tel"
-            inputMode="tel"
-            placeholder="Emergency contact (optional)"
-            value={emergencyContact}
-            onChange={(e) => setEmergencyContact(e.target.value)}
+          <ChipGroup
+            options={EVENT.genders}
+            value={leadGender}
+            onChange={setLeadGender}
+            label="Gender *"
+            aside={
+              <span className="rounded-full bg-[#FFF201] px-2.5 py-1 text-[11px] font-bold text-[#1c1c1c]">
+                10% off female doubles
+              </span>
+            }
           />
+          <ChipGroup options={EVENT.playerLevels} value={leadLevel} onChange={setLeadLevel} label="Player level *" />
           <button
             type="button"
             onClick={() => {
@@ -383,15 +386,13 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
 
       {step === "partner" && (
         <div className="space-y-3">
-          <p className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[13px] text-amber-900">
-            <span className="font-bold">10% off</span> if both female — verified at the venue.
-          </p>
           <input className={fieldCls} placeholder="Partner full name *" value={partnerName} onChange={(e) => setPartnerName(e.target.value)} />
+          <input className={fieldCls} type="email" inputMode="email" placeholder="Partner email *" value={partnerEmail} onChange={(e) => setPartnerEmail(e.target.value)} autoComplete="off" />
           <input className={fieldCls} type="tel" inputMode="tel" placeholder="Partner mobile *" value={partnerPhone} onChange={(e) => setPartnerPhone(e.target.value)} />
           <ChipGroup options={EVENT.genders} value={partnerGender} onChange={setPartnerGender} label="Partner gender *" />
           {bothFemale ? (
             <p className="rounded-xl bg-emerald-50 px-3 py-2 text-[13px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
-              Women&apos;s discount applied · ₹{formatInr(amountInr)}
+              Female doubles discount applied · ₹{formatInr(amountInr)}
             </p>
           ) : null}
           <div className="flex gap-2">
@@ -403,6 +404,9 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               onClick={() => {
                 setError("");
                 if (!partnerName.trim()) return setError("Please enter your partner's name.");
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail.trim())) return setError("Please enter a valid partner email.");
+                if (partnerEmail.trim().toLowerCase() === leadEmail.trim().toLowerCase())
+                  return setError("Partner email must be different from yours.");
                 if (!/^\+?[0-9]{7,15}$/.test(partnerPhone.trim())) return setError("Please enter a valid partner mobile.");
                 if (!partnerGender) return setError("Please select your partner's gender.");
                 setStep("waiver");
@@ -435,9 +439,28 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
                 id: "terms",
                 checked: waiverTerms,
                 set: setWaiverTerms,
-                label: "I agree to the Terms & Conditions.",
+                label: (
+                  <>
+                    I agree to the{" "}
+                    <a
+                      href="/events/sessions/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-[#1c1c1c] underline underline-offset-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Terms &amp; Conditions
+                    </a>
+                    .
+                  </>
+                ),
               },
-            ] as const
+            ] as {
+              id: string;
+              checked: boolean;
+              set: (v: boolean) => void;
+              label: ReactNode;
+            }[]
           ).map((w) => (
             <label
               key={w.id}
@@ -503,32 +526,23 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       )}
 
       {step === "pay" && (
-        <div className="space-y-3">
+        <div className="space-y-3 py-2 text-center">
           <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-[13px] font-semibold text-emerald-700">
-            ✓ Email verified · includes FREE Ofside PRO
+            ✓ Email verified
           </p>
-
-          <div className="rounded-xl border border-[#e8e8e8] px-3.5 py-3">
-            <ul className="space-y-1.5">
-              {EVENT.whatsIncluded.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-[13px] text-[#4d4d4d]">
-                  <span className="text-[#1c1c1c]">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-3 flex items-end justify-between border-t border-[#f0f0f0] pt-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#888]">
-                {bothFemale ? "Total (10% off)" : "Total due"}
-              </p>
-              <p className="text-2xl font-bold tabular-nums text-[#1c1c1c]">₹{formatInr(amountInr)}</p>
-            </div>
-          </div>
-
-          <button type="button" onClick={pay} disabled={loading} className={btnPrimary}>
-            {loading ? "Opening payment…" : `Pay ₹${formatInr(amountInr)}`}
-          </button>
-          <p className="text-center text-[11px] text-[#aaa]">Secured by Razorpay</p>
+          <p className="text-[14px] text-[#666]">
+            {loading
+              ? "Opening Razorpay…"
+              : bothFemale
+                ? `Total ₹${formatInr(amountInr)} (10% female doubles off)`
+                : `Total ₹${formatInr(amountInr)}`}
+          </p>
+          {!loading ? (
+            <button type="button" onClick={pay} className={btnPrimary}>
+              Pay ₹{formatInr(amountInr)}
+            </button>
+          ) : null}
+          <p className="text-[11px] text-[#aaa]">Secured by Razorpay</p>
         </div>
       )}
 
@@ -552,7 +566,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               WhatsApp
             </a>
             <a
-              href={`https://wa.me/?text=${encodeURIComponent(`You're my doubles partner for ${EVENT.name} — we're locked in. See you there!`)}`}
+              href={`https://wa.me/?text=${encodeURIComponent(`You're my doubles partner for ${EVENT.name}. We're locked in. See you there!`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl bg-[#FFF201] py-2.5 text-[13px] font-bold text-[#1c1c1c] hover:bg-[#ffe600]"

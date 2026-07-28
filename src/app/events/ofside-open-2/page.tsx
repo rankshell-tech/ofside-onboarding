@@ -7,11 +7,11 @@ import EventRegistration from "@/models/EventRegistration";
 import RegistrationForm from "./RegistrationForm";
 
 export const metadata: Metadata = {
-  title: `${EVENT.seriesName} — ${EVENT.name}`,
+  title: EVENT.name,
   description: `${EVENT.tagline} ${EVENT.shortDescription}`,
   robots: { index: false, follow: false },
   openGraph: {
-    title: `${EVENT.seriesName} — ${EVENT.name}`,
+    title: EVENT.name,
     description: `${EVENT.tagline} ${EVENT.shortDescription}`,
     type: "website",
   },
@@ -19,14 +19,16 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
+const mapsUrl =
+  EVENT.mapsUrl ??
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
 const baseTotal = priceForCheckout(false);
 
 const thingsToKnow = [
   { icon: "clock", label: "Duration", value: "2 Hours" },
   { icon: "lang", label: "Languages", value: "Hindi, English" },
   { icon: "ticket", label: "Ticket needed", value: "For all participants" },
-  { icon: "entry", label: "Entry allowed", value: "Ages 15 and above" },
+  { icon: "entry", label: "Entry allowed", value: "Ages 15 – 35" },
   { icon: "layout", label: "Layout", value: "Indoor courts" },
   { icon: "seat", label: "Format", value: "Badminton doubles" },
   { icon: "people", label: "Capacity", value: `${EVENT.maxPlayers} players max` },
@@ -129,70 +131,79 @@ export default async function EventPage() {
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
         {/* ===================== HERO ===================== */}
         <section className="relative w-full overflow-hidden rounded-2xl bg-[#0b0b0d] sm:rounded-3xl">
-          <div className="relative min-h-[430px] w-full sm:min-h-[470px] lg:min-h-[560px]">
+          <div className="relative min-h-[460px] w-full sm:min-h-[520px] lg:min-h-[580px]">
             <Image
               src="/assets/pexels-aboodi-12630113.jpg"
               alt={EVENT.name}
               fill
               priority
               sizes="(max-width: 1280px) 100vw, 1280px"
-              className="object-cover object-[center_62%]"
+              className="object-cover object-[center_58%] scale-[1.02]"
             />
             {/* readability gradients */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(11,11,13,0.94)_0%,rgba(11,11,13,0.38)_46%,rgba(11,11,13,0.05)_78%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(11,11,13,0.55)_0%,transparent_55%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.95)_0%,rgba(8,12,14,0.55)_45%,rgba(8,12,14,0.15)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.55)_0%,transparent_60%)]" />
 
-            {/* top badge */}
-            <div className="absolute inset-x-4 top-4 flex justify-end sm:inset-x-6 sm:top-6">
-              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] shadow-lg shadow-black/25 sm:text-[11px]">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                  <path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
-                </svg>
-                Free Ofside PRO
+            {/* top: logo + tagline (left) · badge (right) */}
+            <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-4 sm:inset-x-7 sm:top-7">
+              <div className="inline-flex flex-col gap-2">
+                <Image
+                  src={EVENT.logoSrc}
+                  alt={EVENT.seriesName}
+                  width={220}
+                  height={40}
+                  className="block h-8 w-auto object-contain object-left sm:h-10"
+                  priority
+                />
+                <p className="flex w-full justify-between text-[11px] font-medium leading-none text-white/70 sm:text-[12px]">
+                  {EVENT.tagline.split(" ").map((word) => (
+                    <span key={word}>{word}</span>
+                  ))}
+                </p>
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] sm:px-3.5 sm:text-[11px]">
+                Free PRO · ₹399/yr
               </span>
             </div>
 
             {/* bottom content */}
-            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-5 p-5 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-9">
-              <div className="min-w-0">
-                <Image
-                  src={EVENT.logoSrc}
-                  alt={EVENT.seriesName}
-                  width={200}
-                  height={44}
-                  className="h-7 w-auto object-contain drop-shadow sm:h-9"
-                />
-                <h1 className="mt-3 max-w-3xl text-[2rem] font-bold leading-[1.05] tracking-tight text-white drop-shadow-sm sm:text-5xl lg:text-[3.25rem]">
-                  {EVENT.name}
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-6 p-5 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
+              <div className="min-w-0 max-w-2xl">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#FFF201]">
+                  {EVENT.edition}
+                </p>
+                <h1 className="mt-2 text-[1.85rem] font-bold leading-[1.08] tracking-tight text-white sm:text-[2.75rem] lg:text-[3.15rem]">
+                  Badminton doubles
+                  <span className="block text-white/80">community games</span>
                 </h1>
-                <p className="mt-3.5 text-[14px] font-medium text-white/75 sm:text-[15px]">
+
+                <p className="mt-4 text-[13px] font-medium text-white/75 sm:text-[14px]">
                   {EVENT.date}
-                  {EVENT.timeWindow ? `, ${EVENT.timeWindow}` : null}
-                  {!EVENT.detailsFinal ? " · TBA" : null}
                   <span className="mx-2 text-white/30">·</span>
-                  {EVENT.venueName}, {EVENT.city}
+                  {EVENT.timeWindow}
+                  <span className="mx-2 text-white/30">·</span>
+                  {EVENT.venueName}
                 </p>
               </div>
 
               {/* desktop price + CTA */}
               <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
                 <div className="text-right text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/60">From</p>
-                  <p className="text-3xl font-bold leading-none">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
+                  <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
                     ₹{EVENT.displayPriceInr}
-                    <span className="ml-1 text-sm font-medium text-white/60">/ player</span>
                   </p>
                 </div>
                 {soldOut ? (
-                  <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70 ring-1 ring-inset ring-white/25">
+                  <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70">
                     Sold out
                   </span>
                 ) : (
                   <a
                     href="#register"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c] shadow-lg shadow-black/25 transition hover:brightness-95"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
                   >
-                    Book tickets
+                    Register Now
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
@@ -211,21 +222,15 @@ export default async function EventPage() {
             <section id="about" className="scroll-mt-24">
               <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">About</h2>
               <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-[#4d4d4d]">
-                <p className="font-semibold text-[#1c1c1c]">{EVENT.tagline}</p>
                 <p>{EVENT.shortDescription}</p>
                 <p>
-                  Grab a partner, pull up to {EVENT.venueName}, and get at least{" "}
-                  <span className="font-semibold text-[#1c1c1c]">2 doubles games</span> —
-                  nobody sits on the bench. Photos, giveaways &amp;{" "}
-                  <span className="font-semibold text-[#1c1c1c]">FREE Ofside PRO</span> come
-                  with every entry. Only {EVENT.maxRegistrations} pairs (
+                  Bring a partner to {EVENT.venueName} for at least{" "}
+                  <span className="font-semibold text-[#1c1c1c]">2 doubles games</span>, plus
+                  photos, giveaways, and{" "}
+                  <span className="font-semibold text-[#1c1c1c]">FREE Ofside PRO</span>{" "}
+                  (worth ₹399/year). Limited to {EVENT.maxRegistrations} doubles (
                   {EVENT.maxPlayers} players).
                 </p>
-                {!EVENT.detailsFinal ? (
-                  <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900 ring-1 ring-inset ring-amber-200/80">
-                    Exact date &amp; pin still TBA — confirmed details go out on email.
-                  </p>
-                ) : null}
               </div>
 
               <div className="mt-8">
@@ -279,19 +284,49 @@ export default async function EventPage() {
 
             {/* Schedule */}
             <section id="schedule" className="scroll-mt-24">
-              <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">
-                Schedule &amp; timeline
-              </h2>
-              <ol className="mt-5 space-y-0 border-l border-[#e5e5e5] pl-5">
-                {EVENT.schedule.map((step) => (
-                  <li key={step.label} className="relative pb-5 last:pb-0">
-                    <span className="absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-[#1c1c1c] bg-white" />
-                    <p className="text-sm font-semibold text-[#1c1c1c]">{step.time}</p>
-                    <p className="text-[14px] text-[#666]">{step.label}</p>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-4 text-sm text-[#888]">{EVENT.reportingNote}</p>
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">
+                  Schedule &amp; timeline
+                </h2>
+                <p className="text-sm text-[#888]">
+                  {EVENT.date} · {EVENT.timeWindow}
+                </p>
+              </div>
+
+              <div className="mt-4 overflow-hidden rounded-2xl border border-[#e8e8e8] bg-white">
+                <div className="border-b border-[#e8e8e8] bg-[#fafafa] px-4 py-2.5 text-[13px] text-[#666] sm:px-5">
+                  {EVENT.reportingNote}
+                </div>
+                <ul>
+                  {EVENT.schedule.map((step, i) => {
+                    const isChallenge = step.label.startsWith("Community Challenge");
+                    return (
+                      <li
+                        key={`${step.time}-${step.label}`}
+                        className={`grid grid-cols-[4.75rem_1fr] items-baseline gap-3 px-4 py-3 sm:grid-cols-[5.5rem_1fr] sm:gap-5 sm:px-5 ${
+                          i > 0 ? "border-t border-[#f0f0f0]" : ""
+                        } ${isChallenge ? "bg-[#FFFBEA]" : ""}`}
+                      >
+                        <p className="text-[13px] font-bold tabular-nums text-[#1c1c1c] sm:text-sm">
+                          {step.time}
+                        </p>
+                        <div className="min-w-0">
+                          {isChallenge ? (
+                            <p className="text-[14px] font-semibold leading-snug text-[#1c1c1c]">
+                              <span className="mr-2 inline-block rounded bg-[#FFF201] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#1c1c1c]">
+                                Challenge
+                              </span>
+                              {step.label.replace(/^Community Challenge \d+\s*[–-]\s*/, "")}
+                            </p>
+                          ) : (
+                            <p className="text-[14px] leading-snug text-[#4d4d4d]">{step.label}</p>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </section>
 
             {/* FAQ */}
@@ -321,14 +356,21 @@ export default async function EventPage() {
               </h2>
               <p className="mt-3 text-[14px] leading-relaxed text-[#666]">
                 By registering you agree to our{" "}
-                <Link href="/terms-and-conditions" className="font-medium text-[#1c1c1c] underline underline-offset-2 hover:text-black">
-                  Terms
+                <Link
+                  href="/events/sessions/terms"
+                  className="font-medium text-[#1c1c1c] underline underline-offset-2 hover:text-black"
+                >
+                  Terms &amp; Conditions
                 </Link>{" "}
                 and{" "}
-                <Link href="/refund" className="font-medium text-[#1c1c1c] underline underline-offset-2 hover:text-black">
+                <Link
+                  href="/events/sessions/terms#refund"
+                  className="font-medium text-[#1c1c1c] underline underline-offset-2 hover:text-black"
+                >
                   Refund Policy
                 </Link>
-                . Entries are transferable but non-refundable. {EVENT.organiserNote}
+                . Entries are non-refundable except as stated in the policy.{" "}
+                {EVENT.organiserNote}
               </p>
             </section>
 
@@ -337,17 +379,26 @@ export default async function EventPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#888]">
                 Organized by
               </p>
-              <div className="mt-3 flex items-center gap-3">
-                <Image
-                  src="/assets/ofside-logo.png"
-                  alt="Ofside"
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 rounded-full object-contain ring-1 ring-[#eee]"
-                />
-                <div>
-                  <p className="font-semibold text-[#1c1c1c]">Ofside</p>
-                  <p className="text-sm text-[#888]">Sports community · Delhi NCR</p>
+              <div className="mt-3 flex items-center gap-3.5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFF201] p-2">
+                  <Image
+                    src="/assets/ofside-logo.png"
+                    alt="Ofside"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-base font-bold leading-tight text-[#1c1c1c]">
+                    Ofside{" "}
+                    <span className="font-normal text-[#666]">
+                      · India&apos;s ultimate sports ecosystem
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#999]">
+                    Sports community
+                  </p>
                 </div>
               </div>
             </section>
@@ -367,17 +418,19 @@ export default async function EventPage() {
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
-                  {EVENT.venueName}, {EVENT.city}
+                  {EVENT.venueName}
                 </a>
-                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#888]">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <p className="mt-1.5 flex items-start gap-1.5 text-[11px] text-[#888]">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M12 7v5l3 2" />
                   </svg>
-                  Report 20 mins early ·{" "}
-                  <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
-                    Schedule
-                  </a>
+                  <span>
+                    Report by 6:40 PM ·{" "}
+                    <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
+                      Schedule
+                    </a>
+                  </span>
                 </p>
               </div>
 
@@ -387,7 +440,7 @@ export default async function EventPage() {
 
               {!soldOut ? (
                 <p className="px-1 text-center text-xs text-[#888]">
-                  {EVENT.maxRegistrations} doubles spots · women&apos;s pairs get 10% off
+                  {EVENT.maxRegistrations} doubles spots · female doubles get 10% off
                 </p>
               ) : null}
             </div>
@@ -418,7 +471,7 @@ export default async function EventPage() {
               <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
               <span className="pb-0.5 text-xs text-[#888]">onwards</span>
             </div>
-            <p className="text-[11px] text-[#888]">Pair · ₹{formatInr(baseTotal)} incl. tax</p>
+            <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
           </div>
           {soldOut ? (
             <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">

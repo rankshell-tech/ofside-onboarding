@@ -2,32 +2,35 @@
 
 export const EVENT = {
   slug: "ofside-open-2026",
-  name: "Delhi NCR Community Badminton Games",
+  name: "SESSIONS by Ofside (Badminton doubles community games)",
   seriesName: "SESSIONS",
   tagline: "Meet. Play. Connect. Repeat.",
   edition: "Community Series",
   shortDescription:
-    "Community games where players of all skill levels come together for guaranteed matches, great people, and an unforgettable sporting experience.",
-  logoSrc: "/assets/sessions-logo.png",
-  // Tentative — date / time / venue are not final yet.
-  detailsFinal: false,
-  date: "Saturday (date TBA)",
-  dateShort: "Sat · TBA",
-  timeWindow: "6:00 PM – 8:00 PM",
-  reportingNote: "Please report 20 minutes before start for smooth check-in.",
-  venueName: "REPPP, Delhi",
-  venueAddress: "REPPP, Delhi NCR (exact pin shared after confirmation)",
-  city: "Delhi NCR",
-  mapsQuery: "REPPP Delhi",
-  calendarStartIso: "2026-08-01T18:00:00+05:30",
-  calendarEndIso: "2026-08-01T20:00:00+05:30",
+    "Community badminton doubles for all skill levels. Guaranteed matches, goodies, and a solid night of play.",
+  logoSrc: "/assets/sessions-logo-v3.png",
+  detailsFinal: true,
+  date: "Sat, 22nd August",
+  dateShort: "Sat · 22 Aug",
+  timeWindow: "7:00 PM – 9:00 PM",
+  reportingNote: "Please report by 6:40 PM for smooth check-in.",
+  venueName: "Rackonnect Badminton Arena",
+  venueAddress:
+    "Rackonnect Badminton Arena, Farm, No.-1, Ladha Sarai Village, Mehrauli, New Delhi, Delhi 110030",
+  city: "New Delhi",
+  mapsQuery:
+    "Rackonnect Badminton Arena, Farm No. 1, Ladha Sarai Village, Mehrauli, New Delhi, Delhi 110030",
+  mapsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Rackonnect%20Badminton%20Arena%20Farm%20No.%201%20Ladha%20Sarai%20Village%20Mehrauli%20New%20Delhi%20110030",
+  calendarStartIso: "2026-08-22T19:00:00+05:30",
+  calendarEndIso: "2026-08-22T21:00:00+05:30",
 
   sport: "Badminton Doubles",
 
-  // Pricing — base INR per player (pre-tax). Checkout is for 2 players.
-  pricePerPersonInr: 249,
-  displayPriceInr: 250,
-  gstMultiplier: 1.18,
+  // Pricing — INR per player. Checkout is for 2 players. Final total = 290 × 2 = ₹580.
+  pricePerPersonInr: 290,
+  displayPriceInr: 290,
+  gstMultiplier: 1,
   femalePairDiscount: 0.1,
   currency: "INR",
   playersPerCheckout: 2,
@@ -36,37 +39,51 @@ export const EVENT = {
 
   whatsIncluded: [
     "Guaranteed 2 Doubles Matches",
-    "FREE Ofside PRO Membership",
-    "Community Networking",
-    "Event Photography & Reels",
-    "Community Giveaways",
+    "FREE Ofside PRO Membership worth ₹399/year",
+    "10% direct off for female doubles",
+    "10% off at REPPP cafeteria",
+    "Badminton racquets provided by Ofside (community members)",
+    "Lucky draw goodies and freebies",
+    "Engagement activities and much more",
+    "Event Photography",
   ],
 
   highlights: [
     {
-      title: "Guaranteed 2 doubles matches",
-      body: "You and your partner get at least two games. No paying just to sit on the bench.",
+      title: "FREE Ofside PRO (worth ₹399/year)",
+      body: "Included free for every community event member. Scores and match history in the app, no second payment.",
     },
     {
-      title: "FREE Ofside PRO",
-      body: "Ticket includes PRO — scores and match history in the app, no second payment.",
+      title: "10% off for female doubles",
+      body: "Both players female get automatic 10% off on badminton doubles. Gender checked at the venue.",
     },
     {
-      title: "Photos, reels & giveaways",
-      body: "On-court content plus community giveaways. Show up early; drops go fast.",
+      title: "10% off at REPPP cafeteria",
+      body: "Community event members get 10% off at the REPPP cafeteria.",
     },
     {
-      title: "10% off for women's pairs",
-      body: "Both players female → automatic 10% off. Gender checked at the venue.",
+      title: "Racquets provided",
+      body: "Badminton racquets from Ofside at the venue, exclusively for community members.",
+    },
+    {
+      title: "Lucky draw goodies & freebies",
+      body: "Lucky draw goodies, freebies, engagement activities and much more on the night.",
     },
   ],
 
   schedule: [
-    { time: "T–20 min", label: "Reporting & check-in" },
-    { time: "6:00 PM", label: "Warm-up & pairings" },
-    { time: "6:15 PM", label: "Match block 1" },
-    { time: "7:00 PM", label: "Match block 2" },
-    { time: "7:45 PM", label: "Wrap, photos & giveaways" },
+    { time: "6:40 PM", label: "Player Check-in Opens" },
+    { time: "6:55 PM", label: "Welcome Briefing & House Rules" },
+    { time: "7:00 PM", label: "Round 1" },
+    { time: "7:20 PM", label: "Round 2" },
+    { time: "7:40 PM", label: "Community Challenge 1 - Rally Royale" },
+    { time: "7:45 PM", label: "Round 3" },
+    { time: "8:05 PM", label: "Round 4" },
+    { time: "8:25 PM", label: "Community Challenge 2 - One-Racket Challenge" },
+    { time: "8:30 PM", label: "Round 5" },
+    { time: "8:45 PM", label: "Round 6 & Final Rotations" },
+    { time: "8:55 PM", label: "Awards, Group Photo & Networking" },
+    { time: "9:00 PM", label: "Event Concludes" },
   ],
 
   faqs: [
@@ -75,24 +92,36 @@ export const EVENT = {
       a: "Anyone in Delhi NCR looking for a community doubles session. Each checkout covers 2 players (you + your partner).",
     },
     {
-      q: "Is the date / venue final?",
-      a: "Not yet — time, date and venue are tentative. Confirmed details go out on email and WhatsApp once locked.",
+      q: "When and where is it?",
+      a: "Sat, 22nd August, 7:00 PM – 9:00 PM at Rackonnect Badminton Arena, Farm, No.-1, Ladha Sarai Village, Mehrauli, New Delhi, Delhi 110030.",
     },
     {
       q: "How does email verification work?",
       a: "We send a 6-digit code to your email before payment. Mobile is collected for coordination; verification is on email.",
     },
     {
-      q: "What's the women's pair discount?",
-      a: "If both registered players are female, 10% off applies automatically. Misreporting gender to get the discount isn't worth it — details are verified at the venue.",
+      q: "What's included with Ofside PRO?",
+      a: "Every community event member gets FREE Ofside PRO membership worth ₹399/year. Scores and match history in the app, included with your entry.",
+    },
+    {
+      q: "What's the female doubles discount?",
+      a: "If both registered players are female, 10% direct off applies automatically on badminton doubles. Misreporting gender to get the discount isn't worth it. Details are verified at the venue.",
+    },
+    {
+      q: "Do I need to bring a racquet?",
+      a: "Badminton racquets will be provided by Ofside at the venue exclusively for community members. You can still bring your own if you prefer.",
+    },
+    {
+      q: "What else is included?",
+      a: "10% off at REPPP cafeteria, lucky draw goodies and freebies, engagement activities, event photography, and much more.",
     },
     {
       q: "When should I arrive?",
-      a: "Report 20 minutes before the session start for smooth check-in and fewer pairing errors.",
+      a: "Check-in opens at 6:40 PM. Please arrive by then for smooth check-in and the welcome briefing.",
     },
     {
       q: "Can I get a refund?",
-      a: "Entries are transferable but non-refundable. See our refund policy for details.",
+      a: "All registrations are final and non-refundable, except if Ofside cancels or reschedules the event. See the SESSIONS refund policy for details.",
     },
   ],
 
@@ -101,7 +130,7 @@ export const EVENT = {
 
   whatsappCommunityUrl: "https://chat.whatsapp.com/",
   organiserNote:
-    "Registrations, payments and live scores are powered by Ofside. Spots are capped — once full, the page shows sold out.",
+    "Registrations, payments and live scores are powered by Ofside. Spots are capped. Once full, the page shows sold out.",
 } as const;
 
 export type EventGender = (typeof EVENT.genders)[number];
@@ -112,7 +141,7 @@ export function baseAmountInr(): number {
   return EVENT.pricePerPersonInr * EVENT.playersPerCheckout;
 }
 
-/** Final payable amount (incl. GST). Female-pair discount is 10% on pre-tax base. */
+/** Final payable amount. Female-pair discount is 10% on base. */
 export function priceForCheckout(bothFemale: boolean): number {
   const base = baseAmountInr();
   const afterDiscount = bothFemale ? base * (1 - EVENT.femalePairDiscount) : base;

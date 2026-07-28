@@ -23,6 +23,7 @@ const eventRegistrationSchema = new Schema(
 
     // Doubles partner (always 2 players per checkout).
     partnerName: { type: String, required: true, trim: true },
+    partnerEmail: { type: String, trim: true, lowercase: true, default: null },
     partnerPhone: { type: String, required: true, trim: true },
     partnerGender: { type: String, enum: GENDERS, required: true },
 
