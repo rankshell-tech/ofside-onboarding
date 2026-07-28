@@ -5,6 +5,7 @@ import { EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import RegistrationForm from "./RegistrationForm";
+import SessionsBrand from "./SessionsBrand";
 
 export const metadata: Metadata = {
   title: EVENT.name,
@@ -146,21 +147,7 @@ export default async function EventPage() {
 
             {/* top: logo + tagline (left) · badge (right) */}
             <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-4 sm:inset-x-7 sm:top-7">
-              <div className="inline-flex flex-col gap-2">
-                <Image
-                  src={EVENT.logoSrc}
-                  alt={EVENT.seriesName}
-                  width={220}
-                  height={40}
-                  className="block h-8 w-auto object-contain object-left sm:h-10"
-                  priority
-                />
-                <p className="flex w-full justify-between text-[11px] font-medium leading-none text-white/70 sm:text-[12px]">
-                  {EVENT.tagline.split(" ").map((word) => (
-                    <span key={word}>{word}</span>
-                  ))}
-                </p>
-              </div>
+              <SessionsBrand />
               <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] sm:px-3.5 sm:text-[11px]">
                 Free PRO · ₹399/yr
               </span>
