@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "SESSIONS Terms & Conditions — Ofside",
+  title: "SESSIONS Terms & Conditions | Ofside",
   description:
     "Terms & Conditions and Refund & Cancellation Policy for SESSIONS by Ofside community events.",
   robots: { index: false, follow: false },

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import RegistrationForm from "./RegistrationForm";
@@ -29,7 +30,7 @@ const thingsToKnow = [
   { icon: "clock", label: "Duration", value: "2 Hours" },
   { icon: "lang", label: "Languages", value: "Hindi, English" },
   { icon: "ticket", label: "Ticket needed", value: "For all participants" },
-  { icon: "entry", label: "Entry allowed", value: "Ages 15 – 35" },
+  { icon: "entry", label: "Entry allowed", value: "Ages 15 to 35" },
   { icon: "layout", label: "Layout", value: "Indoor courts" },
   { icon: "seat", label: "Format", value: "Badminton doubles" },
   { icon: "people", label: "Capacity", value: `${EVENT.maxPlayers} players max` },
@@ -145,12 +146,67 @@ export default async function EventPage() {
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.95)_0%,rgba(8,12,14,0.55)_45%,rgba(8,12,14,0.15)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.55)_0%,transparent_60%)]" />
 
-            {/* top: logo + tagline (left) · badge (right) */}
+            {/* top: logo + tagline (left) · badge + download (right) */}
             <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-4 sm:inset-x-7 sm:top-7">
               <SessionsBrand />
-              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] sm:px-3.5 sm:text-[11px]">
-                Free PRO · ₹399/yr
-              </span>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
+                  <span className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#FFF201] ring-1 ring-black/15">
+                    <Image
+                      src="/assets/ofside-icon.webp"
+                      alt=""
+                      width={16}
+                      height={16}
+                      className="h-4 w-4 rounded-full object-cover"
+                    />
+                  </span>
+                  Free Ofside PRO · ₹399/yr
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <a
+                    href={PLAY_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/95 px-1.5 py-1 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:px-2"
+                    aria-label="Get Ofside on Google Play"
+                  >
+                    <Image
+                      src="/assets/playstore.webp"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 rounded-[3px]"
+                    />
+                    <span className="hidden text-left leading-none sm:block">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666] group-hover:text-[#1c1c1c]/70">
+                        Get it on
+                      </span>
+                      <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">Google Play</span>
+                    </span>
+                  </a>
+                  <a
+                    href={APP_STORE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/95 px-1.5 py-1 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:px-2"
+                    aria-label="Download Ofside on the App Store"
+                  >
+                    <Image
+                      src="/assets/appstore.webp"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="h-5 w-5 rounded-[3px]"
+                    />
+                    <span className="hidden text-left leading-none sm:block">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666] group-hover:text-[#1c1c1c]/70">
+                        Download on
+                      </span>
+                      <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">App Store</span>
+                    </span>
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* bottom content */}
@@ -256,8 +312,8 @@ export default async function EventPage() {
               <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">Things to know</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {thingsToKnow.map((t) => (
-                  <div key={t.label} className="flex items-start gap-3">
-                    <span className="mt-0.5 text-[#888]">
+                  <div key={t.label} className="flex items-center gap-3">
+                    <span className="shrink-0 text-[#888]">
                       <ThingIcon name={t.icon} />
                     </span>
                     <div>
@@ -399,20 +455,20 @@ export default async function EventPage() {
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
+                  className="grid grid-cols-[16px_1fr] items-start gap-x-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0 text-[#888]">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 text-[#888]">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
-                  {EVENT.venueName}
+                  <span className="min-w-0 leading-snug">{EVENT.venueName}</span>
                 </a>
-                <p className="mt-1.5 flex items-start gap-1.5 text-[11px] text-[#888]">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
+                <p className="mt-1.5 grid grid-cols-[16px_1fr] items-start gap-x-2 text-[11px] text-[#888]">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5">
                     <circle cx="12" cy="12" r="9" />
                     <path d="M12 7v5l3 2" />
                   </svg>
-                  <span>
+                  <span className="min-w-0 leading-snug">
                     Report by 6:40 PM ·{" "}
                     <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
                       Schedule

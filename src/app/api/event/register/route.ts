@@ -23,6 +23,15 @@ export async function POST(req: NextRequest) {
     const partnerEmail = String(body?.partnerEmail || "").trim().toLowerCase();
     const partnerPhone = String(body?.partnerPhone || "").trim();
     const partnerGender = String(body?.partnerGender || "").trim() as EventGender;
+    const bringingOwnEquipmentRaw = body?.bringingOwnEquipment;
+    const bringingOwnEquipment =
+      typeof bringingOwnEquipmentRaw === "boolean"
+        ? bringingOwnEquipmentRaw
+        : bringingOwnEquipmentRaw === "Yes"
+          ? true
+          : bringingOwnEquipmentRaw === "No"
+            ? false
+            : null;
     const waiverOwnRisk = Boolean(body?.waiverOwnRisk);
     const waiverMediaConsent = Boolean(body?.waiverMediaConsent);
     const waiverTerms = Boolean(body?.waiverTerms);
@@ -46,6 +55,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "A valid partner phone number is required." }, { status: 400 });
     if (!GENDERS.has(partnerGender))
       return NextResponse.json({ success: false, message: "Please select your partner's gender." }, { status: 400 });
+    if (bringingOwnEquipment === null)
+      return NextResponse.json(
+        { success: false, message: "Please tell us if your doubles group will bring equipment." },
+        { status: 400 }
+      );
     if (!waiverOwnRisk || !waiverMediaConsent || !waiverTerms)
       return NextResponse.json({ success: false, message: "Please accept all waivers to continue." }, { status: 400 });
 
@@ -102,6 +116,7 @@ export async function POST(req: NextRequest) {
       totalPeople: EVENT.playersPerCheckout,
       bothFemale,
       femaleDiscountApplied: bothFemale,
+      bringingOwnEquipment,
       waiverOwnRisk,
       waiverMediaConsent,
       waiverTerms,

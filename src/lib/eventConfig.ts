@@ -12,7 +12,7 @@ export const EVENT = {
   detailsFinal: true,
   date: "Sat, 22nd August",
   dateShort: "Sat · 22 Aug",
-  timeWindow: "7:00 PM – 9:00 PM",
+  timeWindow: "7:00 PM to 9:00 PM",
   reportingNote: "Please report by 6:40 PM for smooth check-in.",
   venueName: "Rackonnect Badminton Arena",
   venueAddress:
@@ -42,7 +42,7 @@ export const EVENT = {
     "FREE Ofside PRO Membership worth ₹399/year",
     "10% direct off for female doubles",
     "10% off at REPPP cafeteria",
-    "Badminton racquets provided by Ofside (community members)",
+    "Badminton racquets provided by Ofside only for playing (community members)",
     "Lucky draw goodies and freebies",
     "Engagement activities and much more",
     "Event Photography",
@@ -51,7 +51,7 @@ export const EVENT = {
   highlights: [
     {
       title: "FREE Ofside PRO (worth ₹399/year)",
-      body: "Included free for every community event member. Scores and match history in the app, no second payment.",
+      body: "Included free for every community event member. Scores and match history in the app.",
     },
     {
       title: "10% off for female doubles",
@@ -63,7 +63,7 @@ export const EVENT = {
     },
     {
       title: "Racquets provided",
-      body: "Badminton racquets from Ofside at the venue, exclusively for community members.",
+      body: "Badminton racquets from Ofside at the venue, only for playing, exclusively for community members.",
     },
     {
       title: "Lucky draw goodies & freebies",
@@ -93,7 +93,7 @@ export const EVENT = {
     },
     {
       q: "When and where is it?",
-      a: "Sat, 22nd August, 7:00 PM – 9:00 PM at Rackonnect Badminton Arena, Farm, No.-1, Ladha Sarai Village, Mehrauli, New Delhi, Delhi 110030.",
+      a: "Sat, 22nd August, 7:00 PM to 9:00 PM at Rackonnect Badminton Arena, Farm, No.-1, Ladha Sarai Village, Mehrauli, New Delhi, Delhi 110030.",
     },
     {
       q: "How does email verification work?",
@@ -109,7 +109,7 @@ export const EVENT = {
     },
     {
       q: "Do I need to bring a racquet?",
-      a: "Badminton racquets will be provided by Ofside at the venue exclusively for community members. You can still bring your own if you prefer.",
+      a: "Badminton racquets will be provided by Ofside at the venue only for playing, exclusively for community members. You can still bring your own if you prefer.",
     },
     {
       q: "What else is included?",
@@ -125,7 +125,7 @@ export const EVENT = {
     },
   ],
 
-  playerLevels: ["Beginner", "Intermediate", "Semi-PRO", "Advanced"] as const,
+  playerLevels: ["Beginner", "Intermediate", "Advanced", "PRO"] as const,
   genders: ["Male", "Female", "Other"] as const,
 
   whatsappCommunityUrl: "https://chat.whatsapp.com/",

@@ -1,7 +1,7 @@
 import mongoose, { Schema, models } from "mongoose";
 
 const GENDERS = ["Male", "Female", "Other"] as const;
-const LEVELS = ["Beginner", "Intermediate", "Semi-PRO", "Advanced"] as const;
+const LEVELS = ["Beginner", "Intermediate", "Advanced", "PRO"] as const;
 
 const REGISTRATION_STATUSES = ["pending", "verified", "paid"] as const;
 export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
@@ -30,6 +30,7 @@ const eventRegistrationSchema = new Schema(
     totalPeople: { type: Number, required: true, min: 2, max: 2, default: 2 },
     bothFemale: { type: Boolean, default: false },
     femaleDiscountApplied: { type: Boolean, default: false },
+    bringingOwnEquipment: { type: Boolean, default: null },
 
     // Waivers
     waiverOwnRisk: { type: Boolean, default: false },
