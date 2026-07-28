@@ -4,40 +4,65 @@ import Image from "next/image";
 import { useLayoutEffect, useRef, useState } from "react";
 import { EVENT } from "@/lib/eventConfig";
 
+const LOGO_HEIGHT = 40;
+const MIN_TAG_PX = 11;
+const MAX_TAG_PX = 18;
+
 export default function SessionsBrand() {
+  const logoWrapRef = useRef<HTMLDivElement>(null);
   const tagRef = useRef<HTMLParagraphElement>(null);
-  const [logoWidth, setLogoWidth] = useState<number | null>(null);
+  const [tagSize, setTagSize] = useState(13);
 
   useLayoutEffect(() => {
-    const el = tagRef.current;
-    if (!el) return;
+    const logoEl = logoWrapRef.current;
+    const tagEl = tagRef.current;
+    if (!logoEl || !tagEl) return;
 
-    const sync = () => setLogoWidth(Math.ceil(el.getBoundingClientRect().width));
-    sync();
+    const fit = () => {
+      const target = logoEl.getBoundingClientRect().width;
+      if (target < 8) return;
 
-    const ro = new ResizeObserver(sync);
-    ro.observe(el);
+      let lo = MIN_TAG_PX;
+      let hi = MAX_TAG_PX;
+      let best = MIN_TAG_PX;
+
+      for (let i = 0; i < 14; i++) {
+        const mid = (lo + hi) / 2;
+        tagEl.style.fontSize = `${mid}px`;
+        const w = tagEl.getBoundingClientRect().width;
+        if (w <= target) {
+          best = mid;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+
+      setTagSize(Math.round(best * 10) / 10);
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(logoEl);
     return () => ro.disconnect();
   }, []);
 
   return (
-    <div className="flex flex-col items-start gap-1.5">
-      <Image
-        src={EVENT.logoSrc}
-        alt={EVENT.seriesName}
-        width={180}
-        height={32}
-        priority
-        className="block object-contain object-left"
-        style={
-          logoWidth
-            ? { width: logoWidth, height: "auto" }
-            : { height: 26, width: "auto" }
-        }
-      />
+    <div className="flex flex-col items-start gap-2">
+      <div ref={logoWrapRef} className="leading-none">
+        <Image
+          src={EVENT.logoSrc}
+          alt={EVENT.seriesName}
+          width={240}
+          height={LOGO_HEIGHT}
+          priority
+          className="block h-9 w-auto object-contain object-left sm:h-10"
+        />
+      </div>
       <p
         ref={tagRef}
-        className="whitespace-nowrap text-[11px] font-medium leading-none text-white/70 sm:text-[12px]"
+        className="whitespace-nowrap font-medium leading-none text-white/70"
+        style={{ fontSize: tagSize }}
       >
         {EVENT.tagline}
       </p>
