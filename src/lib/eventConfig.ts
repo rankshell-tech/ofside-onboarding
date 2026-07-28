@@ -1,70 +1,94 @@
 // Single source of truth for the event landing page + registration APIs.
-// Details are placeholders — swap in the real event copy once finalised.
 
 export const EVENT = {
   slug: "ofside-open-2026",
-  name: "Ofside Community Open 2026",
-  tagline: "Play. Compete. Belong.",
-  edition: "Season 1",
-  // Ofside's role in the event.
-  partnerRole: "Official Scoring Partner",
+  name: "Delhi NCR Community Badminton Games",
+  seriesName: "SESSIONS",
+  tagline: "Meet. Play. Connect. Repeat.",
+  edition: "Community Series",
   shortDescription:
-    "A weekend-long multi-sport community showdown — live-scored end to end by Ofside. Bring your crew, climb the leaderboard, and become part of the city's fastest-growing sports community.",
-  date: "Saturday, 14 March 2026",
-  dateShort: "14 Mar 2026",
-  timeWindow: "8:00 AM – 8:00 PM",
-  venueName: "DLF Sports Arena",
-  venueAddress: "Sector 54, Golf Course Road, Gurugram, Haryana 122002",
-  city: "Gurugram",
-  mapsQuery: "DLF Sports Arena, Sector 54, Gurugram",
+    "Community games where players of all skill levels come together for guaranteed matches, great people, and an unforgettable sporting experience.",
+  logoSrc: "/assets/sessions-logo.png",
+  // Tentative — date / time / venue are not final yet.
+  detailsFinal: false,
+  date: "Saturday (date TBA)",
+  dateShort: "Sat · TBA",
+  timeWindow: "6:00 PM – 8:00 PM",
+  reportingNote: "Please report 20 minutes before start for smooth check-in.",
+  venueName: "REPPP, Delhi",
+  venueAddress: "REPPP, Delhi NCR (exact pin shared after confirmation)",
+  city: "Delhi NCR",
+  mapsQuery: "REPPP Delhi",
+  calendarStartIso: "2026-08-01T18:00:00+05:30",
+  calendarEndIso: "2026-08-01T20:00:00+05:30",
 
-  sports: ["Football 5s", "Badminton", "Box Cricket", "Pickleball", "Table Tennis"],
+  sport: "Badminton Doubles",
 
-  // Pricing — INR per person.
-  pricePerPersonInr: 499,
+  // Pricing — base INR per player (pre-tax). Checkout is for 2 players.
+  pricePerPersonInr: 249,
+  displayPriceInr: 250,
+  gstMultiplier: 1.18,
+  femalePairDiscount: 0.1,
   currency: "INR",
-  maxGroupSize: 4,
+  playersPerCheckout: 2,
+  maxRegistrations: 24,
+  maxPlayers: 48,
+
+  whatsIncluded: [
+    "Guaranteed 2 Doubles Matches",
+    "FREE Ofside PRO Membership",
+    "Community Networking",
+    "Event Photography & Reels",
+    "Community Giveaways",
+  ],
 
   highlights: [
     {
-      title: "Live scoring by Ofside",
-      body: "Every match tracked ball-by-ball in the Ofside app, with real-time leaderboards on the big screen.",
+      title: "Guaranteed 2 doubles matches",
+      body: "You and your partner get at least two games. No paying just to sit on the bench.",
     },
     {
-      title: "5 sports, one arena",
-      body: "Football 5s, badminton, box cricket, pickleball and table tennis running all day across pro-grade courts.",
+      title: "FREE Ofside PRO",
+      body: "Ticket includes PRO — scores and match history in the app, no second payment.",
     },
     {
-      title: "Prizes worth ₹1,00,000",
-      body: "Winner trophies, sponsor hampers, and Ofside Pro memberships for the podium in every sport.",
+      title: "Photos, reels & giveaways",
+      body: "On-court content plus community giveaways. Show up early; drops go fast.",
     },
     {
-      title: "Community, not just competition",
-      body: "Meet players near you, form teams, and keep the rivalry going long after the final whistle.",
+      title: "10% off for women's pairs",
+      body: "Both players female → automatic 10% off. Gender checked at the venue.",
     },
   ],
 
   schedule: [
-    { time: "8:00 AM", label: "Check-in & warm-up" },
-    { time: "9:00 AM", label: "Group stages begin (all sports)" },
-    { time: "1:00 PM", label: "Lunch & community mixer" },
-    { time: "2:30 PM", label: "Knockouts & semi-finals" },
-    { time: "6:00 PM", label: "Finals under the lights" },
-    { time: "7:30 PM", label: "Prize ceremony" },
+    { time: "T–20 min", label: "Reporting & check-in" },
+    { time: "6:00 PM", label: "Warm-up & pairings" },
+    { time: "6:15 PM", label: "Match block 1" },
+    { time: "7:00 PM", label: "Match block 2" },
+    { time: "7:45 PM", label: "Wrap, photos & giveaways" },
   ],
 
   faqs: [
     {
       q: "Who can register?",
-      a: "Anyone 16+ can join. You can register solo or as a group of up to 4 people in a single entry.",
+      a: "Anyone in Delhi NCR looking for a community doubles session. Each checkout covers 2 players (you + your partner).",
     },
     {
-      q: "What does the fee include?",
-      a: "Your ₹499 per person covers arena access, match entry across sports, an event kit, and refreshments.",
+      q: "Is the date / venue final?",
+      a: "Not yet — time, date and venue are tentative. Confirmed details go out on email and WhatsApp once locked.",
     },
     {
-      q: "How is scoring handled?",
-      a: "Ofside is the official scoring partner — all matches are scored live in the Ofside app, and your stats stay on your profile.",
+      q: "How does email verification work?",
+      a: "We send a 6-digit code to your email before payment. Mobile is collected for coordination; verification is on email.",
+    },
+    {
+      q: "What's the women's pair discount?",
+      a: "If both registered players are female, 10% off applies automatically. Misreporting gender to get the discount isn't worth it — details are verified at the venue.",
+    },
+    {
+      q: "When should I arrive?",
+      a: "Report 20 minutes before the session start for smooth check-in and fewer pairing errors.",
     },
     {
       q: "Can I get a refund?",
@@ -72,11 +96,38 @@ export const EVENT = {
     },
   ],
 
+  playerLevels: ["Beginner", "Intermediate", "Semi-PRO", "Advanced"] as const,
+  genders: ["Male", "Female", "Other"] as const,
+
+  whatsappCommunityUrl: "https://chat.whatsapp.com/",
   organiserNote:
-    "Ofside is the official scoring partner for this event. Registrations, payments and live scores are powered by Ofside.",
+    "Registrations, payments and live scores are powered by Ofside. Spots are capped — once full, the page shows sold out.",
 } as const;
 
-export function priceForPeople(count: number): number {
-  const n = Math.max(1, Math.min(EVENT.maxGroupSize, Math.floor(count || 1)));
-  return n * EVENT.pricePerPersonInr;
+export type EventGender = (typeof EVENT.genders)[number];
+export type EventPlayerLevel = (typeof EVENT.playerLevels)[number];
+
+/** Pre-tax base for a doubles checkout (2 players). */
+export function baseAmountInr(): number {
+  return EVENT.pricePerPersonInr * EVENT.playersPerCheckout;
+}
+
+/** Final payable amount (incl. GST). Female-pair discount is 10% on pre-tax base. */
+export function priceForCheckout(bothFemale: boolean): number {
+  const base = baseAmountInr();
+  const afterDiscount = bothFemale ? base * (1 - EVENT.femalePairDiscount) : base;
+  // Keep 2 decimal places for display; Razorpay uses paise via Math.round(amount * 100).
+  return Math.round(afterDiscount * EVENT.gstMultiplier * 100) / 100;
+}
+
+/** @deprecated Use priceForCheckout — kept for any leftover call sites. */
+export function priceForPeople(_count: number, bothFemale = false): number {
+  return priceForCheckout(bothFemale);
+}
+
+export function formatInr(amount: number): string {
+  return amount.toLocaleString("en-IN", {
+    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
 }

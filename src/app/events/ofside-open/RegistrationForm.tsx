@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { EVENT, priceForPeople } from "@/lib/eventConfig";
+import {
+  EVENT,
+  formatInr,
+  priceForCheckout,
+  type EventGender,
+  type EventPlayerLevel,
+} from "@/lib/eventConfig";
 
-type Step = "details" | "otp" | "pay" | "done";
-type Participant = { name: string; email: string };
+type Step = "you" | "partner" | "waiver" | "otp" | "pay" | "done";
 
 type RazorpayResponse = {
   razorpay_order_id: string;
@@ -42,50 +47,128 @@ function loadRazorpayScript(): Promise<boolean> {
   });
 }
 
-const inputCls =
-  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[15px] text-gray-900 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-yellow-300 placeholder:text-gray-400";
+const STEPS: Step[] = ["you", "partner", "waiver", "otp", "pay"];
+const STEP_LABELS: Record<Exclude<Step, "done">, string> = {
+  you: "You",
+  partner: "Partner",
+  waiver: "Consent",
+  otp: "Verify",
+  pay: "Pay",
+};
 
-export default function RegistrationForm() {
-  const [step, setStep] = useState<Step>("details");
+const fieldCls =
+  "dark-autofill w-full rounded-2xl border border-white/10 bg-[#12141a] px-4 py-3.5 text-[15px] text-white outline-none transition placeholder:text-white/35 focus:border-yellow-400/60 focus:ring-2 focus:ring-yellow-400/25";
+
+function ChipGroup<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  options: readonly T[];
+  value: T | "";
+  onChange: (v: T) => void;
+  label: string;
+}) {
+  return (
+    <div>
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const on = value === opt;
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => onChange(opt)}
+              className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+                on
+                  ? "bg-yellow-400 text-gray-950 shadow-[0_8px_24px_-8px_rgba(255,242,1,0.7)]"
+                  : "border border-white/15 bg-white/5 text-white/75 hover:border-white/35 hover:bg-white/10"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function buildCalendarUrl() {
+  const text = encodeURIComponent(EVENT.name);
+  const details = encodeURIComponent(
+    `${EVENT.shortDescription}\nVenue: ${EVENT.venueName}\n${EVENT.reportingNote}`
+  );
+  const location = encodeURIComponent(EVENT.venueAddress);
+  const start = EVENT.calendarStartIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = EVENT.calendarEndIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}&location=${location}`;
+}
+
+export default function RegistrationForm({ soldOut = false }: { soldOut?: boolean }) {
+  const [step, setStep] = useState<Step>("you");
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
-  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [leadGender, setLeadGender] = useState<EventGender | "">("");
+  const [leadLevel, setLeadLevel] = useState<EventPlayerLevel | "">("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [partnerName, setPartnerName] = useState("");
+  const [partnerPhone, setPartnerPhone] = useState("");
+  const [partnerGender, setPartnerGender] = useState<EventGender | "">("");
+  const [waiverOwnRisk, setWaiverOwnRisk] = useState(false);
+  const [waiverMediaConsent, setWaiverMediaConsent] = useState(false);
+  const [waiverTerms, setWaiverTerms] = useState(false);
   const [otp, setOtp] = useState("");
   const [registrationId, setRegistrationId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const totalPeople = 1 + participants.length;
-  const amountInr = useMemo(() => priceForPeople(totalPeople), [totalPeople]);
-  const canAddMore = totalPeople < EVENT.maxGroupSize;
+  const bothFemale = leadGender === "Female" && partnerGender === "Female";
+  const amountInr = useMemo(() => priceForCheckout(bothFemale), [bothFemale]);
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
 
-  const addParticipant = () => {
-    if (canAddMore) setParticipants((p) => [...p, { name: "", email: "" }]);
-  };
-  const removeParticipant = (i: number) =>
-    setParticipants((p) => p.filter((_, idx) => idx !== i));
-  const updateParticipant = (i: number, key: keyof Participant, val: string) =>
-    setParticipants((p) => p.map((x, idx) => (idx === i ? { ...x, [key]: val } : x)));
+  const payload = useCallback(
+    () => ({
+      leadName,
+      leadEmail,
+      leadPhone,
+      leadGender,
+      leadLevel,
+      emergencyContact: emergencyContact || undefined,
+      partnerName,
+      partnerPhone,
+      partnerGender,
+      waiverOwnRisk,
+      waiverMediaConsent,
+      waiverTerms,
+    }),
+    [
+      leadName,
+      leadEmail,
+      leadPhone,
+      leadGender,
+      leadLevel,
+      emergencyContact,
+      partnerName,
+      partnerPhone,
+      partnerGender,
+      waiverOwnRisk,
+      waiverMediaConsent,
+      waiverTerms,
+    ]
+  );
 
   const submitDetails = useCallback(async () => {
     setError("");
-    if (!leadName.trim()) return setError("Please enter your name.");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadEmail.trim())) return setError("Please enter a valid email.");
-    if (!/^\+?[0-9]{7,15}$/.test(leadPhone.trim())) return setError("Please enter a valid phone number.");
-    for (const p of participants) if (!p.name.trim()) return setError("Please fill in every participant's name.");
-
     setLoading(true);
     try {
       const res = await fetch("/api/event/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          leadName,
-          leadEmail,
-          leadPhone,
-          participants: participants.map((p) => ({ name: p.name, email: p.email || undefined })),
-        }),
+        body: JSON.stringify(payload()),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Something went wrong.");
@@ -96,7 +179,7 @@ export default function RegistrationForm() {
     } finally {
       setLoading(false);
     }
-  }, [leadName, leadEmail, leadPhone, participants]);
+  }, [payload]);
 
   const verifyOtp = useCallback(async () => {
     setError("");
@@ -125,12 +208,7 @@ export default function RegistrationForm() {
       const res = await fetch("/api/event/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          leadName,
-          leadEmail,
-          leadPhone,
-          participants: participants.map((p) => ({ name: p.name, email: p.email || undefined })),
-        }),
+        body: JSON.stringify(payload()),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Could not resend code.");
@@ -140,7 +218,7 @@ export default function RegistrationForm() {
     } finally {
       setLoading(false);
     }
-  }, [leadName, leadEmail, leadPhone, participants]);
+  }, [payload]);
 
   const pay = useCallback(async () => {
     setError("");
@@ -162,7 +240,7 @@ export default function RegistrationForm() {
         amount: order.amount,
         currency: order.currency,
         name: order.eventName,
-        description: `Entry for ${totalPeople} ${totalPeople > 1 ? "people" : "person"}`,
+        description: "Doubles entry + FREE Ofside PRO",
         order_id: order.orderId,
         prefill: order.prefill,
         theme: { color: "#0a0a0a" },
@@ -190,106 +268,196 @@ export default function RegistrationForm() {
       setError(e instanceof Error ? e.message : "Could not start payment.");
       setLoading(false);
     }
-  }, [registrationId, totalPeople]);
+  }, [registrationId]);
+
+  if (soldOut) {
+    return (
+      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0d0f14] p-8 text-center text-white shadow-[0_40px_100px_-40px_rgba(0,0,0,0.9)]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15 text-2xl ring-1 ring-red-400/30">
+          ✕
+        </div>
+        <h3 className="mt-5 text-2xl font-extrabold tracking-tight">We&apos;re sold out</h3>
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-white/60">
+          All {EVENT.maxRegistrations} doubles spots are taken for this session. Follow Ofside for the next drop.
+        </p>
+      </div>
+    );
+  }
+
+  const stepIndex = STEPS.indexOf(step === "done" ? "pay" : step);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl bg-white p-5 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.6)] ring-1 ring-black/5 sm:p-7">
-      {/* Top accent bar */}
-      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500" />
+    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0d0f14] p-5 text-white shadow-[0_40px_100px_-40px_rgba(0,0,0,0.9)] sm:p-7">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-yellow-400/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-fuchsia-500/10 blur-3xl" />
 
-      {/* Header + price */}
-      <div className="mb-4 flex items-start justify-between gap-3">
+      <div className="relative mb-5 flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-600">Register now</p>
-          <h3 className="mt-1 text-xl font-bold text-gray-950">Reserve your spot</h3>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-300/90">Lock your court</p>
+          <h3 className="mt-1 text-xl font-extrabold tracking-tight sm:text-2xl">Doubles registration</h3>
+          <p className="mt-1 text-sm text-white/50">2 players · email verify · pay once</p>
         </div>
-        <div className="rounded-2xl bg-gradient-to-br from-yellow-300 to-amber-400 px-4 py-2 text-right shadow-[0_8px_22px_-6px_rgba(255,190,0,0.75)]">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-900/70">Total</p>
-          <p className="text-lg font-extrabold text-gray-950">
-            ₹{amountInr.toLocaleString("en-IN")}
-          </p>
+        <div className="rounded-2xl bg-yellow-400 px-3.5 py-2 text-right text-gray-950 shadow-[0_10px_28px_-8px_rgba(255,242,1,0.65)]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] opacity-70">Total</p>
+          <p className="text-lg font-extrabold leading-none">₹{formatInr(amountInr)}</p>
         </div>
       </div>
 
-      {/* Urgency */}
-      <div className="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
-        <span className="text-sm">⚡</span> Limited spots at ₹{EVENT.pricePerPersonInr} — lock yours in now.
-      </div>
-
-      {/* Stepper */}
-      <div className="mb-5 flex items-center gap-1.5">
-        {(["details", "otp", "pay"] as Step[]).map((s, i) => {
-          const order: Step[] = ["details", "otp", "pay", "done"];
-          const active = order.indexOf(step) >= i;
-          return (
-            <div
-              key={s}
-              className={`h-1.5 flex-1 rounded-full transition ${active ? "bg-yellow-400" : "bg-gray-200"}`}
-            />
-          );
-        })}
-      </div>
+      {step !== "done" ? (
+        <div className="relative mb-6 flex gap-1.5">
+          {STEPS.map((s, i) => (
+            <div key={s} className="flex-1">
+              <div className={`h-1.5 rounded-full ${i <= stepIndex ? "bg-yellow-400" : "bg-white/10"}`} />
+              <p className={`mt-1.5 text-[10px] font-semibold uppercase tracking-wide ${i <= stepIndex ? "text-yellow-200" : "text-white/30"}`}>
+                {STEP_LABELS[s as Exclude<Step, "done">]}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {error ? (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+        <div className="relative mb-4 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       ) : null}
 
-      {step === "details" && (
-        <div className="space-y-3">
-          <input className={inputCls} placeholder="Your full name" value={leadName} onChange={(e) => setLeadName(e.target.value)} />
-          <input className={inputCls} type="email" inputMode="email" placeholder="Email address" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} />
-          <input className={inputCls} type="tel" inputMode="tel" placeholder="Phone number" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} />
-
-          {participants.length > 0 && (
-            <div className="space-y-3 rounded-2xl bg-gray-50 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Additional people</p>
-              {participants.map((p, i) => (
-                <div key={i} className="space-y-2 rounded-xl border border-gray-200 bg-white p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-gray-600">Person {i + 2}</span>
-                    <button type="button" onClick={() => removeParticipant(i)} className="text-xs font-semibold text-red-600 hover:underline">
-                      Remove
-                    </button>
-                  </div>
-                  <input className={inputCls} placeholder="Full name" value={p.name} onChange={(e) => updateParticipant(i, "name", e.target.value)} />
-                  <input className={inputCls} type="email" placeholder="Email (optional)" value={p.email} onChange={(e) => updateParticipant(i, "email", e.target.value)} />
-                </div>
-              ))}
-            </div>
-          )}
-
+      {step === "you" && (
+        <div className="relative space-y-4">
+          <input className={fieldCls} placeholder="Full name *" value={leadName} onChange={(e) => setLeadName(e.target.value)} autoComplete="name" />
+          <input className={fieldCls} type="tel" inputMode="tel" placeholder="Mobile number *" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} autoComplete="tel" />
+          <input className={fieldCls} type="email" inputMode="email" placeholder="Email address *" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} autoComplete="email" />
+          <p className="-mt-2 text-[11px] text-white/40">Verification happens on email — we&apos;ll send a 6-digit code.</p>
+          <ChipGroup options={EVENT.genders} value={leadGender} onChange={setLeadGender} label="Gender *" />
+          <ChipGroup options={EVENT.playerLevels} value={leadLevel} onChange={setLeadLevel} label="Player level *" />
+          <input
+            className={fieldCls}
+            type="tel"
+            inputMode="tel"
+            placeholder="Emergency contact (optional)"
+            value={emergencyContact}
+            onChange={(e) => setEmergencyContact(e.target.value)}
+          />
           <button
             type="button"
-            onClick={addParticipant}
-            disabled={!canAddMore}
-            className="w-full rounded-xl border border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-700 transition hover:border-gray-900 hover:text-gray-950 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => {
+              setError("");
+              if (!leadName.trim()) return setError("Please enter your full name.");
+              if (!/^\+?[0-9]{7,15}$/.test(leadPhone.trim())) return setError("Please enter a valid mobile number.");
+              if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadEmail.trim())) return setError("Please enter a valid email.");
+              if (!leadGender) return setError("Please select your gender.");
+              if (!leadLevel) return setError("Please select your player level.");
+              setStep("partner");
+            }}
+            className="w-full rounded-full bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300"
           >
-            {canAddMore ? `+ Add another person (up to ${EVENT.maxGroupSize})` : `Maximum ${EVENT.maxGroupSize} people per entry`}
+            Next · Partner details
           </button>
+        </div>
+      )}
 
-          <button
-            type="button"
-            onClick={submitDetails}
-            disabled={loading}
-            className="mt-1 w-full rounded-xl bg-gray-950 py-3.5 text-[15px] font-bold text-white shadow-[0_14px_32px_-12px_rgba(0,0,0,0.8)] transition hover:-translate-y-0.5 hover:bg-gray-800 disabled:translate-y-0 disabled:opacity-60"
-          >
-            {loading ? "Sending code…" : `Continue · ₹${amountInr.toLocaleString("en-IN")}`}
-          </button>
-          <p className="text-center text-[11px] text-gray-500">
-            We&apos;ll email a 6-digit code to verify {leadEmail || "your email"}.
-          </p>
+      {step === "partner" && (
+        <div className="relative space-y-4">
+          <div className="rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-100">
+            Bring your doubles partner. <span className="font-bold">10% off</span> if you&apos;re both female —
+            gender is checked at the venue, so don&apos;t game it.
+          </div>
+          <input className={fieldCls} placeholder="Partner full name *" value={partnerName} onChange={(e) => setPartnerName(e.target.value)} />
+          <input className={fieldCls} type="tel" inputMode="tel" placeholder="Partner mobile *" value={partnerPhone} onChange={(e) => setPartnerPhone(e.target.value)} />
+          <ChipGroup options={EVENT.genders} value={partnerGender} onChange={setPartnerGender} label="Partner gender *" />
+          {bothFemale ? (
+            <p className="rounded-xl bg-emerald-500/15 px-3 py-2 text-sm font-semibold text-emerald-300 ring-1 ring-inset ring-emerald-400/25">
+              Women&apos;s pair discount applied · ₹{formatInr(amountInr)} total
+            </p>
+          ) : null}
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setStep("you")} className="rounded-full border border-white/20 px-5 py-3.5 text-sm font-bold text-white/80 hover:bg-white/5">
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                if (!partnerName.trim()) return setError("Please enter your partner's name.");
+                if (!/^\+?[0-9]{7,15}$/.test(partnerPhone.trim())) return setError("Please enter a valid partner mobile.");
+                if (!partnerGender) return setError("Please select your partner's gender.");
+                setStep("waiver");
+              }}
+              className="flex-1 rounded-full bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300"
+            >
+              Next · Consent
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "waiver" && (
+        <div className="relative space-y-3">
+          {(
+            [
+              {
+                id: "risk",
+                checked: waiverOwnRisk,
+                set: setWaiverOwnRisk,
+                label: "I understand this is a community sports event and I participate at my own risk.",
+              },
+              {
+                id: "media",
+                checked: waiverMediaConsent,
+                set: setWaiverMediaConsent,
+                label: "I allow Ofside to use photos/videos from the event for promotional purposes.",
+              },
+              {
+                id: "terms",
+                checked: waiverTerms,
+                set: setWaiverTerms,
+                label: "I agree to the Terms & Conditions.",
+              },
+            ] as const
+          ).map((w) => (
+            <label
+              key={w.id}
+              className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition ${
+                w.checked ? "border-yellow-400/40 bg-yellow-400/10" : "border-white/10 bg-white/[0.03] hover:border-white/25"
+              }`}
+            >
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 accent-yellow-400"
+                checked={w.checked}
+                onChange={(e) => w.set(e.target.checked)}
+              />
+              <span className="text-sm leading-relaxed text-white/80">{w.label}</span>
+            </label>
+          ))}
+          <div className="flex gap-2 pt-1">
+            <button type="button" onClick={() => setStep("partner")} className="rounded-full border border-white/20 px-5 py-3.5 text-sm font-bold text-white/80 hover:bg-white/5">
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setError("");
+                if (!waiverOwnRisk || !waiverMediaConsent || !waiverTerms)
+                  return setError("Please accept all three to continue.");
+                void submitDetails();
+              }}
+              disabled={loading}
+              className="flex-1 rounded-full bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300 disabled:opacity-60"
+            >
+              {loading ? "Sending code…" : "Verify email"}
+            </button>
+          </div>
         </div>
       )}
 
       {step === "otp" && (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">
-            Enter the 6-digit code we sent to <span className="font-semibold text-gray-900">{leadEmail}</span>.
+        <div className="relative space-y-4">
+          <p className="text-sm text-white/65">
+            Drop the 6-digit code we emailed to <span className="font-semibold text-white">{leadEmail}</span>.
           </p>
           <input
-            className={`${inputCls} text-center text-2xl font-bold tracking-[0.5em]`}
+            className={`${fieldCls} text-center text-2xl font-bold tracking-[0.45em]`}
             inputMode="numeric"
             maxLength={6}
             placeholder="••••••"
@@ -300,15 +468,15 @@ export default function RegistrationForm() {
             type="button"
             onClick={verifyOtp}
             disabled={loading}
-            className="w-full rounded-xl bg-gray-950 py-3.5 text-[15px] font-bold text-white transition hover:bg-gray-800 disabled:opacity-60"
+            className="w-full rounded-full bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300 disabled:opacity-60"
           >
-            {loading ? "Verifying…" : "Verify email"}
+            {loading ? "Verifying…" : "Confirm & continue"}
           </button>
           <div className="flex items-center justify-between text-[12px]">
-            <button type="button" onClick={() => setStep("details")} className="font-semibold text-gray-600 hover:underline">
+            <button type="button" onClick={() => setStep("waiver")} className="font-semibold text-white/50 hover:text-white">
               ← Edit details
             </button>
-            <button type="button" onClick={resendOtp} disabled={loading} className="font-semibold text-gray-900 hover:underline disabled:opacity-50">
+            <button type="button" onClick={resendOtp} disabled={loading} className="font-semibold text-yellow-300 hover:underline disabled:opacity-50">
               Resend code
             </button>
           </div>
@@ -316,39 +484,76 @@ export default function RegistrationForm() {
       )}
 
       {step === "pay" && (
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
-              <span>✓</span> Email verified
-            </div>
-            <div className="mt-3 space-y-1 text-sm text-gray-700">
-              <div className="flex justify-between"><span>Entry</span><span>{totalPeople} × ₹{EVENT.pricePerPersonInr}</span></div>
-              <div className="flex justify-between border-t border-gray-200 pt-1 font-bold text-gray-950"><span>Total</span><span>₹{amountInr.toLocaleString("en-IN")}</span></div>
+        <div className="relative space-y-4">
+          <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-300">
+            ✓ Email verified
+          </div>
+
+          <div className="rounded-2xl border border-yellow-400/30 bg-gradient-to-br from-yellow-400/20 to-amber-500/10 p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-yellow-200">You also get</p>
+            <p className="mt-1 text-lg font-extrabold text-white">FREE Ofside PRO Membership</p>
+            <p className="mt-1 text-sm text-white/60">Bundled with every paid entry — no extra checkout.</p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">What&apos;s included</p>
+            <ul className="mt-3 space-y-2">
+              {EVENT.whatsIncluded.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-white/80">
+                  <span className="mt-0.5 text-yellow-300">✦</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex items-end justify-between border-t border-white/10 pt-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                  {bothFemale ? "Total (10% women's pair off)" : "Total due"}
+                </p>
+                <p className="text-xs text-white/35">Incl. taxes · no breakup needed</p>
+              </div>
+              <p className="text-3xl font-extrabold tabular-nums text-yellow-300">₹{formatInr(amountInr)}</p>
             </div>
           </div>
+
           <button
             type="button"
             onClick={pay}
             disabled={loading}
-            className="w-full rounded-xl bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300 disabled:opacity-60"
+            className="w-full rounded-full bg-yellow-400 py-3.5 text-[15px] font-extrabold text-gray-950 transition hover:bg-yellow-300 disabled:opacity-60"
           >
-            {loading ? "Opening payment…" : `Pay ₹${amountInr.toLocaleString("en-IN")} with Razorpay`}
+            {loading ? "Opening payment…" : `Pay ₹${formatInr(amountInr)}`}
           </button>
-          <p className="text-center text-[11px] text-gray-500">Secured by Razorpay. Your entry is confirmed once payment succeeds.</p>
+          <p className="text-center text-[11px] text-white/40">Secured by Razorpay. Spot locks when payment succeeds.</p>
         </div>
       )}
 
       {step === "done" && (
-        <div className="py-6 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400 text-3xl">🎉</div>
-          <h3 className="mt-4 text-xl font-bold text-gray-950">You&apos;re in!</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Your entry for <span className="font-semibold">{EVENT.name}</span> is confirmed for {totalPeople}{" "}
-            {totalPeople > 1 ? "people" : "person"}. A confirmation is on its way to {leadEmail}.
+        <div className="relative py-2 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400 text-3xl text-gray-950">✓</div>
+          <h3 className="mt-4 text-2xl font-extrabold">Registration confirmed!</h3>
+          <p className="mt-2 text-sm text-white/60">
+            You + {partnerName || "your partner"} are in. Confirmation hits {leadEmail}.
           </p>
-          <div className="mt-4 rounded-2xl bg-gray-950 px-4 py-3 text-left">
-            <p className="text-[11px] uppercase tracking-[0.14em] text-yellow-300">See you at</p>
-            <p className="text-sm font-semibold text-white">{EVENT.venueName} · {EVENT.dateShort}</p>
+          <p className="mt-2 text-xs text-yellow-200/80">{EVENT.reportingNote}</p>
+          <div className="mt-6 grid gap-2 sm:grid-cols-2">
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/20 py-3 text-sm font-bold hover:bg-white/5">
+              View venue
+            </a>
+            <a href={buildCalendarUrl()} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/20 py-3 text-sm font-bold hover:bg-white/5">
+              Add to calendar
+            </a>
+            <a href={EVENT.whatsappCommunityUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-[#25D366] py-3 text-sm font-bold text-gray-950 hover:brightness-110">
+              Join WhatsApp
+            </a>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`You're my doubles partner for ${EVENT.name} — we're locked in. See you there!`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-yellow-400 py-3 text-sm font-extrabold text-gray-950 hover:bg-yellow-300"
+            >
+              Invite your partner
+            </a>
           </div>
         </div>
       )}

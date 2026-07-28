@@ -1,12 +1,8 @@
 // src/lib/mongo.ts
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-const DB_NAME = process.env.DB_NAME as string;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI in .env.local');
-}
+const MONGODB_URI = process.env.MONGODB_URI as string | undefined;
+const DB_NAME = process.env.DB_NAME as string | undefined;
 
 type MongooseGlobal = typeof globalThis & { mongoose?: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } };
 
@@ -15,14 +11,17 @@ const cached =
   { conn: null, promise: null };
 
 export async function connectToDB() {
+  if (!MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI in .env.local");
+  }
   if (cached.conn) return cached.conn;
 
-if (!cached.promise) {
+  if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI, {
-        dbName: DB_NAME,
-        bufferCommands: false,
+      dbName: DB_NAME,
+      bufferCommands: false,
     });
-}
+  }
 
   cached.conn = await cached.promise;
   return cached.conn;

@@ -1,13 +1,7 @@
 import mongoose, { Schema, models } from "mongoose";
 
-// A participant other than the lead. Only the lead's email is verified.
-const participantSchema = new Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, trim: true, lowercase: true, default: null },
-  },
-  { _id: false }
-);
+const GENDERS = ["Male", "Female", "Other"] as const;
+const LEVELS = ["Beginner", "Intermediate", "Semi-PRO", "Advanced"] as const;
 
 const REGISTRATION_STATUSES = ["pending", "verified", "paid"] as const;
 export type RegistrationStatus = (typeof REGISTRATION_STATUSES)[number];
@@ -19,15 +13,27 @@ const eventRegistrationSchema = new Schema(
   {
     eventSlug: { type: String, required: true, index: true },
 
-    // Lead registrant (the person whose email is OTP-verified).
+    // Lead registrant (email OTP-verified).
     leadName: { type: String, required: true, trim: true },
     leadEmail: { type: String, required: true, trim: true, lowercase: true, index: true },
     leadPhone: { type: String, required: true, trim: true },
+    leadGender: { type: String, enum: GENDERS, required: true },
+    leadLevel: { type: String, enum: LEVELS, required: true },
+    emergencyContact: { type: String, trim: true, default: null },
 
-    // Additional people in the same entry (lead is counted separately).
-    participants: { type: [participantSchema], default: [] },
-    // Total headcount = lead + participants; capped at the event max group size.
-    totalPeople: { type: Number, required: true, min: 1, max: 4 },
+    // Doubles partner (always 2 players per checkout).
+    partnerName: { type: String, required: true, trim: true },
+    partnerPhone: { type: String, required: true, trim: true },
+    partnerGender: { type: String, enum: GENDERS, required: true },
+
+    totalPeople: { type: Number, required: true, min: 2, max: 2, default: 2 },
+    bothFemale: { type: Boolean, default: false },
+    femaleDiscountApplied: { type: Boolean, default: false },
+
+    // Waivers
+    waiverOwnRisk: { type: Boolean, default: false },
+    waiverMediaConsent: { type: Boolean, default: false },
+    waiverTerms: { type: Boolean, default: false },
 
     // Email OTP verification.
     otpHash: { type: String, default: null },
@@ -51,7 +57,6 @@ const eventRegistrationSchema = new Schema(
   { timestamps: true }
 );
 
-// One in-progress/confirmed entry per email per event (re-registering reuses it).
 eventRegistrationSchema.index({ eventSlug: 1, leadEmail: 1 }, { unique: true });
 
 export default models.EventRegistration ||

@@ -64,8 +64,41 @@ a {
 .animate-marquee {
   animation: ofside-marquee 32s linear infinite;
 }
+.animate-marquee-fast {
+  animation: ofside-marquee 18s linear infinite;
+}
+@keyframes ofside-marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.animate-marquee-reverse {
+  animation: ofside-marquee-reverse 26s linear infinite;
+}
+@keyframes ofside-spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: ofside-spin-slow 14s linear infinite;
+}
+
+/* Keep dark-themed inputs dark when the browser autofills/prefills them
+   (Chrome forces a light background on :-webkit-autofill otherwise). */
+.dark-autofill:-webkit-autofill,
+.dark-autofill:-webkit-autofill:hover,
+.dark-autofill:-webkit-autofill:focus,
+.dark-autofill:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #12141a inset !important;
+  box-shadow: 0 0 0 1000px #12141a inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  border-radius: 1rem;
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee { animation: none; }
+  .animate-marquee,
+  .animate-marquee-fast,
+  .animate-marquee-reverse { animation: none; }
+  .animate-spin-slow { animation: none; }
 }
 
 /* Event hero — ambient motion */

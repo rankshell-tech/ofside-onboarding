@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
-import { EVENT, priceForPeople } from "@/lib/eventConfig";
+import { EVENT, priceForCheckout, type EventGender, type EventPlayerLevel } from "@/lib/eventConfig";
 import { generateOtp, hashOtp, OTP_TTL_MS, OTP_RESEND_COOLDOWN_MS } from "@/lib/otp";
 import { sendOtpEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type IncomingParticipant = { name?: unknown; email?: unknown };
+const PHONE_RE = /^\+?[0-9]{7,15}$/;
+const GENDERS = new Set<string>(EVENT.genders);
+const LEVELS = new Set<string>(EVENT.playerLevels);
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,47 +16,56 @@ export async function POST(req: NextRequest) {
     const leadName = String(body?.leadName || "").trim();
     const leadEmail = String(body?.leadEmail || "").trim().toLowerCase();
     const leadPhone = String(body?.leadPhone || "").trim();
-    const rawParticipants: IncomingParticipant[] = Array.isArray(body?.participants)
-      ? body.participants
-      : [];
+    const leadGender = String(body?.leadGender || "").trim() as EventGender;
+    const leadLevel = String(body?.leadLevel || "").trim() as EventPlayerLevel;
+    const emergencyContact = body?.emergencyContact ? String(body.emergencyContact).trim() : null;
+    const partnerName = String(body?.partnerName || "").trim();
+    const partnerPhone = String(body?.partnerPhone || "").trim();
+    const partnerGender = String(body?.partnerGender || "").trim() as EventGender;
+    const waiverOwnRisk = Boolean(body?.waiverOwnRisk);
+    const waiverMediaConsent = Boolean(body?.waiverMediaConsent);
+    const waiverTerms = Boolean(body?.waiverTerms);
 
-    // Validate lead.
     if (!leadName) return NextResponse.json({ success: false, message: "Your name is required." }, { status: 400 });
     if (!EMAIL_RE.test(leadEmail))
       return NextResponse.json({ success: false, message: "A valid email is required." }, { status: 400 });
-    if (!/^\+?[0-9]{7,15}$/.test(leadPhone))
+    if (!PHONE_RE.test(leadPhone))
       return NextResponse.json({ success: false, message: "A valid phone number is required." }, { status: 400 });
-
-    // Validate additional participants.
-    const participants = rawParticipants
-      .map((p) => ({
-        name: String(p?.name || "").trim(),
-        email: p?.email ? String(p.email).trim().toLowerCase() : null,
-      }))
-      .filter((p) => p.name.length > 0);
-
-    for (const p of participants) {
-      if (p.email && !EMAIL_RE.test(p.email))
-        return NextResponse.json({ success: false, message: `Invalid email for ${p.name}.` }, { status: 400 });
-    }
-
-    const totalPeople = 1 + participants.length;
-    if (totalPeople > EVENT.maxGroupSize)
-      return NextResponse.json(
-        { success: false, message: `A single entry can include up to ${EVENT.maxGroupSize} people.` },
-        { status: 400 }
-      );
+    if (!GENDERS.has(leadGender))
+      return NextResponse.json({ success: false, message: "Please select your gender." }, { status: 400 });
+    if (!LEVELS.has(leadLevel))
+      return NextResponse.json({ success: false, message: "Please select your player level." }, { status: 400 });
+    if (!partnerName)
+      return NextResponse.json({ success: false, message: "Partner name is required." }, { status: 400 });
+    if (!PHONE_RE.test(partnerPhone))
+      return NextResponse.json({ success: false, message: "A valid partner phone number is required." }, { status: 400 });
+    if (!GENDERS.has(partnerGender))
+      return NextResponse.json({ success: false, message: "Please select your partner's gender." }, { status: 400 });
+    if (!waiverOwnRisk || !waiverMediaConsent || !waiverTerms)
+      return NextResponse.json({ success: false, message: "Please accept all waivers to continue." }, { status: 400 });
 
     await connectToDB();
 
+    const paidCount = await EventRegistration.countDocuments({
+      eventSlug: EVENT.slug,
+      paymentStatus: "paid",
+    });
     const existing = await EventRegistration.findOne({ eventSlug: EVENT.slug, leadEmail });
-    if (existing && existing.status === "paid")
+    const isExistingPaid = existing?.status === "paid" || existing?.paymentStatus === "paid";
+
+    if (isExistingPaid)
       return NextResponse.json(
         { success: false, message: "This email is already registered and paid for this event." },
         { status: 409 }
       );
 
-    // Cooldown so we don't spam OTP emails.
+    // Capacity: only block new emails once sold out (allow OTP resend for in-progress).
+    if (!existing && paidCount >= EVENT.maxRegistrations)
+      return NextResponse.json(
+        { success: false, message: "We're sold out — all spots for this session are taken.", soldOut: true },
+        { status: 410 }
+      );
+
     if (existing?.lastOtpSentAt) {
       const elapsed = Date.now() - new Date(existing.lastOtpSentAt).getTime();
       if (elapsed < OTP_RESEND_COOLDOWN_MS)
@@ -69,17 +79,26 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    const bothFemale = leadGender === "Female" && partnerGender === "Female";
+    const amountInr = priceForCheckout(bothFemale);
     const otp = generateOtp();
-    const amountInr = priceForPeople(totalPeople);
-    const doc =
-      existing ||
-      new EventRegistration({ eventSlug: EVENT.slug, leadEmail });
+    const doc = existing || new EventRegistration({ eventSlug: EVENT.slug, leadEmail });
 
     doc.set({
       leadName,
       leadPhone,
-      participants,
-      totalPeople,
+      leadGender,
+      leadLevel,
+      emergencyContact,
+      partnerName,
+      partnerPhone,
+      partnerGender,
+      totalPeople: EVENT.playersPerCheckout,
+      bothFemale,
+      femaleDiscountApplied: bothFemale,
+      waiverOwnRisk,
+      waiverMediaConsent,
+      waiverTerms,
       amountInr,
       currency: EVENT.currency,
       otpHash: hashOtp(otp),
@@ -98,8 +117,9 @@ export async function POST(req: NextRequest) {
       success: true,
       registrationId: String(doc._id),
       email: leadEmail,
-      totalPeople,
+      totalPeople: EVENT.playersPerCheckout,
       amountInr,
+      bothFemale,
       message: "Verification code sent to your email.",
     });
   } catch (err) {
