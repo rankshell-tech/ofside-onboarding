@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "SESSIONS Terms & Conditions | Ofside",
   description:
     "Terms & Conditions and Refund & Cancellation Policy for SESSIONS by Ofside community events.",
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 };
 
 function Section({

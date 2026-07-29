@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   title: "SESSIONS Badminton Doubles at Rackonnect Delhi | 22 Aug 2026 | Ofside",
   description:
     "Join SESSIONS by Ofside on 22 August 2026 — community badminton doubles at Rackonnect Badminton Arena, Mehrauli, New Delhi. Guaranteed matches and free Ofside PRO.",
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   openGraph: {
     title: "SESSIONS Badminton Doubles · Rackonnect Delhi · 22 Aug 2026",
     description:
