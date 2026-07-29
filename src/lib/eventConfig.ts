@@ -27,9 +27,9 @@ export const EVENT = {
 
   sport: "Badminton Doubles",
 
-  // Pricing — INR per player. Checkout is for 2 players. Final total = 290 × 2 = ₹580.
-  pricePerPersonInr: 290,
-  displayPriceInr: 290,
+  // Pricing — TEMP testing: ₹1/player → ₹2 checkout total. Restore to 290 before launch.
+  pricePerPersonInr: 1,
+  displayPriceInr: 1,
   gstMultiplier: 1,
   femalePairDiscount: 0.1,
   currency: "INR",
