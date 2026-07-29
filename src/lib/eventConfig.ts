@@ -139,7 +139,7 @@ export const EVENT = {
   playerLevels: ["Beginner", "Intermediate", "Advanced", "PRO"] as const,
   genders: ["Male", "Female", "Other"] as const,
 
-  whatsappCommunityUrl: "https://chat.whatsapp.com/",
+  whatsappCommunityUrl: "https://chat.whatsapp.com/IteTnaQmoSbHDW8U9zeKdv",
   organiserNote:
     "Registrations, payments and live scores are powered by Ofside. Spots are capped. Once full, the page shows sold out.",
 } as const;

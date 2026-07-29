@@ -780,12 +780,24 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
           </div>
 
           <a
+            href={EVENT.whatsappCommunityUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 flex w-full flex-col items-center justify-center rounded-xl bg-[#25D366] px-3 py-3 text-white hover:brightness-110"
+          >
+            <span className="text-[14px] font-bold">Join WhatsApp group</span>
+            <span className="mt-0.5 text-center text-[11px] font-medium text-white/90">
+              For important announcements about the event
+            </span>
+          </a>
+
+          <a
             href={whatsappShareHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 flex w-full items-center justify-center rounded-xl bg-[#25D366] py-3 text-[14px] font-bold text-white hover:brightness-110"
+            className="mt-2 flex w-full items-center justify-center rounded-xl border border-[#b6ddd7] bg-white py-3 text-[14px] font-bold text-[#0f766e] hover:bg-white/80"
           >
-            Share on WhatsApp
+            Share ticket on WhatsApp
           </a>
         </div>
       )}

@@ -135,6 +135,16 @@ export async function sendRegistrationConfirmationEmail(
           Open your ticket
         </a>
       </p>
+      <div style="margin:18px 0 0;padding:14px 16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px">
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.45;color:#065f46">
+          Join the <strong>SESSIONS by Ofside</strong> WhatsApp group for important announcements about the event.
+        </p>
+        <p style="margin:0;text-align:center">
+          <a href="${escapeAttr(EVENT.whatsappCommunityUrl)}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-weight:800;font-size:13px;padding:10px 16px;border-radius:10px">
+            Join WhatsApp group
+          </a>
+        </p>
+      </div>
       <p style="margin:16px 0 0;font-size:12px;line-height:1.5;color:#888">
         Free Ofside PRO is unlocked for both players when they sign in to the Ofside app with the same phone/email used here.
       </p>

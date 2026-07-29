@@ -129,6 +129,18 @@ export default async function SessionTicketPage({ params }: Props) {
                 Event page
               </Link>
             </div>
+
+            <a
+              href={EVENT.whatsappCommunityUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full flex-col items-center rounded-xl bg-[#25D366] px-3 py-3 text-white hover:brightness-110"
+            >
+              <span className="text-[14px] font-bold">Join WhatsApp group</span>
+              <span className="mt-0.5 text-center text-[11px] font-medium text-white/90">
+                For important announcements about the event
+              </span>
+            </a>
           </div>
         </div>
 
