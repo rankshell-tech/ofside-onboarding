@@ -7,7 +7,7 @@ const from = process.env.EMAIL_FROM || "Ofside <noreply@ofside.in>";
 
 const resend = apiKey ? new Resend(apiKey) : null;
 
-function assertResendConfigured(context: string): asserts resend is Resend {
+function requireResendInProduction(context: string): void {
   if (resend) return;
   if (process.env.NODE_ENV === "production") {
     throw new Error(`[email] RESEND_API_KEY is required in production (${context}).`);
@@ -27,7 +27,7 @@ async function sendHtmlEmail(opts: {
   if (!recipients.length) return;
 
   if (!resend) {
-    assertResendConfigured(opts.context);
+    requireResendInProduction(opts.context);
     // eslint-disable-next-line no-console
     console.log(`[${opts.context}] (dev, no RESEND_API_KEY) would email ${recipients.join(", ")}: ${opts.subject}`);
     return;
