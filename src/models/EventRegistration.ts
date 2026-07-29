@@ -54,6 +54,17 @@ const eventRegistrationSchema = new Schema(
     razorpaySignature: { type: String, default: null },
     paidAt: { type: Date, default: null },
 
+    // Check-in ticket (issued after successful payment).
+    ticketCode: { type: String, default: null, index: true, sparse: true, unique: true },
+
+    // Staff check-in (Ofside app event-admin).
+    checkedInAt: { type: Date, default: null },
+    checkedInBy: { type: String, default: null },
+
+    // Free Ofside PRO grant after paid registration (app backend).
+    proGrantedAt: { type: Date, default: null },
+    proGrantResults: { type: Schema.Types.Mixed, default: null },
+
     status: { type: String, enum: REGISTRATION_STATUSES, default: "pending" as RegistrationStatus },
   },
   { timestamps: true }

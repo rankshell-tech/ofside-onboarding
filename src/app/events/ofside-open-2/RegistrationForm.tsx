@@ -8,6 +8,7 @@ import {
   type EventGender,
   type EventPlayerLevel,
 } from "@/lib/eventConfig";
+import { ticketAbsoluteUrl, ticketPath, ticketQrImageUrl } from "@/lib/ticket";
 
 type Step = "you" | "partner" | "waiver" | "otp" | "pay" | "done";
 
@@ -202,6 +203,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const [waiverTerms, setWaiverTerms] = useState(false);
   const [otp, setOtp] = useState("");
   const [registrationId, setRegistrationId] = useState("");
+  const [ticketCode, setTicketCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const payAutoStarted = useRef(false);
@@ -213,6 +215,26 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const mapsUrl =
     EVENT.mapsUrl ??
     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
+  const ticketUrl = useMemo(() => {
+    if (!ticketCode) return "";
+    if (typeof window !== "undefined") return `${window.location.origin}${ticketPath(ticketCode)}`;
+    return ticketAbsoluteUrl(ticketCode);
+  }, [ticketCode]);
+  const ticketQrSrc = useMemo(
+    () => (ticketUrl ? ticketQrImageUrl(ticketUrl, 160) : ""),
+    [ticketUrl]
+  );
+  const whatsappShareHref = useMemo(() => {
+    const lines = [
+      `SESSIONS ticket confirmed`,
+      `You + ${partnerName || "partner"}`,
+      `${EVENT.date} · ${EVENT.timeWindow}`,
+      EVENT.venueName,
+      ticketCode ? `Code: ${ticketCode}` : null,
+      ticketUrl ? `Ticket: ${ticketUrl}` : null,
+    ].filter(Boolean);
+    return `https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`;
+  }, [partnerName, ticketCode, ticketUrl]);
 
   useEffect(() => {
     if (bothFemale && !prevBothFemale.current) {
@@ -347,6 +369,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             });
             const verify = await verifyRes.json();
             if (!verifyRes.ok || !verify.success) throw new Error(verify.message || "Payment verification failed.");
+            if (verify.ticketCode) setTicketCode(String(verify.ticketCode));
             setStep("done");
           } catch (e) {
             setError(e instanceof Error ? e.message : "Payment verification failed.");
@@ -651,33 +674,94 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       )}
 
       {step === "done" && (
-        <div className="py-1 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0f766e] text-xl text-white">
-            ✓
+        <div className="py-1">
+          <div className="text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0f766e] text-xl text-white">
+              ✓
+            </div>
+            <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">You&apos;re in!</h3>
+            <p className="mt-1.5 text-sm text-[#5f8f88]">
+              You + {partnerName || "partner"} · confirmation to {leadEmail}
+            </p>
           </div>
-          <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">You&apos;re in!</h3>
-          <p className="mt-1.5 text-sm text-[#5f8f88]">
-            You + {partnerName || "partner"} · confirmation to {leadEmail}
-          </p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
+
+          {ticketCode ? (
+            <div className="mt-4 overflow-hidden rounded-2xl border border-[#8fcfc6] bg-white">
+              <div className="bg-[#0f766e] px-3.5 py-3 text-white">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">
+                  Entry ticket
+                </p>
+                <p className="mt-0.5 text-[14px] font-bold">Badminton doubles</p>
+                <p className="mt-1 text-[12px] text-white/80">
+                  {EVENT.date} · {EVENT.timeWindow}
+                </p>
+              </div>
+              <div className="space-y-3 px-3.5 py-3.5">
+                <div className="grid grid-cols-2 gap-2 text-[12px]">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#888]">You</p>
+                    <p className="font-semibold text-[#1c1c1c]">{leadName}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#888]">Partner</p>
+                    <p className="font-semibold text-[#1c1c1c]">{partnerName}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[#888]">Venue</p>
+                    <p className="font-medium text-[#1c1c1c]">{EVENT.venueName}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-dashed border-[#b6ddd7] bg-[#f3fbf9] px-3 py-3 text-center">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#5f8f88]">
+                    Verification code
+                  </p>
+                  <p className="mt-1 font-mono text-2xl font-bold tracking-[0.18em] text-[#0f766e]">
+                    {ticketCode}
+                  </p>
+                  <div className="mx-auto mt-3 inline-flex rounded-xl bg-white p-2 ring-1 ring-[#e0efec]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ticketQrSrc}
+                      alt={`QR for ${ticketCode}`}
+                      width={140}
+                      height={140}
+                      className="h-[140px] w-[140px]"
+                    />
+                  </div>
+                  <p className="mt-2 text-[11px] leading-snug text-[#666]">
+                    Show this QR or code at check-in for verification.
+                  </p>
+                  <a
+                    href={ticketPath(ticketCode)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-[12px] font-semibold text-[#0f766e] underline underline-offset-2"
+                  >
+                    Open full ticket
+                  </a>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-center text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
               Venue
             </a>
-            <a href={buildCalendarUrl()} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
+            <a href={buildCalendarUrl()} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-center text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
               Calendar
             </a>
-            <a href={EVENT.whatsappCommunityUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-[#25D366] py-2.5 text-[13px] font-bold text-white hover:brightness-110">
-              WhatsApp
-            </a>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(`You're my doubles partner for ${EVENT.name}. We're locked in. See you there!`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl bg-[#0f766e] py-2.5 text-[13px] font-bold text-white hover:bg-[#0d9488]"
-            >
-              Invite
-            </a>
           </div>
+
+          <a
+            href={whatsappShareHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 flex w-full items-center justify-center rounded-xl bg-[#25D366] py-3 text-[14px] font-bold text-white hover:brightness-110"
+          >
+            Share on WhatsApp
+          </a>
         </div>
       )}
     </div>

@@ -133,33 +133,43 @@ export default async function EventPage() {
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
         {/* ===================== HERO ===================== */}
         <section className="relative w-full overflow-hidden rounded-2xl bg-[#0b0b0d] sm:rounded-3xl">
-          <div className="relative flex min-h-[420px] w-full flex-col sm:min-h-[520px] lg:min-h-[580px]">
+          {/* Aspect matches banner assets so the full image is visible (no crop). */}
+          <div className="relative flex aspect-[702/524] w-full flex-col sm:aspect-[2464/1836]">
             <Image
-              src="/assets/pexels-aboodi-12630113.jpg"
+              src="/assets/event_banner_mobile.PNG"
               alt={EVENT.name}
               fill
               priority
-              sizes="(max-width: 1280px) 100vw, 1280px"
-              className="object-cover object-[center_58%] scale-[1.02]"
+              sizes="(max-width: 639px) 100vw, 1px"
+              className="object-cover object-center sm:hidden"
             />
-            {/* readability gradients */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.96)_0%,rgba(8,12,14,0.58)_42%,rgba(8,12,14,0.2)_100%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.55)_0%,transparent_60%)]" />
+            <Image
+              src="/assets/event_banner_desktop.PNG"
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 639px) 1px, (max-width: 1280px) 100vw, 1280px"
+              className="hidden object-cover object-center sm:block"
+              aria-hidden
+            />
+            {/* light readability wash — banners already carry left/bottom darkness */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.55)_0%,rgba(8,12,14,0.18)_42%,transparent_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.22)_0%,transparent_50%)]" />
 
             {/* top: brand + offers */}
-            <div className="relative z-10 flex flex-col gap-3 p-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-7">
+            <div className="relative z-10 flex flex-col gap-2 p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-7">
               <SessionsBrand />
-              <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:max-w-none sm:items-end">
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:max-w-none sm:items-end sm:gap-2.5">
                 <span className="inline-flex max-w-full items-center self-start rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.04em] text-[#1c1c1c] sm:self-end sm:px-3 sm:py-1.5 sm:text-[11px] sm:tracking-[0.06em]">
-                  <span className="truncate sm:hidden">Free PRO · ₹399/yr</span>
-                  <span className="hidden sm:inline">Free Ofside PRO · ₹399/yr</span>
+                  <span className="truncate sm:hidden">Free PRO · Worth ₹399/yr</span>
+                  <span className="hidden sm:inline">Free Ofside PRO · Worth ₹399/yr</span>
                 </span>
                 <div className="flex w-full items-stretch gap-2 sm:w-auto">
                   <a
                     href={PLAY_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-1 items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:px-3.5 sm:py-2.5"
+                    className="inline-flex flex-1 items-center gap-2 rounded-xl border border-white/25 bg-white px-2.5 py-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:gap-2.5 sm:px-3.5 sm:py-2.5"
                     aria-label="Get Ofside on Google Play"
                   >
                     <Image
@@ -167,20 +177,20 @@ export default async function EventPage() {
                       alt=""
                       width={28}
                       height={28}
-                      className="h-7 w-7 shrink-0 rounded-md"
+                      className="h-6 w-6 shrink-0 rounded-md sm:h-7 sm:w-7"
                     />
                     <span className="text-left leading-none">
-                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.12em] text-[#666] sm:text-[9px]">
                         Get it on
                       </span>
-                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">Google Play</span>
+                      <span className="mt-0.5 block text-[12px] font-bold text-[#1c1c1c] sm:mt-1 sm:text-[13px]">Google Play</span>
                     </span>
                   </a>
                   <a
                     href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-1 items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:px-3.5 sm:py-2.5"
+                    className="inline-flex flex-1 items-center gap-2 rounded-xl border border-white/25 bg-white px-2.5 py-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:gap-2.5 sm:px-3.5 sm:py-2.5"
                     aria-label="Download Ofside on the App Store"
                   >
                     <Image
@@ -188,13 +198,13 @@ export default async function EventPage() {
                       alt=""
                       width={28}
                       height={28}
-                      className="h-7 w-7 shrink-0 rounded-md"
+                      className="h-6 w-6 shrink-0 rounded-md sm:h-7 sm:w-7"
                     />
                     <span className="text-left leading-none">
-                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.12em] text-[#666] sm:text-[9px]">
                         Download on
                       </span>
-                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">App Store</span>
+                      <span className="mt-0.5 block text-[12px] font-bold text-[#1c1c1c] sm:mt-1 sm:text-[13px]">App Store</span>
                     </span>
                   </a>
                 </div>
@@ -205,17 +215,17 @@ export default async function EventPage() {
             <div className="relative z-10 flex-1" />
 
             {/* bottom content */}
-            <div className="relative z-10 flex flex-col gap-5 p-3.5 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
+            <div className="relative z-10 flex flex-col gap-3 p-3 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
               <div className="min-w-0 max-w-2xl">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#FFF201]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FFF201] sm:text-[11px]">
                   {EVENT.edition}
                 </p>
-                <h1 className="mt-1.5 text-[1.65rem] font-bold leading-[1.1] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
+                <h1 className="mt-1 text-[1.35rem] font-bold leading-[1.1] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
                   Badminton doubles
                   <span className="block text-white/80">community games</span>
                 </h1>
 
-                <p className="mt-3 text-[12px] font-medium leading-relaxed text-white/75 sm:mt-4 sm:text-[14px]">
+                <p className="mt-2 text-[11px] font-medium leading-relaxed text-white/75 sm:mt-4 sm:text-[14px]">
                   <span className="inline-block">{EVENT.date}</span>
                   <span className="mx-1.5 text-white/30 sm:mx-2">·</span>
                   <span className="inline-block">{EVENT.timeWindow}</span>
