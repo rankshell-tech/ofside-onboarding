@@ -6,7 +6,7 @@ import { generateOtp, hashOtp, OTP_TTL_MS, OTP_RESEND_COOLDOWN_MS } from "@/lib/
 import { sendOtpEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^\+?[0-9]{7,15}$/;
+const PHONE_RE = /^[0-9]{10}$/;
 const GENDERS = new Set<string>(EVENT.genders);
 const LEVELS = new Set<string>(EVENT.playerLevels);
 
@@ -15,13 +15,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const leadName = String(body?.leadName || "").trim();
     const leadEmail = String(body?.leadEmail || "").trim().toLowerCase();
-    const leadPhone = String(body?.leadPhone || "").trim();
+    const leadPhone = String(body?.leadPhone || "").replace(/\D/g, "").slice(-10);
     const leadGender = String(body?.leadGender || "").trim() as EventGender;
     const leadLevel = String(body?.leadLevel || "").trim() as EventPlayerLevel;
     const emergencyContact = body?.emergencyContact ? String(body.emergencyContact).trim() : null;
     const partnerName = String(body?.partnerName || "").trim();
     const partnerEmail = String(body?.partnerEmail || "").trim().toLowerCase();
-    const partnerPhone = String(body?.partnerPhone || "").trim();
+    const partnerPhone = String(body?.partnerPhone || "").replace(/\D/g, "").slice(-10);
     const partnerGender = String(body?.partnerGender || "").trim() as EventGender;
     const bringingOwnEquipmentRaw = body?.bringingOwnEquipment;
     const bringingOwnEquipment =
@@ -40,7 +40,10 @@ export async function POST(req: NextRequest) {
     if (!EMAIL_RE.test(leadEmail))
       return NextResponse.json({ success: false, message: "A valid email is required." }, { status: 400 });
     if (!PHONE_RE.test(leadPhone))
-      return NextResponse.json({ success: false, message: "A valid phone number is required." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Please enter a valid 10-digit mobile number." },
+        { status: 400 }
+      );
     if (!GENDERS.has(leadGender))
       return NextResponse.json({ success: false, message: "Please select your gender." }, { status: 400 });
     if (!LEVELS.has(leadLevel))
@@ -52,7 +55,10 @@ export async function POST(req: NextRequest) {
     if (partnerEmail === leadEmail)
       return NextResponse.json({ success: false, message: "Partner email must be different from yours." }, { status: 400 });
     if (!PHONE_RE.test(partnerPhone))
-      return NextResponse.json({ success: false, message: "A valid partner phone number is required." }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Please enter a valid 10-digit partner mobile number." },
+        { status: 400 }
+      );
     if (!GENDERS.has(partnerGender))
       return NextResponse.json({ success: false, message: "Please select your partner's gender." }, { status: 400 });
     if (bringingOwnEquipment === null)
@@ -60,8 +66,8 @@ export async function POST(req: NextRequest) {
         { success: false, message: "Please tell us if your doubles group will bring equipment." },
         { status: 400 }
       );
-    if (!waiverOwnRisk || !waiverMediaConsent || !waiverTerms)
-      return NextResponse.json({ success: false, message: "Please accept all waivers to continue." }, { status: 400 });
+    if (!waiverOwnRisk || !waiverTerms)
+      return NextResponse.json({ success: false, message: "Please accept the waivers to continue." }, { status: 400 });
 
     await connectToDB();
 

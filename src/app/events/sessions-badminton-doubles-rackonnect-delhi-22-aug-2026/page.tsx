@@ -9,12 +9,14 @@ import RegistrationForm from "./RegistrationForm";
 import SessionsBrand from "./SessionsBrand";
 
 export const metadata: Metadata = {
-  title: EVENT.name,
-  description: `${EVENT.tagline} ${EVENT.shortDescription}`,
-  robots: { index: false, follow: false },
+  title: "SESSIONS Badminton Doubles at Rackonnect Delhi | 22 Aug 2026 | Ofside",
+  description:
+    "Join SESSIONS by Ofside on 22 August 2026 — community badminton doubles at Rackonnect Badminton Arena, Mehrauli, New Delhi. Guaranteed matches and free Ofside PRO.",
+  robots: { index: true, follow: true },
   openGraph: {
-    title: EVENT.name,
-    description: `${EVENT.tagline} ${EVENT.shortDescription}`,
+    title: "SESSIONS Badminton Doubles · Rackonnect Delhi · 22 Aug 2026",
+    description:
+      "Community badminton doubles for all skill levels. Meet. Play. Connect. Repeat.",
     type: "website",
   },
 };
@@ -133,8 +135,8 @@ export default async function EventPage() {
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
         {/* ===================== HERO ===================== */}
         <section className="relative w-full overflow-hidden rounded-2xl bg-[#0b0b0d] sm:rounded-3xl">
-          {/* Aspect matches banner assets so the full image is visible (no crop). */}
-          <div className="relative flex aspect-[702/524] w-full flex-col sm:aspect-[2464/1836]">
+          {/* Mobile: tall asset. Small/medium laptops: 1232×530 (full frame). Very large: original desktop crop. */}
+          <div className="relative flex aspect-[702/524] w-full flex-col sm:aspect-[1232/530] 2xl:aspect-auto 2xl:h-[520px]">
             <Image
               src="/assets/event_banner_mobile.PNG"
               alt={EVENT.name}
@@ -144,32 +146,40 @@ export default async function EventPage() {
               className="object-cover object-center sm:hidden"
             />
             <Image
+              src="/assets/banner_1232_530.png"
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 639px) 1px, (max-width: 1535px) 100vw, 1px"
+              className="hidden object-cover object-center sm:block 2xl:hidden"
+              aria-hidden
+            />
+            <Image
               src="/assets/event_banner_desktop.PNG"
               alt=""
               fill
               priority
-              sizes="(max-width: 639px) 1px, (max-width: 1280px) 100vw, 1280px"
-              className="hidden object-cover object-center sm:block"
+              sizes="(max-width: 1535px) 1px, 100vw"
+              className="hidden object-cover object-[center_35%] 2xl:block"
               aria-hidden
             />
             {/* light readability wash — banners already carry left/bottom darkness */}
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.55)_0%,rgba(8,12,14,0.18)_42%,transparent_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.22)_0%,transparent_50%)]" />
 
-            {/* top: brand + offers */}
+            {/* top: brand — offers/store stay desktop-only so mobile hero stays clean */}
             <div className="relative z-10 flex flex-col gap-2 p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-7">
               <SessionsBrand />
-              <div className="flex w-full flex-col gap-2 sm:w-auto sm:max-w-none sm:items-end sm:gap-2.5">
-                <span className="inline-flex max-w-full items-center self-start rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.04em] text-[#1c1c1c] sm:self-end sm:px-3 sm:py-1.5 sm:text-[11px] sm:tracking-[0.06em]">
-                  <span className="truncate sm:hidden">Free PRO · Worth ₹399/yr</span>
-                  <span className="hidden sm:inline">Free Ofside PRO · Worth ₹399/yr</span>
+              <div className="hidden w-full flex-col gap-2 sm:flex sm:w-auto sm:max-w-none sm:items-end sm:gap-2.5">
+                <span className="inline-flex max-w-full items-center self-end rounded-full bg-[#FFF201] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.06em] text-[#1c1c1c]">
+                  Free Ofside PRO Worth ₹399/yr
                 </span>
-                <div className="flex w-full items-stretch gap-2 sm:w-auto">
+                <div className="flex w-auto items-stretch gap-2">
                   <a
                     href={PLAY_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-1 items-center gap-2 rounded-xl border border-white/25 bg-white px-2.5 py-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:gap-2.5 sm:px-3.5 sm:py-2.5"
+                    className="inline-flex flex-none items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3.5 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201]"
                     aria-label="Get Ofside on Google Play"
                   >
                     <Image
@@ -177,20 +187,20 @@ export default async function EventPage() {
                       alt=""
                       width={28}
                       height={28}
-                      className="h-6 w-6 shrink-0 rounded-md sm:h-7 sm:w-7"
+                      className="h-7 w-7 shrink-0 rounded-md"
                     />
                     <span className="text-left leading-none">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.12em] text-[#666] sm:text-[9px]">
+                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
                         Get it on
                       </span>
-                      <span className="mt-0.5 block text-[12px] font-bold text-[#1c1c1c] sm:mt-1 sm:text-[13px]">Google Play</span>
+                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">Google Play</span>
                     </span>
                   </a>
                   <a
                     href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex flex-1 items-center gap-2 rounded-xl border border-white/25 bg-white px-2.5 py-2 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:gap-2.5 sm:px-3.5 sm:py-2.5"
+                    className="inline-flex flex-none items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3.5 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201]"
                     aria-label="Download Ofside on the App Store"
                   >
                     <Image
@@ -198,13 +208,13 @@ export default async function EventPage() {
                       alt=""
                       width={28}
                       height={28}
-                      className="h-6 w-6 shrink-0 rounded-md sm:h-7 sm:w-7"
+                      className="h-7 w-7 shrink-0 rounded-md"
                     />
                     <span className="text-left leading-none">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.12em] text-[#666] sm:text-[9px]">
+                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
                         Download on
                       </span>
-                      <span className="mt-0.5 block text-[12px] font-bold text-[#1c1c1c] sm:mt-1 sm:text-[13px]">App Store</span>
+                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">App Store</span>
                     </span>
                   </a>
                 </div>
@@ -215,22 +225,22 @@ export default async function EventPage() {
             <div className="relative z-10 flex-1" />
 
             {/* bottom content */}
-            <div className="relative z-10 flex flex-col gap-3 p-3 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
+            <div className="relative z-10 flex flex-col gap-2 p-3 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
               <div className="min-w-0 max-w-2xl">
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FFF201] sm:text-[11px]">
                   {EVENT.edition}
                 </p>
-                <h1 className="mt-1 text-[1.35rem] font-bold leading-[1.1] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
+                <h1 className="mt-1 text-[1.45rem] font-bold leading-[1.12] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
                   Badminton doubles
                   <span className="block text-white/80">community games</span>
                 </h1>
 
-                <p className="mt-2 text-[11px] font-medium leading-relaxed text-white/75 sm:mt-4 sm:text-[14px]">
-                  <span className="inline-block">{EVENT.date}</span>
-                  <span className="mx-1.5 text-white/30 sm:mx-2">·</span>
-                  <span className="inline-block">{EVENT.timeWindow}</span>
-                  <span className="mx-1.5 text-white/30 sm:mx-2">·</span>
-                  <span className="inline-block">{EVENT.venueName}</span>
+                <p className="mt-2 text-[12px] font-medium leading-snug text-white/80 sm:mt-4 sm:text-[14px] sm:leading-relaxed sm:text-white/75">
+                  <span className="block sm:inline">{EVENT.date} · {EVENT.timeWindow}</span>
+                  <span className="mt-0.5 block text-white/65 sm:mt-0 sm:inline sm:text-white/75">
+                    <span className="mx-1.5 hidden text-white/30 sm:inline">·</span>
+                    {EVENT.venueName}
+                  </span>
                 </p>
               </div>
 
@@ -262,8 +272,49 @@ export default async function EventPage() {
           </div>
         </section>
 
+        {/* Mobile-only: PRO + app stores sit under the hero (not on top of it) */}
+        <div className="mt-3 flex flex-col gap-2.5 sm:hidden">
+          <p className="rounded-xl bg-[#FFF201] px-3 py-2 text-center text-[11px] font-black uppercase tracking-[0.06em] text-[#1c1c1c]">
+            Free Ofside PRO Worth ₹399/yr
+          </p>
+          <div className="flex gap-2">
+            <a
+              href={PLAY_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-3 py-2.5"
+              aria-label="Get Ofside on Google Play"
+            >
+              <Image
+                src="/assets/playstore.webp"
+                alt=""
+                width={22}
+                height={22}
+                className="h-5 w-5 rounded-md"
+              />
+              <span className="text-[12px] font-bold text-[#1c1c1c]">Google Play</span>
+            </a>
+            <a
+              href={APP_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#e5e5e5] bg-white px-3 py-2.5"
+              aria-label="Download Ofside on the App Store"
+            >
+              <Image
+                src="/assets/appstore.webp"
+                alt=""
+                width={22}
+                height={22}
+                className="h-5 w-5 rounded-md"
+              />
+              <span className="text-[12px] font-bold text-[#1c1c1c]">App Store</span>
+            </a>
+          </div>
+        </div>
+
         {/* ===================== TWO-COLUMN BODY ===================== */}
-        <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_480px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_520px] xl:gap-10">
+        <div className="mt-6 grid gap-6 sm:mt-8 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_480px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_520px] xl:gap-10">
           {/* -------- LEFT: About + Things to know -------- */}
           <div className="min-w-0 space-y-8 sm:space-y-10">
             {/* About */}
@@ -279,22 +330,6 @@ export default async function EventPage() {
                   (worth ₹399/year). Limited to {EVENT.maxRegistrations} doubles (
                   {EVENT.maxPlayers} players).
                 </p>
-              </div>
-
-              <div className="mt-6 sm:mt-8">
-                <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#888]">
-                  What&apos;s included
-                </h3>
-                <ul className="mt-3 space-y-2 sm:space-y-2.5">
-                  {EVENT.whatsIncluded.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-[14px] text-[#4d4d4d] sm:gap-3 sm:text-[15px]">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF201] text-[11px] font-bold text-[#1c1c1c]">
-                        ✓
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
               </div>
 
               <div className="mt-6 sm:mt-8">

@@ -60,6 +60,46 @@ const STEP_LABELS: Record<Exclude<Step, "done">, string> = {
 const fieldCls =
   "w-full rounded-xl border-2 border-[#7ec4bc] bg-white px-3.5 py-3 text-[15px] font-medium text-[#1c1c1c] shadow-[0_2px_0_rgba(15,118,110,0.12)] outline-none transition placeholder:font-normal placeholder:text-[#6b7f7c] focus:border-[#0f766e] focus:shadow-[0_0_0_3px_rgba(15,118,110,0.18)]";
 
+/** India-style 10-digit mobile (digits only). */
+function normalizePhoneDigits(raw: string): string {
+  return String(raw || "").replace(/\D/g, "").slice(-10);
+}
+
+function isValidMobile(raw: string): boolean {
+  return /^[0-9]{10}$/.test(normalizePhoneDigits(raw));
+}
+
+function MobileField({
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+}: {
+  value: string;
+  onChange: (digits: string) => void;
+  placeholder: string;
+  autoComplete?: string;
+}) {
+  return (
+    <div className="flex w-full items-stretch overflow-hidden rounded-xl border-2 border-[#7ec4bc] bg-white shadow-[0_2px_0_rgba(15,118,110,0.12)] transition focus-within:border-[#0f766e] focus-within:shadow-[0_0_0_3px_rgba(15,118,110,0.18)]">
+      <span className="flex shrink-0 items-center border-r border-[#7ec4bc]/70 bg-[#e8f7f4] px-3 text-[15px] font-bold text-[#0f766e]">
+        +91
+      </span>
+      <input
+        className="min-w-0 flex-1 bg-transparent px-3.5 py-3 text-[15px] font-medium text-[#1c1c1c] outline-none placeholder:font-normal placeholder:text-[#6b7f7c]"
+        type="tel"
+        inputMode="numeric"
+        placeholder={placeholder}
+        value={value}
+        maxLength={10}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 10))}
+        autoComplete={autoComplete}
+        aria-label={placeholder}
+      />
+    </div>
+  );
+}
+
 const btnPrimary =
   "w-full rounded-xl bg-[#0f766e] py-3 text-[14px] font-bold text-white shadow-[0_3px_0_#0a5c56] transition hover:bg-[#0d9488] active:translate-y-px active:shadow-none disabled:opacity-60";
 const btnGhost =
@@ -83,12 +123,12 @@ function ChipGroup<T extends string>({
   return (
     <div className="space-y-1.5">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#0f766e]/80">
+        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#0f766e]/80">
           {label}
         </p>
         {aside}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {options.map((opt) => {
           const on = value === opt;
           return (
@@ -96,8 +136,8 @@ function ChipGroup<T extends string>({
               key={opt}
               type="button"
               onClick={() => onChange(opt)}
-              className={`rounded-full text-[13px] font-semibold transition ${
-                wide ? "min-w-[4.75rem] px-6 py-1.5" : "px-3.5 py-1.5"
+              className={`rounded-full text-[12px] font-semibold transition ${
+                wide ? "min-w-[4.25rem] px-4 py-1" : "px-2.5 py-1"
               } ${
                 on
                   ? "bg-[#0f766e] text-white shadow-[0_2px_0_#0a5c56]"
@@ -199,7 +239,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const [partnerGender, setPartnerGender] = useState<EventGender | "">("");
   const [bringingOwnEquipment, setBringingOwnEquipment] = useState<"Yes" | "No" | "">("");
   const [waiverOwnRisk, setWaiverOwnRisk] = useState(false);
-  const [waiverMediaConsent, setWaiverMediaConsent] = useState(false);
   const [waiverTerms, setWaiverTerms] = useState(false);
   const [otp, setOtp] = useState("");
   const [registrationId, setRegistrationId] = useState("");
@@ -247,16 +286,15 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     () => ({
       leadName,
       leadEmail,
-      leadPhone,
+      leadPhone: normalizePhoneDigits(leadPhone),
       leadGender,
       leadLevel,
       partnerName,
       partnerEmail,
-      partnerPhone,
+      partnerPhone: normalizePhoneDigits(partnerPhone),
       partnerGender,
       bringingOwnEquipment: bringingOwnEquipment === "Yes",
       waiverOwnRisk,
-      waiverMediaConsent,
       waiverTerms,
     }),
     [
@@ -271,7 +309,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       partnerGender,
       bringingOwnEquipment,
       waiverOwnRisk,
-      waiverMediaConsent,
       waiverTerms,
     ]
   );
@@ -451,9 +488,14 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       ) : null}
 
       {step === "you" && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <input className={fieldCls} placeholder="Full name *" value={leadName} onChange={(e) => setLeadName(e.target.value)} autoComplete="name" />
-          <input className={fieldCls} type="tel" inputMode="tel" placeholder="Mobile number *" value={leadPhone} onChange={(e) => setLeadPhone(e.target.value)} autoComplete="tel" />
+          <MobileField
+            placeholder="10-digit mobile *"
+            value={leadPhone}
+            onChange={setLeadPhone}
+            autoComplete="tel"
+          />
           <input className={fieldCls} type="email" inputMode="email" placeholder="Email address *" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} autoComplete="email" />
           <ChipGroup
             options={EVENT.genders}
@@ -461,7 +503,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             onChange={setLeadGender}
             label="Gender *"
             aside={
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f9a8d4] bg-[#db2777] px-3 py-1 text-[11px] leading-none text-white">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#f9a8d4] bg-[#db2777] px-2 py-0.5 text-[10px] leading-none text-white">
                 Avail 10% off female doubles
               </span>
             }
@@ -472,7 +514,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             onClick={() => {
               setError("");
               if (!leadName.trim()) return setError("Please enter your full name.");
-              if (!/^\+?[0-9]{7,15}$/.test(leadPhone.trim())) return setError("Please enter a valid mobile number.");
+              if (!isValidMobile(leadPhone)) return setError("Please enter a valid 10-digit mobile number.");
               if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadEmail.trim())) return setError("Please enter a valid email.");
               if (!leadGender) return setError("Please select your gender.");
               if (!leadLevel) return setError("Please select your player level.");
@@ -486,10 +528,14 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       )}
 
       {step === "partner" && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <input className={fieldCls} placeholder="Partner full name *" value={partnerName} onChange={(e) => setPartnerName(e.target.value)} />
           <input className={fieldCls} type="email" inputMode="email" placeholder="Partner email *" value={partnerEmail} onChange={(e) => setPartnerEmail(e.target.value)} autoComplete="off" />
-          <input className={fieldCls} type="tel" inputMode="tel" placeholder="Partner mobile *" value={partnerPhone} onChange={(e) => setPartnerPhone(e.target.value)} />
+          <MobileField
+            placeholder="10-digit mobile *"
+            value={partnerPhone}
+            onChange={setPartnerPhone}
+          />
           <ChipGroup options={EVENT.genders} value={partnerGender} onChange={setPartnerGender} label="Partner gender *" />
           {bothFemale ? (
             <div className="relative overflow-visible rounded-xl border-2 border-[#f9a8d4] bg-white px-3.5 py-2.5 shadow-[0_2px_0_rgba(219,39,119,0.12)]">
@@ -530,7 +576,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail.trim())) return setError("Please enter a valid partner email.");
                 if (partnerEmail.trim().toLowerCase() === leadEmail.trim().toLowerCase())
                   return setError("Partner email must be different from yours.");
-                if (!/^\+?[0-9]{7,15}$/.test(partnerPhone.trim())) return setError("Please enter a valid partner mobile.");
+                if (!isValidMobile(partnerPhone)) return setError("Please enter a valid 10-digit partner mobile.");
                 if (!partnerGender) return setError("Please select your partner's gender.");
                 if (!bringingOwnEquipment)
                   return setError("Please tell us if your doubles group will bring equipment.");
@@ -553,12 +599,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
                 checked: waiverOwnRisk,
                 set: setWaiverOwnRisk,
                 label: "I understand this is a community sports event and I participate at my own risk.",
-              },
-              {
-                id: "media",
-                checked: waiverMediaConsent,
-                set: setWaiverMediaConsent,
-                label: "I allow Ofside to use photos/videos from the event for promotional purposes.",
               },
               {
                 id: "terms",
@@ -612,8 +652,8 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               type="button"
               onClick={() => {
                 setError("");
-                if (!waiverOwnRisk || !waiverMediaConsent || !waiverTerms)
-                  return setError("Please accept all three to continue.");
+                if (!waiverOwnRisk || !waiverTerms)
+                  return setError("Please accept both to continue.");
                 void submitDetails();
               }}
               disabled={loading}

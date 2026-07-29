@@ -1,7 +1,10 @@
 // Single source of truth for the event landing page + registration APIs.
 
 export const EVENT = {
+  /** Mongo / API event id — do not change once registrations exist. */
   slug: "ofside-open-2026",
+  /** Public landing URL path under /events/… */
+  path: "sessions-badminton-doubles-rackonnect-delhi-22-aug-2026",
   name: "SESSIONS by Ofside (Badminton doubles community games)",
   seriesName: "SESSIONS",
   tagline: "Meet. Play. Connect. Repeat.",
@@ -27,9 +30,9 @@ export const EVENT = {
 
   sport: "Badminton Doubles",
 
-  // Pricing — TEMP testing: ₹1/player → ₹2 checkout total. Restore to 290 before launch.
-  pricePerPersonInr: 1,
-  displayPriceInr: 1,
+  // Pricing — ₹290/player → ₹580 doubles checkout (10% off for female pairs).
+  pricePerPersonInr: 290,
+  displayPriceInr: 290,
   gstMultiplier: 1,
   femalePairDiscount: 0.1,
   currency: "INR",
@@ -50,6 +53,10 @@ export const EVENT = {
 
   highlights: [
     {
+      title: "Guaranteed 2 doubles matches",
+      body: "Every pair gets at least 2 doubles games — structured rounds so you play, not wait.",
+    },
+    {
       title: "FREE Ofside PRO (worth ₹399/year)",
       body: "Included free for every community event member. Scores and match history in the app.",
     },
@@ -68,6 +75,10 @@ export const EVENT = {
     {
       title: "Lucky draw goodies & freebies",
       body: "Lucky draw goodies, freebies, engagement activities and much more on the night.",
+    },
+    {
+      title: "Event photography",
+      body: "On-court and candid shots from the night — so you leave with memories, not just match scores.",
     },
   ],
 
