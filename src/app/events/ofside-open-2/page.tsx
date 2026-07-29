@@ -133,7 +133,7 @@ export default async function EventPage() {
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
         {/* ===================== HERO ===================== */}
         <section className="relative w-full overflow-hidden rounded-2xl bg-[#0b0b0d] sm:rounded-3xl">
-          <div className="relative min-h-[460px] w-full sm:min-h-[520px] lg:min-h-[580px]">
+          <div className="relative flex min-h-[420px] w-full flex-col sm:min-h-[520px] lg:min-h-[580px]">
             <Image
               src="/assets/pexels-aboodi-12630113.jpg"
               alt={EVENT.name}
@@ -143,31 +143,30 @@ export default async function EventPage() {
               className="object-cover object-[center_58%] scale-[1.02]"
             />
             {/* readability gradients */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.95)_0%,rgba(8,12,14,0.55)_45%,rgba(8,12,14,0.15)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,12,14,0.96)_0%,rgba(8,12,14,0.58)_42%,rgba(8,12,14,0.2)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(8,12,14,0.55)_0%,transparent_60%)]" />
 
-            {/* top: logo + tagline (left) · badge + download (right) */}
-            <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-4 sm:inset-x-7 sm:top-7">
+            {/* top: brand + offers */}
+            <div className="relative z-10 flex flex-col gap-3 p-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-7">
               <SessionsBrand />
-              <div className="flex shrink-0 flex-col items-end gap-2">
-                <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.06em] text-[#1c1c1c] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]">
-                  <span className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#FFF201] ring-1 ring-black/15">
-                    <Image
-                      src="/assets/ofside-icon.webp"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="h-4 w-4 rounded-full object-cover"
-                    />
-                  </span>
-                  Free Ofside PRO · ₹399/yr
+              <div className="flex flex-wrap items-center gap-2 sm:max-w-[15rem] sm:flex-col sm:items-end">
+                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.04em] text-[#1c1c1c] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px] sm:tracking-[0.06em]">
+                  <Image
+                    src="/assets/ofside-icon.webp"
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="h-4 w-4 shrink-0 rounded-full object-cover ring-1 ring-black/10"
+                  />
+                  <span className="truncate sm:hidden">Free PRO · ₹399/yr</span>
+                  <span className="hidden sm:inline">Free Ofside PRO · ₹399/yr</span>
                 </span>
                 <div className="flex items-center gap-1.5">
                   <a
                     href={PLAY_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/95 px-1.5 py-1 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:px-2"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:bg-[#FFF201] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-2 sm:py-1"
                     aria-label="Get Ofside on Google Play"
                   >
                     <Image
@@ -178,7 +177,7 @@ export default async function EventPage() {
                       className="h-5 w-5 rounded-[3px]"
                     />
                     <span className="hidden text-left leading-none sm:block">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666] group-hover:text-[#1c1c1c]/70">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666]">
                         Get it on
                       </span>
                       <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">Google Play</span>
@@ -188,7 +187,7 @@ export default async function EventPage() {
                     href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/95 px-1.5 py-1 shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:px-2"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:bg-[#FFF201] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-2 sm:py-1"
                     aria-label="Download Ofside on the App Store"
                   >
                     <Image
@@ -199,7 +198,7 @@ export default async function EventPage() {
                       className="h-5 w-5 rounded-[3px]"
                     />
                     <span className="hidden text-left leading-none sm:block">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666] group-hover:text-[#1c1c1c]/70">
+                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666]">
                         Download on
                       </span>
                       <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">App Store</span>
@@ -209,23 +208,26 @@ export default async function EventPage() {
               </div>
             </div>
 
+            {/* spacer so bottom content sits low */}
+            <div className="relative z-10 flex-1" />
+
             {/* bottom content */}
-            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-6 p-5 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
+            <div className="relative z-10 flex flex-col gap-5 p-3.5 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
               <div className="min-w-0 max-w-2xl">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#FFF201]">
                   {EVENT.edition}
                 </p>
-                <h1 className="mt-2 text-[1.85rem] font-bold leading-[1.08] tracking-tight text-white sm:text-[2.75rem] lg:text-[3.15rem]">
+                <h1 className="mt-1.5 text-[1.65rem] font-bold leading-[1.1] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
                   Badminton doubles
                   <span className="block text-white/80">community games</span>
                 </h1>
 
-                <p className="mt-4 text-[13px] font-medium text-white/75 sm:text-[14px]">
-                  {EVENT.date}
-                  <span className="mx-2 text-white/30">·</span>
-                  {EVENT.timeWindow}
-                  <span className="mx-2 text-white/30">·</span>
-                  {EVENT.venueName}
+                <p className="mt-3 text-[12px] font-medium leading-relaxed text-white/75 sm:mt-4 sm:text-[14px]">
+                  <span className="inline-block">{EVENT.date}</span>
+                  <span className="mx-1.5 text-white/30 sm:mx-2">·</span>
+                  <span className="inline-block">{EVENT.timeWindow}</span>
+                  <span className="mx-1.5 text-white/30 sm:mx-2">·</span>
+                  <span className="inline-block">{EVENT.venueName}</span>
                 </p>
               </div>
 
@@ -260,7 +262,7 @@ export default async function EventPage() {
         {/* ===================== TWO-COLUMN BODY ===================== */}
         <div className="mt-8 grid gap-6 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_480px] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,1fr)_520px] xl:gap-10">
           {/* -------- LEFT: About + Things to know -------- */}
-          <div className="min-w-0 space-y-10">
+          <div className="min-w-0 space-y-8 sm:space-y-10">
             {/* About */}
             <section id="about" className="scroll-mt-24">
               <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">About</h2>
@@ -276,13 +278,13 @@ export default async function EventPage() {
                 </p>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#888]">
                   What&apos;s included
                 </h3>
-                <ul className="mt-3 space-y-2.5">
+                <ul className="mt-3 space-y-2 sm:space-y-2.5">
                   {EVENT.whatsIncluded.map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-[15px] text-[#4d4d4d]">
+                    <li key={item} className="flex items-start gap-2.5 text-[14px] text-[#4d4d4d] sm:gap-3 sm:text-[15px]">
                       <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF201] text-[11px] font-bold text-[#1c1c1c]">
                         ✓
                       </span>
@@ -292,15 +294,15 @@ export default async function EventPage() {
                 </ul>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6 sm:mt-8">
                 <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-[#888]">
                   Highlights
                 </h3>
-                <ul className="mt-3 space-y-4">
+                <ul className="mt-3 space-y-3 sm:space-y-4">
                   {EVENT.highlights.map((h) => (
                     <li key={h.title}>
-                      <p className="font-semibold text-[#1c1c1c]">{h.title}</p>
-                      <p className="mt-0.5 text-[14px] leading-relaxed text-[#666]">{h.body}</p>
+                      <p className="text-[14px] font-semibold text-[#1c1c1c] sm:text-[15px]">{h.title}</p>
+                      <p className="mt-0.5 text-[13px] leading-relaxed text-[#666] sm:text-[14px]">{h.body}</p>
                     </li>
                   ))}
                 </ul>
@@ -310,15 +312,22 @@ export default async function EventPage() {
             {/* Things to know */}
             <section>
               <h2 className="text-xl font-bold tracking-tight text-[#1c1c1c]">Things to know</h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:gap-3">
                 {thingsToKnow.map((t) => (
-                  <div key={t.label} className="flex items-center gap-3">
-                    <span className="shrink-0 text-[#888]">
-                      <ThingIcon name={t.icon} />
-                    </span>
-                    <div>
-                      <p className="text-[13px] text-[#888]">{t.label}</p>
-                      <p className="text-[14px] font-medium text-[#1c1c1c]">{t.value}</p>
+                  <div
+                    key={t.label}
+                    className="rounded-xl border border-[#ebebeb] bg-white px-2.5 py-2.5 sm:px-3.5 sm:py-3"
+                  >
+                    <div className="flex items-start gap-2 sm:items-center sm:gap-2.5">
+                      <span className="mt-0.5 shrink-0 text-[#888] sm:mt-0 [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-5 sm:[&_svg]:w-5">
+                        <ThingIcon name={t.icon} />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[11px] leading-tight text-[#888] sm:text-[13px]">{t.label}</p>
+                        <p className="mt-0.5 text-[12px] font-semibold leading-snug text-[#1c1c1c] sm:text-[14px] sm:font-medium">
+                          {t.value}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -491,17 +500,19 @@ export default async function EventPage() {
         </div>
 
         {/* ===================== REGISTRATION (mobile) ===================== */}
-        <section id="register-mobile" className="mt-14 scroll-mt-24 border-t border-[#e8e8e8] pt-12 lg:hidden">
-          <h2 className="text-center text-2xl font-bold tracking-tight text-[#1c1c1c]">
-            {soldOut ? "This session is full" : "Book your spot"}
-          </h2>
-          <p className="mx-auto mt-2 max-w-md text-center text-[15px] text-[#666]">
-            {soldOut
-              ? "All doubles spots are taken. Follow Ofside for the next session."
-              : "One checkout = you + your partner. Email OTP to verify, then pay."}
-          </p>
-          <div className="mx-auto mt-8 max-w-xl">
-            <RegistrationForm soldOut={soldOut} />
+        <section className="mt-8 border-t border-[#e8e8e8] pt-6 lg:hidden">
+          <div id="register-mobile" className="scroll-mt-3">
+            <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
+              {soldOut ? "This session is full" : "Book your spot"}
+            </h2>
+            <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
+              {soldOut
+                ? "All doubles spots are taken. Follow Ofside for the next session."
+                : "One checkout = you + your partner. Email OTP to verify, then pay."}
+            </p>
+            <div className="mx-auto mt-4 max-w-xl">
+              <RegistrationForm soldOut={soldOut} />
+            </div>
           </div>
         </section>
       </div>

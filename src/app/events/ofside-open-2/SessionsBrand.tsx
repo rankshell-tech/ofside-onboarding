@@ -48,7 +48,7 @@ export default function SessionsBrand() {
   }, []);
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start gap-1.5 sm:gap-2">
       <div ref={logoWrapRef} className="leading-none">
         <Image
           src={EVENT.logoSrc}
@@ -56,7 +56,7 @@ export default function SessionsBrand() {
           width={240}
           height={LOGO_HEIGHT}
           priority
-          className="block h-9 w-auto object-contain object-left sm:h-10"
+          className="block h-8 w-auto object-contain object-left sm:h-10"
         />
       </div>
       <p
