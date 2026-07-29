@@ -375,7 +375,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
 
   if (soldOut) {
     return (
-      <div className="rounded-2xl border border-[#b6ddd7] bg-[#e6f7f5] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
+      <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-lg text-red-500">
           ✕
         </div>
@@ -390,7 +390,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const stepIndex = STEPS.indexOf(step === "done" ? "pay" : step);
 
   return (
-    <div className="rounded-2xl border border-[#b6ddd7] bg-[#e6f7f5] p-4 text-[#1c1c1c] shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)] sm:p-5">
+    <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-4 text-[#1c1c1c] shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)] sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-base font-bold tracking-tight text-[#1c1c1c]">Badminton doubles entry</h3>
@@ -438,10 +438,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             onChange={setLeadGender}
             label="Gender *"
             aside={
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f9a8d4] bg-[#db2777] px-3 py-1 text-[11px] font-bold leading-none text-white">
-                <span className="text-[13px] leading-none" aria-hidden>
-                  🎉
-                </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#f9a8d4] bg-[#db2777] px-3 py-1 text-[11px] leading-none text-white">
                 Avail 10% off female doubles
               </span>
             }

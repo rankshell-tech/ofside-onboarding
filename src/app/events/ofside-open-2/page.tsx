@@ -149,59 +149,52 @@ export default async function EventPage() {
             {/* top: brand + offers */}
             <div className="relative z-10 flex flex-col gap-3 p-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-7">
               <SessionsBrand />
-              <div className="flex flex-wrap items-center gap-2 sm:max-w-[15rem] sm:flex-col sm:items-end">
-                <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.04em] text-[#1c1c1c] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px] sm:tracking-[0.06em]">
-                  <Image
-                    src="/assets/ofside-icon.webp"
-                    alt=""
-                    width={16}
-                    height={16}
-                    className="h-4 w-4 shrink-0 rounded-full object-cover ring-1 ring-black/10"
-                  />
+              <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:max-w-none sm:items-end">
+                <span className="inline-flex max-w-full items-center self-start rounded-full bg-[#FFF201] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.04em] text-[#1c1c1c] sm:self-end sm:px-3 sm:py-1.5 sm:text-[11px] sm:tracking-[0.06em]">
                   <span className="truncate sm:hidden">Free PRO · ₹399/yr</span>
                   <span className="hidden sm:inline">Free Ofside PRO · ₹399/yr</span>
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex w-full items-stretch gap-2 sm:w-auto">
                   <a
                     href={PLAY_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:bg-[#FFF201] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-2 sm:py-1"
+                    className="inline-flex flex-1 items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:px-3.5 sm:py-2.5"
                     aria-label="Get Ofside on Google Play"
                   >
                     <Image
                       src="/assets/playstore.webp"
                       alt=""
-                      width={20}
-                      height={20}
-                      className="h-5 w-5 rounded-[3px]"
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 shrink-0 rounded-md"
                     />
-                    <span className="hidden text-left leading-none sm:block">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666]">
+                    <span className="text-left leading-none">
+                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
                         Get it on
                       </span>
-                      <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">Google Play</span>
+                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">Google Play</span>
                     </span>
                   </a>
                   <a
                     href={APP_STORE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-white shadow-[0_6px_18px_-10px_rgba(0,0,0,0.5)] transition hover:bg-[#FFF201] sm:h-auto sm:w-auto sm:gap-1.5 sm:px-2 sm:py-1"
+                    className="inline-flex flex-1 items-center gap-2.5 rounded-xl border border-white/25 bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.55)] transition hover:-translate-y-0.5 hover:bg-[#FFF201] sm:flex-none sm:px-3.5 sm:py-2.5"
                     aria-label="Download Ofside on the App Store"
                   >
                     <Image
                       src="/assets/appstore.webp"
                       alt=""
-                      width={20}
-                      height={20}
-                      className="h-5 w-5 rounded-[3px]"
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 shrink-0 rounded-md"
                     />
-                    <span className="hidden text-left leading-none sm:block">
-                      <span className="block text-[8px] font-medium uppercase tracking-[0.1em] text-[#666]">
+                    <span className="text-left leading-none">
+                      <span className="block text-[9px] font-medium uppercase tracking-[0.12em] text-[#666]">
                         Download on
                       </span>
-                      <span className="mt-0.5 block text-[10px] font-bold text-[#1c1c1c]">App Store</span>
+                      <span className="mt-1 block text-[13px] font-bold text-[#1c1c1c]">App Store</span>
                     </span>
                   </a>
                 </div>
