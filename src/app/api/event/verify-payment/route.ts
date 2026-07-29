@@ -4,6 +4,7 @@ import EventRegistration from "@/models/EventRegistration";
 import { verifyPaymentSignature } from "@/lib/razorpay";
 import { generateTicketCode, ticketAbsoluteUrl } from "@/lib/ticket";
 import { grantEventProMembership } from "@/lib/grantEventPro";
+import { sendRegistrationConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,12 +46,14 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    const ticketUrl = ticketAbsoluteUrl(ticketCode, req.nextUrl?.origin);
+
     doc.set({
       paymentStatus: "paid",
       status: "paid",
       razorpayPaymentId: paymentId,
       razorpaySignature: signature,
-      paidAt: new Date(),
+      paidAt: doc.paidAt || new Date(),
       ticketCode,
     });
     await doc.save();
@@ -58,11 +61,31 @@ export async function POST(req: NextRequest) {
     // Free Ofside PRO for lead + partner (create accounts if missing). Non-blocking for ticket UX.
     void grantEventProMembership(String(doc._id));
 
+    // Confirmation email with ticket — once per registration (lead + partner).
+    if (!doc.confirmationEmailSentAt) {
+      try {
+        await sendRegistrationConfirmationEmail({
+          leadName: String(doc.leadName || ""),
+          partnerName: String(doc.partnerName || ""),
+          leadEmail: String(doc.leadEmail || ""),
+          partnerEmail: doc.partnerEmail ? String(doc.partnerEmail) : null,
+          amountInr: Number(doc.amountInr) || 0,
+          ticketCode,
+          ticketUrl,
+        });
+        doc.confirmationEmailSentAt = new Date();
+        await doc.save();
+      } catch (emailErr) {
+        // eslint-disable-next-line no-console
+        console.warn("[event/verify-payment] confirmation email failed:", emailErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Payment confirmed. You're in!",
       ticketCode,
-      ticketUrl: ticketAbsoluteUrl(ticketCode, req.nextUrl?.origin),
+      ticketUrl,
     });
   } catch (err) {
     // eslint-disable-next-line no-console

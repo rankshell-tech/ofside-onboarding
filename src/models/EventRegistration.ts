@@ -65,6 +65,9 @@ const eventRegistrationSchema = new Schema(
     proGrantedAt: { type: Date, default: null },
     proGrantResults: { type: Schema.Types.Mixed, default: null },
 
+    /** Confirmation email with ticket (lead + partner). */
+    confirmationEmailSentAt: { type: Date, default: null },
+
     status: { type: String, enum: REGISTRATION_STATUSES, default: "pending" as RegistrationStatus },
   },
   { timestamps: true }
