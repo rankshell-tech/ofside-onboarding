@@ -1,6 +1,6 @@
 /**
  * Notify the Ofside app backend to create accounts (if needed) and redeem
- * BadmintonDoubleFreeMembership22Sept for lead + partner after paid registration.
+ * BadmintonDoubleFreeMembership22Aug2026 for lead + partner after paid registration.
  * Failures are logged only — ticket issuance must not roll back.
  */
 export async function grantEventProMembership(registrationId: string): Promise<void> {

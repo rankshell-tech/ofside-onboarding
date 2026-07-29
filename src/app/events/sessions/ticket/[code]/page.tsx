@@ -8,17 +8,25 @@ import { ticketAbsoluteUrl, ticketQrImageUrl } from "@/lib/ticket";
 
 type Props = { params: Promise<{ code: string }> };
 
-async function loadTicket(code: string) {
+type TicketDoc = {
+  ticketCode?: string | null;
+  leadName?: string;
+  partnerName?: string;
+  amountInr?: number;
+  checkedInAt?: Date | string | null;
+};
+
+async function loadTicket(code: string): Promise<TicketDoc | null> {
   const normalized = code.trim().toUpperCase();
   if (!/^[A-Z0-9]{6,12}$/.test(normalized)) return null;
   if (!process.env.MONGODB_URI) return null;
   try {
     await connectToDB();
-    const doc = await EventRegistration.findOne({
+    const doc = (await EventRegistration.findOne({
       ticketCode: normalized,
       paymentStatus: "paid",
       eventSlug: EVENT.slug,
-    }).lean();
+    }).lean()) as TicketDoc | null;
     return doc;
   } catch {
     return null;
