@@ -30,9 +30,9 @@ export const EVENT = {
 
   sport: "Badminton Doubles",
 
-  // Pricing — ₹290/player → ₹580 doubles checkout (10% off for female pairs).
-  pricePerPersonInr: 290,
-  displayPriceInr: 290,
+  // Pricing — TEMP testing: ₹1/player → ₹2 doubles checkout. Restore to 290 before launch.
+  pricePerPersonInr: 1,
+  displayPriceInr: 1,
   gstMultiplier: 1,
   femalePairDiscount: 0.1,
   currency: "INR",

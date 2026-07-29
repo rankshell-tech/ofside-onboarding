@@ -66,8 +66,11 @@ export async function POST(req: NextRequest) {
         { success: false, message: "Please tell us if your doubles group will bring equipment." },
         { status: 400 }
       );
-    if (!waiverOwnRisk || !waiverTerms)
-      return NextResponse.json({ success: false, message: "Please accept the waivers to continue." }, { status: 400 });
+    if (!waiverTerms)
+      return NextResponse.json(
+        { success: false, message: "Please accept the Terms & Conditions to continue." },
+        { status: 400 }
+      );
 
     await connectToDB();
 
@@ -87,7 +90,11 @@ export async function POST(req: NextRequest) {
     // Capacity: only block new emails once sold out (allow OTP resend for in-progress).
     if (!existing && paidCount >= EVENT.maxRegistrations)
       return NextResponse.json(
-        { success: false, message: "We're sold out — all spots for this session are taken.", soldOut: true },
+        {
+          success: false,
+          message: `All slots booked — ${EVENT.maxRegistrations} doubles (${EVENT.maxPlayers} players) are full.`,
+          soldOut: true,
+        },
         { status: 410 }
       );
 

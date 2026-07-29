@@ -33,7 +33,11 @@ export async function POST(req: NextRequest) {
 
     if (paidCount >= EVENT.maxRegistrations)
       return NextResponse.json(
-        { success: false, message: "We're sold out — all spots for this session are taken.", soldOut: true },
+        {
+          success: false,
+          message: `All slots booked — ${EVENT.maxRegistrations} doubles (${EVENT.maxPlayers} players) are full.`,
+          soldOut: true,
+        },
         { status: 410 }
       );
 

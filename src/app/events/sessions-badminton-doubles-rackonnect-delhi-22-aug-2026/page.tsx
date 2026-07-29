@@ -150,7 +150,7 @@ export default async function EventPage() {
               className="object-cover object-center sm:hidden"
             />
             <Image
-              src="/assets/banner_1232_530.png"
+              src="/assets/banner_1232_530.jpg"
               alt=""
               fill
               priority
@@ -258,7 +258,7 @@ export default async function EventPage() {
                 </div>
                 {soldOut ? (
                   <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70">
-                    Sold out
+                    All slots booked
                   </span>
                 ) : (
                   <a
@@ -545,11 +545,11 @@ export default async function EventPage() {
         <section className="mt-8 border-t border-[#e8e8e8] pt-6 lg:hidden">
           <div id="register-mobile" className="scroll-mt-3">
             <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
-              {soldOut ? "This session is full" : "Book your spot"}
+              {soldOut ? "All slots booked" : "Book your spot"}
             </h2>
             <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
               {soldOut
-                ? "All doubles spots are taken. Follow Ofside for the next session."
+                ? `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken.`
                 : "One checkout = you + your partner. Email OTP to verify, then pay."}
             </p>
             <div className="mx-auto mt-4 max-w-xl">
@@ -571,7 +571,7 @@ export default async function EventPage() {
           </div>
           {soldOut ? (
             <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">
-              Sold out
+              All slots booked
             </span>
           ) : (
             <a

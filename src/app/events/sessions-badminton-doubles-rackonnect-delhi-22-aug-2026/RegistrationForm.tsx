@@ -52,7 +52,7 @@ const STEPS: Step[] = ["you", "partner", "waiver", "otp", "pay"];
 const STEP_LABELS: Record<Exclude<Step, "done">, string> = {
   you: "You",
   partner: "Partner",
-  waiver: "Consent",
+  waiver: "Terms",
   otp: "Verify",
   pay: "Pay",
 };
@@ -228,6 +228,7 @@ function DiscountConfetti({ burstKey }: { burstKey: number }) {
 
 export default function RegistrationForm({ soldOut = false }: { soldOut?: boolean }) {
   const [step, setStep] = useState<Step>("you");
+  const [liveSoldOut, setLiveSoldOut] = useState(soldOut);
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [leadPhone, setLeadPhone] = useState("");
@@ -238,7 +239,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const [partnerPhone, setPartnerPhone] = useState("");
   const [partnerGender, setPartnerGender] = useState<EventGender | "">("");
   const [bringingOwnEquipment, setBringingOwnEquipment] = useState<"Yes" | "No" | "">("");
-  const [waiverOwnRisk, setWaiverOwnRisk] = useState(false);
   const [waiverTerms, setWaiverTerms] = useState(false);
   const [otp, setOtp] = useState("");
   const [registrationId, setRegistrationId] = useState("");
@@ -248,6 +248,10 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   const payAutoStarted = useRef(false);
   const [confettiKey, setConfettiKey] = useState(0);
   const prevBothFemale = useRef(false);
+
+  useEffect(() => {
+    setLiveSoldOut(soldOut);
+  }, [soldOut]);
 
   const bothFemale = leadGender === "Female" && partnerGender === "Female";
   const amountInr = useMemo(() => priceForCheckout(bothFemale), [bothFemale]);
@@ -294,7 +298,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       partnerPhone: normalizePhoneDigits(partnerPhone),
       partnerGender,
       bringingOwnEquipment: bringingOwnEquipment === "Yes",
-      waiverOwnRisk,
       waiverTerms,
     }),
     [
@@ -308,7 +311,6 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       partnerPhone,
       partnerGender,
       bringingOwnEquipment,
-      waiverOwnRisk,
       waiverTerms,
     ]
   );
@@ -323,6 +325,10 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
         body: JSON.stringify(payload()),
       });
       const data = await res.json();
+      if (data?.soldOut) {
+        setLiveSoldOut(true);
+        throw new Error(data.message || "All slots booked.");
+      }
       if (!res.ok || !data.success) throw new Error(data.message || "Something went wrong.");
       setRegistrationId(data.registrationId);
       setStep("otp");
@@ -382,6 +388,10 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
         body: JSON.stringify({ registrationId }),
       });
       const order = await orderRes.json();
+      if (order?.soldOut) {
+        setLiveSoldOut(true);
+        throw new Error(order.message || "All slots booked.");
+      }
       if (!orderRes.ok || !order.success) throw new Error(order.message || "Could not start payment.");
 
       const ok = await loadRazorpayScript();
@@ -433,15 +443,16 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     void pay();
   }, [step, registrationId, pay]);
 
-  if (soldOut) {
+  if (liveSoldOut) {
     return (
       <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-lg text-red-500">
           ✕
         </div>
-        <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">We&apos;re sold out</h3>
+        <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">All slots booked</h3>
         <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">
-          All {EVENT.maxRegistrations} doubles spots are taken. Follow Ofside for the next drop.
+          All {EVENT.maxRegistrations} doubles spots ({EVENT.maxPlayers} players) are taken.
+          Follow Ofside for the next session.
         </p>
       </div>
     );
@@ -584,7 +595,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               }}
               className={`flex-1 ${btnPrimary}`}
             >
-              Next · Consent
+              Next · Terms
             </button>
           </div>
         </div>
@@ -592,58 +603,33 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
 
       {step === "waiver" && (
         <div className="flex flex-col gap-4">
-          {(
-            [
-              {
-                id: "risk",
-                checked: waiverOwnRisk,
-                set: setWaiverOwnRisk,
-                label: "I understand this is a community sports event and I participate at my own risk.",
-              },
-              {
-                id: "terms",
-                checked: waiverTerms,
-                set: setWaiverTerms,
-                label: (
-                  <>
-                    I agree to the{" "}
-                    <a
-                      href="/events/sessions/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold text-[#0f766e] underline underline-offset-2"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Terms &amp; Conditions
-                    </a>
-                    .
-                  </>
-                ),
-              },
-            ] as {
-              id: string;
-              checked: boolean;
-              set: (v: boolean) => void;
-              label: ReactNode;
-            }[]
-          ).map((w) => (
-            <label
-              key={w.id}
-              className={`flex cursor-pointer gap-3 rounded-xl border-2 px-3.5 py-3 transition ${
-                w.checked
-                  ? "border-[#0f766e] bg-white shadow-[0_2px_0_rgba(15,118,110,0.12)]"
-                  : "border-[#7ec4bc] bg-white/80 hover:border-[#0f766e]"
-              }`}
-            >
-              <input
-                type="checkbox"
-                className="mt-0.5 h-4 w-4 accent-[#0f766e]"
-                checked={w.checked}
-                onChange={(e) => w.set(e.target.checked)}
-              />
-              <span className="text-[13px] leading-snug text-[#444]">{w.label}</span>
-            </label>
-          ))}
+          <label
+            className={`flex cursor-pointer gap-3 rounded-xl border-2 px-3.5 py-3 transition ${
+              waiverTerms
+                ? "border-[#0f766e] bg-white shadow-[0_2px_0_rgba(15,118,110,0.12)]"
+                : "border-[#7ec4bc] bg-white/80 hover:border-[#0f766e]"
+            }`}
+          >
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 accent-[#0f766e]"
+              checked={waiverTerms}
+              onChange={(e) => setWaiverTerms(e.target.checked)}
+            />
+            <span className="text-[13px] leading-snug text-[#444]">
+              I agree to the{" "}
+              <a
+                href="/events/sessions/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#0f766e] underline underline-offset-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Terms &amp; Conditions
+              </a>
+              .
+            </span>
+          </label>
           <div className="mt-2 flex gap-2">
             <button type="button" onClick={() => setStep("partner")} className={btnGhost}>
               Back
@@ -652,8 +638,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               type="button"
               onClick={() => {
                 setError("");
-                if (!waiverOwnRisk || !waiverTerms)
-                  return setError("Please accept both to continue.");
+                if (!waiverTerms) return setError("Please accept the Terms & Conditions to continue.");
                 void submitDetails();
               }}
               disabled={loading}
