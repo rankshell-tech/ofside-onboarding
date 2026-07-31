@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import { verifyPaymentSignature } from "@/lib/razorpay";
@@ -58,13 +58,10 @@ export async function POST(req: NextRequest) {
     });
     await doc.save();
 
-    // Free Ofside PRO for lead + partner (create accounts if missing). Non-blocking for ticket UX.
-    void grantEventProMembership(String(doc._id));
-
-    // Confirmation email with ticket — once per registration (lead + partner).
-    if (!doc.confirmationEmailSentAt) {
-      try {
-        await sendRegistrationConfirmationEmail({
+    const registrationIdStr = String(doc._id);
+    const shouldSendConfirmation = !doc.confirmationEmailSentAt;
+    const confirmationPayload = shouldSendConfirmation
+      ? {
           leadName: String(doc.leadName || ""),
           partnerName: String(doc.partnerName || ""),
           leadEmail: String(doc.leadEmail || ""),
@@ -72,14 +69,31 @@ export async function POST(req: NextRequest) {
           amountInr: Number(doc.amountInr) || 0,
           ticketCode,
           ticketUrl,
-        });
-        doc.confirmationEmailSentAt = new Date();
-        await doc.save();
-      } catch (emailErr) {
-        // eslint-disable-next-line no-console
-        console.warn("[event/verify-payment] confirmation email failed:", emailErr);
-      }
-    }
+        }
+      : null;
+
+    // PRO grant + confirmation email after response so the thank-you screen isn't waiting on Resend.
+    after(async () => {
+      await Promise.all([
+        grantEventProMembership(registrationIdStr).catch((proErr) => {
+          // eslint-disable-next-line no-console
+          console.warn("[event/verify-payment] PRO grant failed:", proErr);
+        }),
+        (async () => {
+          if (!confirmationPayload) return;
+          try {
+            await sendRegistrationConfirmationEmail(confirmationPayload);
+            await EventRegistration.updateOne(
+              { _id: registrationIdStr, confirmationEmailSentAt: null },
+              { $set: { confirmationEmailSentAt: new Date() } }
+            );
+          } catch (emailErr) {
+            // eslint-disable-next-line no-console
+            console.warn("[event/verify-payment] confirmation email failed:", emailErr);
+          }
+        })(),
+      ]);
+    });
 
     return NextResponse.json({
       success: true,

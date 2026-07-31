@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { EVENT } from "@/lib/eventConfig";
 
 type NavLink = {
   name: string;
   href: string;
   primary?: boolean;
+  highlight?: boolean;
 };
 
 const navLinks: NavLink[] = [
@@ -15,8 +17,47 @@ const navLinks: NavLink[] = [
   { name: "Features", href: "/players" },
   { name: "About Us", href: "/about-us" },
   { name: "Contact Us", href: "/contact-us" },
+  { name: "Sessions", href: `/events/${EVENT.path}`, highlight: true },
   { name: "Download App", href: "/players", primary: true },
 ];
+
+function SessionsNavLogo({ className }: { className: string }) {
+  return (
+    <span className="inline-flex items-center">
+      <Image
+        src={EVENT.logoSrc}
+        alt="SESSIONS"
+        width={96}
+        height={22}
+        className={`w-auto object-contain ${className}`}
+      />
+      <Image
+        src="/assets/shuttlecock.png"
+        alt=""
+        width={32}
+        height={32}
+        className="sessions-nav-emoji -ml-0.5 h-6 w-6 object-contain"
+        aria-hidden
+      />
+    </span>
+  );
+}
+
+function linkClassName(link: NavLink, mobile = false): string {
+  if (link.primary) {
+    return mobile
+      ? "inline-flex items-center justify-center rounded-2xl bg-gray-950 px-4 py-3 text-sm font-semibold text-white"
+      : "inline-flex shrink-0 items-center rounded-2xl bg-gray-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800";
+  }
+  if (link.highlight) {
+    return mobile
+      ? "inline-flex items-center justify-center px-4 py-3"
+      : "inline-flex shrink-0 items-center";
+  }
+  return mobile
+    ? "inline-flex items-center rounded-2xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-950 hover:text-[#FFF201]"
+    : "shrink-0 text-sm font-medium text-gray-700 transition hover:text-gray-950";
+}
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,26 +69,17 @@ export default function Header() {
           <Image src="/assets/ofside-logo.png" alt="Ofside" width={128} height={40} priority />
         </Link>
 
-        <div className="hidden items-center gap-2 lg:flex">
-          {navLinks.map((link) =>
-            link.primary ? (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="inline-flex items-center rounded-2xl bg-gray-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
-              >
-                {link.name}
-              </Link>
-            ) : (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="rounded-2xl px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-950 hover:text-[#FFF201]"
-              >
-                {link.name}
-              </Link>
-            )
-          )}
+        <div className="hidden items-center gap-6 lg:flex">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={linkClassName(link)}
+              aria-label={link.highlight ? "SESSIONS event" : undefined}
+            >
+              {link.highlight ? <SessionsNavLogo className="h-4" /> : link.name}
+            </Link>
+          ))}
         </div>
 
         <button
@@ -69,14 +101,15 @@ export default function Header() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={
-                  link.primary
-                    ? "inline-flex items-center justify-center rounded-2xl bg-gray-950 px-4 py-3 text-sm font-semibold text-white"
-                    : "inline-flex items-center rounded-2xl px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-950 hover:text-[#FFF201]"
-                }
+                className={linkClassName(link, true)}
+                aria-label={link.highlight ? "SESSIONS event" : undefined}
                 onClick={() => setIsOpen(false)}
               >
-                {link.name}
+                {link.highlight ? (
+                  <SessionsNavLogo className="h-[1.15rem]" />
+                ) : (
+                  link.name
+                )}
               </Link>
             ))}
           </div>

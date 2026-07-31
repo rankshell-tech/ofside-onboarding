@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import { EVENT, priceForCheckout, type EventGender, type EventPlayerLevel } from "@/lib/eventConfig";
@@ -145,7 +145,15 @@ export async function POST(req: NextRequest) {
     });
     await doc.save();
 
-    await sendOtpEmail(leadEmail, otp, leadName);
+    // Don't block the response on Resend — UI moves to OTP while the email sends.
+    after(async () => {
+      try {
+        await sendOtpEmail(leadEmail, otp, leadName);
+      } catch (emailErr) {
+        // eslint-disable-next-line no-console
+        console.warn("[event/register] OTP email failed:", emailErr);
+      }
+    });
 
     return NextResponse.json({
       success: true,

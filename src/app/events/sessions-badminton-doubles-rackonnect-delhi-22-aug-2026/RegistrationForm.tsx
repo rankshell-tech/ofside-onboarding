@@ -36,16 +36,36 @@ declare global {
   }
 }
 
+let razorpayScriptPromise: Promise<boolean> | null = null;
+
 function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === "undefined") return resolve(false);
-    if (window.Razorpay) return resolve(true);
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.Razorpay) return Promise.resolve(true);
+  if (razorpayScriptPromise) return razorpayScriptPromise;
+  razorpayScriptPromise = new Promise((resolve) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src="https://checkout.razorpay.com/v1/checkout.js"]'
+    );
+    if (existing) {
+      if (window.Razorpay) return resolve(true);
+      existing.addEventListener("load", () => resolve(true));
+      existing.addEventListener("error", () => {
+        razorpayScriptPromise = null;
+        resolve(false);
+      });
+      return;
+    }
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
     script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
+    script.onerror = () => {
+      razorpayScriptPromise = null;
+      resolve(false);
+    };
     document.body.appendChild(script);
   });
+  return razorpayScriptPromise;
 }
 
 const STEPS: Step[] = ["you", "partner", "waiver", "otp", "pay"];
@@ -253,6 +273,11 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     setLiveSoldOut(soldOut);
   }, [soldOut]);
 
+  // Prefetch Razorpay while the user is filling the form so Pay opens faster.
+  useEffect(() => {
+    void loadRazorpayScript();
+  }, []);
+
   const bothFemale = leadGender === "Female" && partnerGender === "Female";
   const amountInr = useMemo(() => priceForCheckout(bothFemale), [bothFemale]);
   const mapsUrl =
@@ -382,19 +407,21 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     setError("");
     setLoading(true);
     try {
-      const orderRes = await fetch("/api/event/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ registrationId }),
-      });
+      // Order creation + checkout script in parallel (script is usually already prefetched).
+      const [orderRes, ok] = await Promise.all([
+        fetch("/api/event/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ registrationId }),
+        }),
+        loadRazorpayScript(),
+      ]);
       const order = await orderRes.json();
       if (order?.soldOut) {
         setLiveSoldOut(true);
         throw new Error(order.message || "All slots booked.");
       }
       if (!orderRes.ok || !order.success) throw new Error(order.message || "Could not start payment.");
-
-      const ok = await loadRazorpayScript();
       if (!ok || !window.Razorpay) throw new Error("Could not load payment gateway. Check your connection.");
 
       const rzp = new window.Razorpay({
@@ -704,9 +731,14 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0f766e] text-xl text-white">
               ✓
             </div>
-            <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">You&apos;re in!</h3>
-            <p className="mt-1.5 text-sm text-[#5f8f88]">
-              You + {partnerName || "partner"} · confirmation to {leadEmail}
+            <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">Thank you — you&apos;re in!</h3>
+            <p className="mt-1.5 text-sm leading-relaxed text-[#5f8f88]">
+              Thanks for registering for {EVENT.seriesName}. We can&apos;t wait to see you and{" "}
+              {partnerName || "your partner"} on court.
+            </p>
+            <p className="mt-1 text-[12px] text-[#8aabb0]">
+              Confirmation email sent to {leadEmail}
+              {partnerEmail ? ` and ${partnerEmail}` : ""}.
             </p>
           </div>
 
