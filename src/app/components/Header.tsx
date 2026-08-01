@@ -79,9 +79,9 @@ export default function Header() {
 
   return (
     <header className="absolute inset-x-0 top-0 z-40 w-full border-b border-white/60 bg-white/90 backdrop-blur sm:sticky sm:top-0">
-      {/* Mobile: equal side columns so Sessions sits in true center */}
-      <nav className="mx-auto grid h-[4.5rem] max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-3 sm:px-6 lg:hidden">
-        <Link href="/" className="justify-self-start">
+      {/* Mobile: Ofside left, Sessions + menu right */}
+      <nav className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-3 sm:px-6 lg:hidden">
+        <Link href="/" className="shrink-0">
           <Image
             src="/assets/ofside-logo.png"
             alt="Ofside"
@@ -92,27 +92,28 @@ export default function Header() {
           />
         </Link>
 
-        <Link
-          href={sessionsLink.href}
-          className="flex h-full items-center justify-center"
-          aria-label="SESSIONS event"
-        >
-          <SessionsNavLogo
-            className="h-3"
-            emojiClassName="sessions-nav-emoji -ml-px h-3.5 w-3.5 object-contain"
-          />
-        </Link>
-
-        <button
-          type="button"
-          className="justify-self-end inline-flex rounded-2xl border border-gray-200 p-2 text-gray-900"
-          aria-label="Toggle menu"
-          onClick={() => setIsOpen((value) => !value)}
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href={sessionsLink.href}
+            className="inline-flex items-center"
+            aria-label="SESSIONS event"
+          >
+            <SessionsNavLogo
+              className="h-4"
+              emojiClassName="sessions-nav-emoji -ml-0.5 h-[1.15rem] w-[1.15rem] object-contain"
+            />
+          </Link>
+          <button
+            type="button"
+            className="inline-flex rounded-2xl border border-gray-200 p-2 text-gray-900"
+            aria-label="Toggle menu"
+            onClick={() => setIsOpen((value) => !value)}
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </nav>
 
       {/* Desktop */}
