@@ -167,18 +167,18 @@ a {
   .animate-progress-tip { animation: none; }
 }
 
-/* Header SESSIONS — soft float + brand-yellow glow */
+/* Header SESSIONS — glow only (no translateY — that threw off vertical alignment) */
 @keyframes sessions-nav-soft {
   0%, 100% {
-    transform: translateY(1px);
     filter: drop-shadow(0 0 3px rgba(255, 242, 1, 0.5)) drop-shadow(0 0 8px rgba(255, 242, 1, 0.28));
   }
   50% {
-    transform: translateY(-2px);
     filter: drop-shadow(0 0 6px rgba(255, 242, 1, 0.85)) drop-shadow(0 0 14px rgba(255, 242, 1, 0.45));
   }
 }
 .sessions-nav-emoji {
+  display: block;
+  flex-shrink: 0;
   animation: sessions-nav-soft 2.4s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
