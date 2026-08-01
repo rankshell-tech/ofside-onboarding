@@ -178,7 +178,7 @@ export function SportsWeCover() {
           type="button"
           aria-label="Previous sports"
           disabled={!canGoPrev}
-          className={`absolute left-0 top-[1.5rem] z-20 -translate-x-1 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
+          className={`absolute left-0 top-[1.5rem] z-20 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
             canGoPrev
               ? "hover:border-yellow-300 hover:bg-yellow-50 hover:text-gray-950"
               : "cursor-not-allowed opacity-40"
@@ -192,7 +192,7 @@ export function SportsWeCover() {
           type="button"
           aria-label="Next sports"
           disabled={!canGoNext}
-          className={`absolute right-0 top-[1.5rem] z-20 translate-x-1 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
+          className={`absolute right-0 top-[1.5rem] z-20 sm:top-[1.65rem] md:top-[1.85rem] ${navBtnClass} ${
             canGoNext
               ? "hover:border-yellow-300 hover:bg-yellow-50 hover:text-gray-950"
               : "cursor-not-allowed opacity-40"

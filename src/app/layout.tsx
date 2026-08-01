@@ -61,7 +61,7 @@ export default function RootLayout({
         <ScrollRevealObserver />
         <Header />
         {/* Mobile: offset for absolute header; home hero uses -mt to full-bleed under the nav */}
-        <div className="pt-[4.5rem] sm:pt-0">{children}</div>
+        <div className="min-w-0 max-w-full pt-[4.5rem] sm:pt-0">{children}</div>
         <Footer />
       </body>
     </html>

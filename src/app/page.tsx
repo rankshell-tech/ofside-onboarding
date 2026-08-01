@@ -116,7 +116,7 @@ export default function Home() {
       </Section>
 
       {/* Pillar 1: Play Smarter */}
-      <Section className="relative py-20 sm:py-24">
+      <Section className="relative overflow-x-clip py-20 sm:py-24">
         <div
           aria-hidden
           className="pointer-events-none absolute -left-24 top-6 h-52 w-52 rounded-full bg-yellow-200/30 blur-3xl"
@@ -159,7 +159,7 @@ export default function Home() {
       </Section>
 
       {/* Pillar 3: Track & Compete */}
-      <Section className="relative py-20 sm:py-24">
+      <Section className="relative overflow-x-clip py-20 sm:py-24">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-24 top-12 h-52 w-52 rounded-full bg-amber-200/30 blur-3xl"

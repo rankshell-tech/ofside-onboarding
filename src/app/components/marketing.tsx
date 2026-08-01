@@ -132,14 +132,19 @@ export function SectionIntro({
   return (
     <div className={alignment}>
       {eyebrow ? (
-        <p className="mb-4 inline-flex rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-100 to-amber-100 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800 shadow-[0_8px_24px_rgba(250,204,21,0.18)]">
+        <p
+          className={`mb-4 inline-flex rounded-full border border-yellow-300/80 bg-gradient-to-r from-yellow-100 to-amber-100 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.24em] text-gray-800 shadow-[0_8px_24px_rgba(250,204,21,0.18)] ${
+            align === "center" ? "mx-auto" : ""
+          }`}
+        >
           {eyebrow}
         </p>
       ) : null}
       <h2
         className={
           singleLine
-            ? "whitespace-nowrap text-[clamp(1.35rem,3.8vw,2.65rem)] font-semibold leading-[1.12] tracking-tight text-gray-950"
+            ? // nowrap only from sm up — on mobile it overflows the viewport and leaves a white strip on refresh
+              "text-balance text-[clamp(1.35rem,5.2vw,2.65rem)] font-semibold leading-[1.15] tracking-tight text-gray-950 sm:whitespace-nowrap sm:text-[clamp(1.35rem,3.8vw,2.65rem)] sm:leading-[1.12]"
             : "text-balance text-3xl font-semibold tracking-tight text-gray-950 sm:text-4xl md:text-[2.65rem] md:leading-[1.12]"
         }
       >
