@@ -30,7 +30,13 @@ const navLinks: NavLink[] = [
 /** Menu drawer links — Sessions stays visible in the mobile top bar. */
 const mobileMenuLinks = navLinks.filter((link) => !link.highlight);
 
-function SessionsNavLogo({ className }: { className: string }) {
+function SessionsNavLogo({
+  className,
+  emojiClassName = "sessions-nav-emoji -ml-0.5 h-6 w-6 object-contain",
+}: {
+  className: string;
+  emojiClassName?: string;
+}) {
   return (
     <span className="inline-flex items-center">
       <Image
@@ -45,7 +51,7 @@ function SessionsNavLogo({ className }: { className: string }) {
         alt=""
         width={32}
         height={32}
-        className="sessions-nav-emoji -ml-0.5 h-6 w-6 object-contain"
+        className={emojiClassName}
         aria-hidden
       />
     </span>
@@ -73,9 +79,21 @@ export default function Header() {
 
   return (
     <header className="absolute inset-x-0 top-0 z-40 w-full border-b border-white/60 bg-white/90 backdrop-blur sm:sticky sm:top-0">
-      <nav className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="shrink-0">
+      <nav className="relative mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="relative z-10 shrink-0">
           <Image src="/assets/ofside-logo.png" alt="Ofside" width={128} height={40} priority />
+        </Link>
+
+        {/* Mobile: true horizontal + vertical center in the bar */}
+        <Link
+          href={sessionsLink.href}
+          className="absolute inset-y-0 left-1/2 z-10 flex -translate-x-1/2 items-center lg:hidden"
+          aria-label="SESSIONS event"
+        >
+          <SessionsNavLogo
+            className="h-3.5"
+            emojiClassName="sessions-nav-emoji -ml-0.5 h-4 w-4 object-contain"
+          />
         </Link>
 
         <div className="hidden items-center gap-6 lg:flex">
@@ -91,25 +109,16 @@ export default function Header() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <Link
-            href={sessionsLink.href}
-            className="inline-flex shrink-0 items-center"
-            aria-label="SESSIONS event"
-          >
-            <SessionsNavLogo className="h-[1.05rem]" />
-          </Link>
-          <button
-            type="button"
-            className="inline-flex rounded-2xl border border-gray-200 p-2.5 text-gray-900"
-            aria-label="Toggle menu"
-            onClick={() => setIsOpen((value) => !value)}
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
+        <button
+          type="button"
+          className="relative z-10 inline-flex rounded-2xl border border-gray-200 p-2.5 text-gray-900 lg:hidden"
+          aria-label="Toggle menu"
+          onClick={() => setIsOpen((value) => !value)}
+        >
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </nav>
 
       {isOpen ? (
