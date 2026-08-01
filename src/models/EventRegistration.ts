@@ -67,6 +67,8 @@ const eventRegistrationSchema = new Schema(
 
     /** Confirmation email with ticket (lead + partner). */
     confirmationEmailSentAt: { type: Date, default: null },
+    /** Admin notification email after paid registration. */
+    adminNotifyEmailSentAt: { type: Date, default: null },
 
     status: { type: String, enum: REGISTRATION_STATUSES, default: "pending" as RegistrationStatus },
   },

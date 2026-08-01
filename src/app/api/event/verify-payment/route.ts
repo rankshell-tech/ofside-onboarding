@@ -4,7 +4,10 @@ import EventRegistration from "@/models/EventRegistration";
 import { verifyPaymentSignature } from "@/lib/razorpay";
 import { generateTicketCode, ticketAbsoluteUrl } from "@/lib/ticket";
 import { grantEventProMembership } from "@/lib/grantEventPro";
-import { sendRegistrationConfirmationEmail } from "@/lib/email";
+import {
+  sendAdminRegistrationNotificationEmail,
+  sendRegistrationConfirmationEmail,
+} from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     const registrationIdStr = String(doc._id);
     const shouldSendConfirmation = !doc.confirmationEmailSentAt;
+    const shouldNotifyAdmin = !doc.adminNotifyEmailSentAt;
     const confirmationPayload = shouldSendConfirmation
       ? {
           leadName: String(doc.leadName || ""),
@@ -71,8 +75,28 @@ export async function POST(req: NextRequest) {
           ticketUrl,
         }
       : null;
+    const adminPayload = shouldNotifyAdmin
+      ? {
+          leadName: String(doc.leadName || ""),
+          leadEmail: String(doc.leadEmail || ""),
+          leadPhone: String(doc.leadPhone || ""),
+          leadGender: String(doc.leadGender || ""),
+          leadLevel: String(doc.leadLevel || ""),
+          partnerName: String(doc.partnerName || ""),
+          partnerEmail: doc.partnerEmail ? String(doc.partnerEmail) : null,
+          partnerPhone: String(doc.partnerPhone || ""),
+          partnerGender: String(doc.partnerGender || ""),
+          bothFemale: Boolean(doc.bothFemale),
+          femaleDiscountApplied: Boolean(doc.femaleDiscountApplied),
+          amountInr: Number(doc.amountInr) || 0,
+          ticketCode,
+          ticketUrl,
+          razorpayPaymentId: paymentId,
+          registrationId: registrationIdStr,
+        }
+      : null;
 
-    // PRO grant + confirmation email after response so the thank-you screen isn't waiting on Resend.
+    // PRO grant + emails after response so the thank-you screen isn't waiting on Resend.
     after(async () => {
       await Promise.all([
         grantEventProMembership(registrationIdStr).catch((proErr) => {
@@ -90,6 +114,19 @@ export async function POST(req: NextRequest) {
           } catch (emailErr) {
             // eslint-disable-next-line no-console
             console.warn("[event/verify-payment] confirmation email failed:", emailErr);
+          }
+        })(),
+        (async () => {
+          if (!adminPayload) return;
+          try {
+            await sendAdminRegistrationNotificationEmail(adminPayload);
+            await EventRegistration.updateOne(
+              { _id: registrationIdStr, adminNotifyEmailSentAt: null },
+              { $set: { adminNotifyEmailSentAt: new Date() } }
+            );
+          } catch (emailErr) {
+            // eslint-disable-next-line no-console
+            console.warn("[event/verify-payment] admin notify email failed:", emailErr);
           }
         })(),
       ]);

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 import { connectToDB } from "@/lib/mongo";
@@ -25,7 +27,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
+/** ISR — avoid force-dynamic so home → session client navigations stay snappy. */
+export const revalidate = 30;
 
 const mapsUrl =
   EVENT.mapsUrl ??
@@ -43,18 +46,149 @@ const thingsToKnow = [
   { icon: "pet", label: "Pets", value: "Not allowed" },
 ];
 
-async function getSoldOut(): Promise<boolean> {
-  if (!process.env.MONGODB_URI) return false;
-  try {
-    await connectToDB();
-    const paid = await EventRegistration.countDocuments({
-      eventSlug: EVENT.slug,
-      paymentStatus: "paid",
-    });
-    return paid >= EVENT.maxRegistrations;
-  } catch {
-    return false;
-  }
+const getSoldOut = unstable_cache(
+  async (): Promise<boolean> => {
+    if (!process.env.MONGODB_URI) return false;
+    try {
+      await connectToDB();
+      const paid = await EventRegistration.countDocuments({
+        eventSlug: EVENT.slug,
+        paymentStatus: "paid",
+      });
+      return paid >= EVENT.maxRegistrations;
+    } catch {
+      return false;
+    }
+  },
+  ["sessions-event-sold-out", EVENT.slug],
+  { revalidate: 30 }
+);
+
+async function HeroDesktopCta() {
+  const soldOut = await getSoldOut();
+  return (
+    <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
+      <div className="text-right text-white">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
+        <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
+          ₹{EVENT.displayPriceInr}
+        </p>
+      </div>
+      {soldOut ? (
+        <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70">
+          All slots booked
+        </span>
+      ) : (
+        <a
+          href="#register"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
+        >
+          Register Now
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
+      )}
+    </div>
+  );
+}
+
+function RegistrationSkeleton() {
+  return (
+    <div className="h-[420px] animate-pulse rounded-2xl border border-[#e8e8e8] bg-white shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]" />
+  );
+}
+
+async function DesktopRegistration() {
+  const soldOut = await getSoldOut();
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-[#e8e8e8] bg-white px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]">
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="grid grid-cols-[16px_1fr] items-start gap-x-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 text-[#888]">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span className="min-w-0 leading-snug">{EVENT.venueName}</span>
+        </a>
+        <p className="mt-1.5 grid grid-cols-[16px_1fr] items-start gap-x-2 text-[11px] text-[#888]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+          </svg>
+          <span className="min-w-0 leading-snug">
+            Report by 6:40 PM ·{" "}
+            <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
+              Schedule
+            </a>
+          </span>
+        </p>
+      </div>
+
+      <div id="register">
+        <RegistrationForm soldOut={soldOut} />
+      </div>
+
+      {!soldOut ? (
+        <p className="px-1 text-center text-xs text-[#888]">
+          {EVENT.maxRegistrations} doubles spots · female doubles get 10% off
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+async function MobileRegistration() {
+  const soldOut = await getSoldOut();
+  return (
+    <>
+      <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
+        {soldOut ? "All slots booked" : "Book your spot"}
+      </h2>
+      <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
+        {soldOut
+          ? `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken.`
+          : "One checkout = you + your partner. Email OTP to verify, then pay."}
+      </p>
+      <div className="mx-auto mt-4 max-w-xl">
+        <RegistrationForm soldOut={soldOut} />
+      </div>
+    </>
+  );
+}
+
+async function MobileStickyCta() {
+  const soldOut = await getSoldOut();
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+        <div>
+          <div className="flex items-end gap-1">
+            <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
+            <span className="pb-0.5 text-xs text-[#888]">onwards</span>
+          </div>
+          <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
+        </div>
+        {soldOut ? (
+          <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">
+            All slots booked
+          </span>
+        ) : (
+          <a
+            href="#register-mobile"
+            className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
+          >
+            Book Tickets
+          </a>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function ThingIcon({ name }: { name: string }) {
@@ -131,9 +265,7 @@ function ThingIcon({ name }: { name: string }) {
   }
 }
 
-export default async function EventPage() {
-  const soldOut = await getSoldOut();
-
+export default function EventPage() {
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#1c1c1c]">
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
@@ -248,30 +380,24 @@ export default async function EventPage() {
                 </p>
               </div>
 
-              {/* desktop price + CTA */}
-              <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
-                <div className="text-right text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
-                  <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
-                    ₹{EVENT.displayPriceInr}
-                  </p>
-                </div>
-                {soldOut ? (
-                  <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70">
-                    All slots booked
-                  </span>
-                ) : (
-                  <a
-                    href="#register"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
-                  >
-                    Register Now
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
-                  </a>
-                )}
-              </div>
+              {/* desktop price + CTA — streamed so Mongo sold-out check never blocks hero paint */}
+              <Suspense
+                fallback={
+                  <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
+                    <div className="text-right text-white">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
+                      <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
+                        ₹{EVENT.displayPriceInr}
+                      </p>
+                    </div>
+                    <span className="rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] opacity-70">
+                      Register Now
+                    </span>
+                  </div>
+                }
+              >
+                <HeroDesktopCta />
+              </Suspense>
             </div>
           </div>
         </section>
@@ -500,89 +626,60 @@ export default async function EventPage() {
 
           {/* -------- RIGHT: Sticky registration form (desktop) -------- */}
           <aside className="hidden self-start lg:sticky lg:top-24 lg:block lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2 [-ms-overflow-style:none] [scrollbar-width:thin]">
-            <div className="space-y-3">
-              <div className="rounded-xl border border-[#e8e8e8] bg-white px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]">
-                <a
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="grid grid-cols-[16px_1fr] items-start gap-x-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 text-[#888]">
-                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <span className="min-w-0 leading-snug">{EVENT.venueName}</span>
-                </a>
-                <p className="mt-1.5 grid grid-cols-[16px_1fr] items-start gap-x-2 text-[11px] text-[#888]">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 2" />
-                  </svg>
-                  <span className="min-w-0 leading-snug">
-                    Report by 6:40 PM ·{" "}
-                    <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
-                      Schedule
-                    </a>
-                  </span>
-                </p>
-              </div>
-
-              <div id="register">
-                <RegistrationForm soldOut={soldOut} />
-              </div>
-
-              {!soldOut ? (
-                <p className="px-1 text-center text-xs text-[#888]">
-                  {EVENT.maxRegistrations} doubles spots · female doubles get 10% off
-                </p>
-              ) : null}
-            </div>
+            <Suspense fallback={<RegistrationSkeleton />}>
+              <DesktopRegistration />
+            </Suspense>
           </aside>
         </div>
 
         {/* ===================== REGISTRATION (mobile) ===================== */}
         <section className="mt-8 border-t border-[#e8e8e8] pt-6 lg:hidden">
           <div id="register-mobile" className="scroll-mt-3">
-            <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
-              {soldOut ? "All slots booked" : "Book your spot"}
-            </h2>
-            <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
-              {soldOut
-                ? `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken.`
-                : "One checkout = you + your partner. Email OTP to verify, then pay."}
-            </p>
-            <div className="mx-auto mt-4 max-w-xl">
-              <RegistrationForm soldOut={soldOut} />
-            </div>
+            <Suspense
+              fallback={
+                <>
+                  <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
+                    Book your spot
+                  </h2>
+                  <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
+                    One checkout = you + your partner. Email OTP to verify, then pay.
+                  </p>
+                  <div className="mx-auto mt-4 max-w-xl">
+                    <RegistrationSkeleton />
+                  </div>
+                </>
+              }
+            >
+              <MobileRegistration />
+            </Suspense>
           </div>
         </section>
       </div>
 
       {/* ===================== MOBILE STICKY CTA ===================== */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
-          <div>
-            <div className="flex items-end gap-1">
-              <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
-              <span className="pb-0.5 text-xs text-[#888]">onwards</span>
+      <Suspense
+        fallback={
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+            <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+              <div>
+                <div className="flex items-end gap-1">
+                  <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
+                  <span className="pb-0.5 text-xs text-[#888]">onwards</span>
+                </div>
+                <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
+              </div>
+              <a
+                href="#register-mobile"
+                className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
+              >
+                Book Tickets
+              </a>
             </div>
-            <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
           </div>
-          {soldOut ? (
-            <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">
-              All slots booked
-            </span>
-          ) : (
-            <a
-              href="#register-mobile"
-              className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
-            >
-              Book Tickets
-            </a>
-          )}
-        </div>
-      </div>
+        }
+      >
+        <MobileStickyCta />
+      </Suspense>
     </main>
   );
 }

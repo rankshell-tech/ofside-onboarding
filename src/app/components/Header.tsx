@@ -12,14 +12,23 @@ type NavLink = {
   highlight?: boolean;
 };
 
+const sessionsLink: NavLink = {
+  name: "Sessions",
+  href: `/events/${EVENT.path}`,
+  highlight: true,
+};
+
 const navLinks: NavLink[] = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/players" },
   { name: "About Us", href: "/about-us" },
   { name: "Contact Us", href: "/contact-us" },
-  { name: "Sessions", href: `/events/${EVENT.path}`, highlight: true },
+  sessionsLink,
   { name: "Download App", href: "/players", primary: true },
 ];
+
+/** Menu drawer links — Sessions stays visible in the mobile top bar. */
+const mobileMenuLinks = navLinks.filter((link) => !link.highlight);
 
 function SessionsNavLogo({ className }: { className: string }) {
   return (
@@ -82,34 +91,38 @@ export default function Header() {
           ))}
         </div>
 
-        <button
-          type="button"
-          className="inline-flex rounded-2xl border border-gray-200 p-2.5 text-gray-900 lg:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setIsOpen((value) => !value)}
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <Link
+            href={sessionsLink.href}
+            className="inline-flex shrink-0 items-center"
+            aria-label="SESSIONS event"
+          >
+            <SessionsNavLogo className="h-[1.05rem]" />
+          </Link>
+          <button
+            type="button"
+            className="inline-flex rounded-2xl border border-gray-200 p-2.5 text-gray-900"
+            aria-label="Toggle menu"
+            onClick={() => setIsOpen((value) => !value)}
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </nav>
 
       {isOpen ? (
         <div className="border-t border-gray-200 bg-white px-4 py-4 lg:hidden">
           <div className="flex flex-col gap-2">
-            {navLinks.map((link) => (
+            {mobileMenuLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 className={linkClassName(link, true)}
-                aria-label={link.highlight ? "SESSIONS event" : undefined}
                 onClick={() => setIsOpen(false)}
               >
-                {link.highlight ? (
-                  <SessionsNavLogo className="h-[1.15rem]" />
-                ) : (
-                  link.name
-                )}
+                {link.name}
               </Link>
             ))}
           </div>

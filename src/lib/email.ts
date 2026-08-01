@@ -4,6 +4,8 @@ import { ticketQrImageUrl } from "./ticket";
 
 const apiKey = process.env.RESEND_API_KEY;
 const from = process.env.EMAIL_FROM || "Ofside <noreply@ofside.in>";
+const ADMIN_NOTIFY_EMAIL =
+  process.env.EVENT_ADMIN_EMAIL?.trim() || "tech.rankshell@gmail.com";
 
 const resend = apiKey ? new Resend(apiKey) : null;
 
@@ -156,6 +158,63 @@ export async function sendRegistrationConfirmationEmail(
     subject,
     html,
     context: "event-confirmation",
+  });
+}
+
+export type AdminRegistrationNotifyInput = {
+  leadName: string;
+  leadEmail: string;
+  leadPhone: string;
+  leadGender: string;
+  leadLevel: string;
+  partnerName: string;
+  partnerEmail?: string | null;
+  partnerPhone: string;
+  partnerGender: string;
+  bothFemale: boolean;
+  femaleDiscountApplied: boolean;
+  amountInr: number;
+  ticketCode: string;
+  ticketUrl: string;
+  razorpayPaymentId?: string | null;
+  registrationId: string;
+};
+
+/** Internal alert to admin whenever a paid event entry is confirmed. */
+export async function sendAdminRegistrationNotificationEmail(
+  input: AdminRegistrationNotifyInput
+): Promise<void> {
+  const subject = `New ${EVENT.seriesName} entry · ${input.ticketCode} · ${input.leadName}`;
+  const html = `
+  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#f5f5f5;color:#1c1c1c">
+    <div style="background:#111;color:#fff;border-radius:14px 14px 0 0;padding:18px 20px">
+      <p style="margin:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#FFF201">Admin alert</p>
+      <h1 style="margin:8px 0 0;font-size:20px">New paid registration</h1>
+      <p style="margin:8px 0 0;font-size:13px;opacity:.85">${escapeHtml(EVENT.name)}</p>
+    </div>
+    <div style="background:#fff;border:1px solid #e5e5e5;border-top:0;border-radius:0 0 14px 14px;padding:20px">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.45">
+        <tr><td style="padding:6px 0;color:#888;width:140px">Ticket</td><td style="padding:6px 0;font-weight:700;font-family:ui-monospace,Menlo,monospace">${escapeHtml(input.ticketCode)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Amount</td><td style="padding:6px 0;font-weight:700">₹${formatInr(Number(input.amountInr) || 0)}${input.femaleDiscountApplied ? " (female doubles −10%)" : ""}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Lead</td><td style="padding:6px 0">${escapeHtml(input.leadName)} · ${escapeHtml(input.leadEmail)} · ${escapeHtml(input.leadPhone)} · ${escapeHtml(input.leadGender)} · ${escapeHtml(input.leadLevel)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Partner</td><td style="padding:6px 0">${escapeHtml(input.partnerName)} · ${escapeHtml(input.partnerEmail || "—")} · ${escapeHtml(input.partnerPhone)} · ${escapeHtml(input.partnerGender)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Both female</td><td style="padding:6px 0">${input.bothFemale ? "Yes" : "No"}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Payment ID</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:12px">${escapeHtml(input.razorpayPaymentId || "—")}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Registration ID</td><td style="padding:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:12px">${escapeHtml(input.registrationId)}</td></tr>
+      </table>
+      <p style="margin:18px 0 0;text-align:center">
+        <a href="${escapeAttr(input.ticketUrl)}" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px">
+          Open ticket
+        </a>
+      </p>
+    </div>
+  </div>`;
+
+  await sendHtmlEmail({
+    to: ADMIN_NOTIFY_EMAIL,
+    subject,
+    html,
+    context: "event-admin-notify",
   });
 }
 
