@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "/thank-you",
           "/community",
           "/events/sessions/ticket/",
+          "/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026-test",
         ],
       },
     ],

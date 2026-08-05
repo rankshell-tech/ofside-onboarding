@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { TEST_EVENT as EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
@@ -9,6 +10,11 @@ import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import RegistrationForm from "../sessions-badminton-doubles-rackonnect-delhi-22-aug-2026/RegistrationForm";
 import SessionsBrand from "../sessions-badminton-doubles-rackonnect-delhi-22-aug-2026/SessionsBrand";
+
+/** Hidden unless ENABLE_EVENT_TEST_PAGE=true (local payment / Zoho dry-runs). */
+function isTestEventPageEnabled(): boolean {
+  return process.env.ENABLE_EVENT_TEST_PAGE === "true";
+}
 
 export const metadata: Metadata = {
   title: "SESSIONS Badminton Doubles at Rackonnect Delhi | 22 Aug 2026 | Ofside",
@@ -266,6 +272,8 @@ function ThingIcon({ name }: { name: string }) {
 }
 
 export default function EventPage() {
+  if (!isTestEventPageEnabled()) notFound();
+
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#1c1c1c]">
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">
