@@ -168,11 +168,11 @@ async function MobileStickyCta() {
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
         <div>
-          <div className="flex items-end gap-1">
-            <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
-            <span className="pb-0.5 text-xs text-[#888]">onwards</span>
-          </div>
-          <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
+          <p className="text-xl font-bold text-[#1c1c1c]">
+            ₹{EVENT.displayPriceInr}{" "}
+            <span className="text-xs font-normal text-[#888]">- Per-player</span>
+          </p>
+          <p className="text-[11px] text-[#888]">₹{formatInr(baseTotal)} - Doubles</p>
         </div>
         {soldOut ? (
           <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">
@@ -183,7 +183,7 @@ async function MobileStickyCta() {
             href="#register-mobile"
             className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
           >
-            Book Tickets
+            Register now
           </a>
         )}
       </div>
@@ -662,17 +662,17 @@ export default function EventPage() {
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
             <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
               <div>
-                <div className="flex items-end gap-1">
-                  <span className="text-xl font-bold text-[#1c1c1c]">₹{EVENT.displayPriceInr}</span>
-                  <span className="pb-0.5 text-xs text-[#888]">onwards</span>
-                </div>
-                <p className="text-[11px] text-[#888]">Doubles · ₹{formatInr(baseTotal)}</p>
+                <p className="text-xl font-bold text-[#1c1c1c]">
+                  ₹{EVENT.displayPriceInr}{" "}
+                  <span className="text-xs font-normal text-[#888]">- Per-player</span>
+                </p>
+                <p className="text-[11px] text-[#888]">₹{formatInr(baseTotal)} - Doubles</p>
               </div>
               <a
                 href="#register-mobile"
                 className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
               >
-                Book Tickets
+                Register now
               </a>
             </div>
           </div>
