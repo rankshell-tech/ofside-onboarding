@@ -1,10 +1,6 @@
 // Single source of truth for the event landing page + registration APIs.
 
-export const EVENT = {
-  /** Mongo / API event id — do not change once registrations exist. */
-  slug: "ofside-open-2026",
-  /** Public landing URL path under /events/… */
-  path: "sessions-badminton-doubles-rackonnect-delhi-22-aug-2026",
+const EVENT_BASE = {
   name: "SESSIONS by Ofside (Badminton doubles community games)",
   seriesName: "SESSIONS",
   tagline: "Meet. Play. Connect. Repeat.",
@@ -30,9 +26,6 @@ export const EVENT = {
 
   sport: "Badminton Doubles",
 
-  // Pricing — ₹290 per player → ₹580 doubles checkout (10% off if both female).
-  pricePerPersonInr: 290,
-  displayPriceInr: 290,
   gstMultiplier: 1,
   femalePairDiscount: 0.1,
   currency: "INR",
@@ -144,25 +137,66 @@ export const EVENT = {
     "Registrations, payments and live scores are powered by Ofside. Spots are capped. Once full, the page shows sold out.",
 } as const;
 
+/** Public indexable event — do not change slug once registrations exist. */
+export const EVENT = {
+  ...EVENT_BASE,
+  /** Mongo / API event id — do not change once registrations exist. */
+  slug: "ofside-open-2026",
+  /** Public landing URL path under /events/… */
+  path: "sessions-badminton-doubles-rackonnect-delhi-22-aug-2026",
+  // Pricing — ₹290 per player → ₹580 doubles checkout (10% off if both female).
+  pricePerPersonInr: 290,
+  displayPriceInr: 290,
+  noindex: false,
+} as const;
+
+/**
+ * Noindex ₹2 test copy of the same event (separate Mongo slug so it doesn't
+ * collide with production registrations / sold-out counts).
+ */
+export const TEST_EVENT = {
+  ...EVENT_BASE,
+  slug: "ofside-open-2026-test",
+  path: "sessions-badminton-doubles-rackonnect-delhi-22-aug-2026-test",
+  pricePerPersonInr: 2,
+  displayPriceInr: 2,
+  noindex: true,
+} as const;
+
+export type EventConfig = typeof EVENT | typeof TEST_EVENT;
 export type EventGender = (typeof EVENT.genders)[number];
 export type EventPlayerLevel = (typeof EVENT.playerLevels)[number];
 
+const BY_SLUG: Record<string, EventConfig> = {
+  [EVENT.slug]: EVENT,
+  [TEST_EVENT.slug]: TEST_EVENT,
+};
+
+export function getEventBySlug(slug: string | null | undefined): EventConfig | null {
+  if (!slug) return null;
+  return BY_SLUG[slug] ?? null;
+}
+
+export function resolveEvent(slug?: string | null): EventConfig {
+  return getEventBySlug(slug) ?? EVENT;
+}
+
 /** Pre-tax base for a doubles checkout (2 players). */
-export function baseAmountInr(): number {
-  return EVENT.pricePerPersonInr * EVENT.playersPerCheckout;
+export function baseAmountInr(event: EventConfig = EVENT): number {
+  return event.pricePerPersonInr * event.playersPerCheckout;
 }
 
 /** Final payable amount. Female-pair discount is 10% on base. */
-export function priceForCheckout(bothFemale: boolean): number {
-  const base = baseAmountInr();
-  const afterDiscount = bothFemale ? base * (1 - EVENT.femalePairDiscount) : base;
+export function priceForCheckout(bothFemale: boolean, event: EventConfig = EVENT): number {
+  const base = baseAmountInr(event);
+  const afterDiscount = bothFemale ? base * (1 - event.femalePairDiscount) : base;
   // Keep 2 decimal places for display; Razorpay uses paise via Math.round(amount * 100).
-  return Math.round(afterDiscount * EVENT.gstMultiplier * 100) / 100;
+  return Math.round(afterDiscount * event.gstMultiplier * 100) / 100;
 }
 
 /** @deprecated Use priceForCheckout — kept for any leftover call sites. */
-export function priceForPeople(_count: number, bothFemale = false): number {
-  return priceForCheckout(bothFemale);
+export function priceForPeople(_count: number, bothFemale = false, event: EventConfig = EVENT): number {
+  return priceForCheckout(bothFemale, event);
 }
 
 export function formatInr(amount: number): string {

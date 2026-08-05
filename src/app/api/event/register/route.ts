@@ -1,7 +1,13 @@
 import { after, NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
-import { EVENT, priceForCheckout, type EventGender, type EventPlayerLevel } from "@/lib/eventConfig";
+import {
+  EVENT,
+  getEventBySlug,
+  priceForCheckout,
+  type EventGender,
+  type EventPlayerLevel,
+} from "@/lib/eventConfig";
 import { generateOtp, hashOtp, OTP_TTL_MS, OTP_RESEND_COOLDOWN_MS } from "@/lib/otp";
 import { sendOtpEmail } from "@/lib/email";
 
@@ -13,6 +19,11 @@ const LEVELS = new Set<string>(EVENT.playerLevels);
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
+    const eventSlug = String(body?.eventSlug || EVENT.slug).trim();
+    const event = getEventBySlug(eventSlug);
+    if (!event)
+      return NextResponse.json({ success: false, message: "Unknown event." }, { status: 400 });
+
     const leadName = String(body?.leadName || "").trim();
     const leadEmail = String(body?.leadEmail || "").trim().toLowerCase();
     const leadPhone = String(body?.leadPhone || "").replace(/\D/g, "").slice(-10);
@@ -75,10 +86,10 @@ export async function POST(req: NextRequest) {
     await connectToDB();
 
     const paidCount = await EventRegistration.countDocuments({
-      eventSlug: EVENT.slug,
+      eventSlug: event.slug,
       paymentStatus: "paid",
     });
-    const existing = await EventRegistration.findOne({ eventSlug: EVENT.slug, leadEmail });
+    const existing = await EventRegistration.findOne({ eventSlug: event.slug, leadEmail });
     const isExistingPaid = existing?.status === "paid" || existing?.paymentStatus === "paid";
 
     if (isExistingPaid)
@@ -88,11 +99,11 @@ export async function POST(req: NextRequest) {
       );
 
     // Capacity: only block new emails once sold out (allow OTP resend for in-progress).
-    if (!existing && paidCount >= EVENT.maxRegistrations)
+    if (!existing && paidCount >= event.maxRegistrations)
       return NextResponse.json(
         {
           success: false,
-          message: `All slots booked — ${EVENT.maxRegistrations} doubles (${EVENT.maxPlayers} players) are full.`,
+          message: `All slots booked — ${event.maxRegistrations} doubles (${event.maxPlayers} players) are full.`,
           soldOut: true,
         },
         { status: 410 }
@@ -112,9 +123,9 @@ export async function POST(req: NextRequest) {
     }
 
     const bothFemale = leadGender === "Female" && partnerGender === "Female";
-    const amountInr = priceForCheckout(bothFemale);
+    const amountInr = priceForCheckout(bothFemale, event);
     const otp = generateOtp();
-    const doc = existing || new EventRegistration({ eventSlug: EVENT.slug, leadEmail });
+    const doc = existing || new EventRegistration({ eventSlug: event.slug, leadEmail });
 
     doc.set({
       leadName,
@@ -126,7 +137,7 @@ export async function POST(req: NextRequest) {
       partnerEmail,
       partnerPhone,
       partnerGender,
-      totalPeople: EVENT.playersPerCheckout,
+      totalPeople: event.playersPerCheckout,
       bothFemale,
       femaleDiscountApplied: bothFemale,
       bringingOwnEquipment,
@@ -134,7 +145,7 @@ export async function POST(req: NextRequest) {
       waiverMediaConsent,
       waiverTerms,
       amountInr,
-      currency: EVENT.currency,
+      currency: event.currency,
       otpHash: hashOtp(otp),
       otpExpiresAt: new Date(Date.now() + OTP_TTL_MS),
       otpAttempts: 0,
@@ -159,7 +170,7 @@ export async function POST(req: NextRequest) {
       success: true,
       registrationId: String(doc._id),
       email: leadEmail,
-      totalPeople: EVENT.playersPerCheckout,
+      totalPeople: event.playersPerCheckout,
       amountInr,
       bothFemale,
       message: "Verification code sent to your email.",

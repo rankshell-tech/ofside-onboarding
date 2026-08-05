@@ -5,6 +5,7 @@ import {
   EVENT,
   formatInr,
   priceForCheckout,
+  type EventConfig,
   type EventGender,
   type EventPlayerLevel,
 } from "@/lib/eventConfig";
@@ -173,14 +174,14 @@ function ChipGroup<T extends string>({
   );
 }
 
-function buildCalendarUrl() {
-  const text = encodeURIComponent(EVENT.name);
+function buildCalendarUrl(event: EventConfig) {
+  const text = encodeURIComponent(event.name);
   const details = encodeURIComponent(
-    `${EVENT.shortDescription}\nVenue: ${EVENT.venueName}\n${EVENT.reportingNote}`
+    `${event.shortDescription}\nVenue: ${event.venueName}\n${event.reportingNote}`
   );
-  const location = encodeURIComponent(EVENT.venueAddress);
-  const start = EVENT.calendarStartIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-  const end = EVENT.calendarEndIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const location = encodeURIComponent(event.venueAddress);
+  const start = event.calendarStartIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = event.calendarEndIso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${start}/${end}&details=${details}&location=${location}`;
 }
 
@@ -246,7 +247,13 @@ function DiscountConfetti({ burstKey }: { burstKey: number }) {
   );
 }
 
-export default function RegistrationForm({ soldOut = false }: { soldOut?: boolean }) {
+export default function RegistrationForm({
+  soldOut = false,
+  event = EVENT,
+}: {
+  soldOut?: boolean;
+  event?: EventConfig;
+}) {
   const [step, setStep] = useState<Step>("you");
   const [liveSoldOut, setLiveSoldOut] = useState(soldOut);
   const [leadName, setLeadName] = useState("");
@@ -279,10 +286,10 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
   }, []);
 
   const bothFemale = leadGender === "Female" && partnerGender === "Female";
-  const amountInr = useMemo(() => priceForCheckout(bothFemale), [bothFemale]);
+  const amountInr = useMemo(() => priceForCheckout(bothFemale, event), [bothFemale, event]);
   const mapsUrl =
-    EVENT.mapsUrl ??
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(EVENT.mapsQuery)}`;
+    event.mapsUrl ??
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.mapsQuery)}`;
   const ticketUrl = useMemo(() => {
     if (!ticketCode) return "";
     if (typeof window !== "undefined") return `${window.location.origin}${ticketPath(ticketCode)}`;
@@ -296,13 +303,13 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
     const lines = [
       `SESSIONS ticket confirmed`,
       `You + ${partnerName || "partner"}`,
-      `${EVENT.date} · ${EVENT.timeWindow}`,
-      EVENT.venueName,
+      `${event.date} · ${event.timeWindow}`,
+      event.venueName,
       ticketCode ? `Code: ${ticketCode}` : null,
       ticketUrl ? `Ticket: ${ticketUrl}` : null,
     ].filter(Boolean);
     return `https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`;
-  }, [partnerName, ticketCode, ticketUrl]);
+  }, [partnerName, ticketCode, ticketUrl, event.date, event.timeWindow, event.venueName]);
 
   useEffect(() => {
     if (bothFemale && !prevBothFemale.current) {
@@ -313,6 +320,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
 
   const payload = useCallback(
     () => ({
+      eventSlug: event.slug,
       leadName,
       leadEmail,
       leadPhone: normalizePhoneDigits(leadPhone),
@@ -326,6 +334,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       waiverTerms,
     }),
     [
+      event.slug,
       leadName,
       leadEmail,
       leadPhone,
@@ -478,7 +487,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
         </div>
         <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">All slots booked</h3>
         <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">
-          All {EVENT.maxRegistrations} doubles spots ({EVENT.maxPlayers} players) are taken.
+          All {event.maxRegistrations} doubles spots ({event.maxPlayers} players) are taken.
           Follow Ofside for the next session.
         </p>
       </div>
@@ -492,7 +501,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-base font-bold tracking-tight text-[#1c1c1c]">Badminton doubles entry</h3>
-          <p className="text-xs text-[#5f8f88]">₹{EVENT.displayPriceInr} / player · goodies included</p>
+          <p className="text-xs text-[#5f8f88]">₹{event.displayPriceInr} / player · goodies included</p>
         </div>
         <div className="shrink-0 rounded-xl bg-[#0f766e] px-3 py-2 text-right text-white">
           <p className="text-[10px] font-bold uppercase tracking-wide opacity-80">Total</p>
@@ -536,7 +545,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
           />
           <input className={fieldCls} type="email" inputMode="email" placeholder="Email address *" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} autoComplete="email" />
           <ChipGroup
-            options={EVENT.genders}
+            options={event.genders}
             value={leadGender}
             onChange={setLeadGender}
             label="Gender *"
@@ -546,7 +555,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
               </span>
             }
           />
-          <ChipGroup options={EVENT.playerLevels} value={leadLevel} onChange={setLeadLevel} label="Player level *" />
+          <ChipGroup options={event.playerLevels} value={leadLevel} onChange={setLeadLevel} label="Player level *" />
           <button
             type="button"
             onClick={() => {
@@ -574,7 +583,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             value={partnerPhone}
             onChange={setPartnerPhone}
           />
-          <ChipGroup options={EVENT.genders} value={partnerGender} onChange={setPartnerGender} label="Partner gender *" />
+          <ChipGroup options={event.genders} value={partnerGender} onChange={setPartnerGender} label="Partner gender *" />
           {bothFemale ? (
             <div className="relative overflow-visible rounded-xl border-2 border-[#f9a8d4] bg-white px-3.5 py-2.5 shadow-[0_2px_0_rgba(219,39,119,0.12)]">
               <DiscountConfetti burstKey={confettiKey} />
@@ -733,7 +742,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             </div>
             <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">Thank you — you&apos;re in!</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-[#5f8f88]">
-              Thanks for registering for {EVENT.seriesName}. We can&apos;t wait to see you and{" "}
+              Thanks for registering for {event.seriesName}. We can&apos;t wait to see you and{" "}
               {partnerName || "your partner"} on court.
             </p>
             <p className="mt-1 text-[12px] text-[#8aabb0]">
@@ -750,7 +759,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
                 </p>
                 <p className="mt-0.5 text-[14px] font-bold">Badminton doubles</p>
                 <p className="mt-1 text-[12px] text-white/80">
-                  {EVENT.date} · {EVENT.timeWindow}
+                  {event.date} · {event.timeWindow}
                 </p>
               </div>
               <div className="space-y-3 px-3.5 py-3.5">
@@ -765,7 +774,7 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
                   </div>
                   <div className="col-span-2">
                     <p className="text-[10px] font-semibold uppercase tracking-wide text-[#888]">Venue</p>
-                    <p className="font-medium text-[#1c1c1c]">{EVENT.venueName}</p>
+                    <p className="font-medium text-[#1c1c1c]">{event.venueName}</p>
                   </div>
                 </div>
 
@@ -806,13 +815,13 @@ export default function RegistrationForm({ soldOut = false }: { soldOut?: boolea
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-center text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
               Venue
             </a>
-            <a href={buildCalendarUrl()} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-center text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
+            <a href={buildCalendarUrl(event)} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-[#b6ddd7] bg-white py-2.5 text-center text-[13px] font-semibold text-[#0f766e] hover:bg-white/80">
               Calendar
             </a>
           </div>
 
           <a
-            href={EVENT.whatsappCommunityUrl}
+            href={event.whatsappCommunityUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 flex w-full flex-col items-center justify-center rounded-xl bg-[#25D366] px-3 py-3 text-white hover:brightness-110"

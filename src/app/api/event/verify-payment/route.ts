@@ -4,6 +4,8 @@ import EventRegistration from "@/models/EventRegistration";
 import { verifyPaymentSignature } from "@/lib/razorpay";
 import { generateTicketCode, ticketAbsoluteUrl } from "@/lib/ticket";
 import { grantEventProMembership } from "@/lib/grantEventPro";
+import { syncEventRegistrationPayment } from "@/lib/zohoBooks";
+import { EVENT, resolveEvent } from "@/lib/eventConfig";
 import {
   sendAdminRegistrationNotificationEmail,
   sendRegistrationConfirmationEmail,
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
     await connectToDB();
     const doc = await EventRegistration.findById(registrationId);
     if (!doc) return NextResponse.json({ success: false, message: "Registration not found." }, { status: 404 });
+    const event = resolveEvent(String(doc.eventSlug || EVENT.slug));
 
     if (doc.razorpayOrderId !== orderId)
       return NextResponse.json({ success: false, message: "Order mismatch." }, { status: 400 });
@@ -96,13 +99,66 @@ export async function POST(req: NextRequest) {
         }
       : null;
 
-    // PRO grant + emails after response so the thank-you screen isn't waiting on Resend.
+    const zohoPayload = {
+      registrationId: registrationIdStr,
+      leadName: String(doc.leadName || ""),
+      leadEmail: String(doc.leadEmail || ""),
+      leadPhone: String(doc.leadPhone || ""),
+      amountInr: Number(doc.amountInr) || 0,
+      currency: String(doc.currency || event.currency || "INR"),
+      eventName: event.name,
+      razorpayPaymentId: paymentId,
+      ticketCode,
+      alreadySynced: Boolean(doc.zoho?.invoiceId),
+    };
+
+    // PRO grant + Zoho invoice + emails after response so checkout UX isn't blocked.
     after(async () => {
       await Promise.all([
         grantEventProMembership(registrationIdStr).catch((proErr) => {
           // eslint-disable-next-line no-console
           console.warn("[event/verify-payment] PRO grant failed:", proErr);
         }),
+        (async () => {
+          if (zohoPayload.alreadySynced) return;
+          try {
+            const zoho = await syncEventRegistrationPayment({
+              registrationId: zohoPayload.registrationId,
+              leadName: zohoPayload.leadName,
+              leadEmail: zohoPayload.leadEmail,
+              leadPhone: zohoPayload.leadPhone,
+              amountInr: zohoPayload.amountInr,
+              currency: zohoPayload.currency,
+              eventName: zohoPayload.eventName,
+              razorpayPaymentId: zohoPayload.razorpayPaymentId,
+              ticketCode: zohoPayload.ticketCode,
+            });
+            if (zoho) {
+              await EventRegistration.updateOne(
+                { _id: registrationIdStr, "zoho.invoiceId": null },
+                {
+                  $set: {
+                    zoho: {
+                      contactId: zoho.contactId,
+                      invoiceId: zoho.invoiceId,
+                      paymentId: zoho.paymentId,
+                      lastSyncedAt: zoho.lastSyncedAt,
+                      lastError: null,
+                    },
+                  },
+                }
+              );
+            }
+          } catch (zohoErr) {
+            const message = zohoErr instanceof Error ? zohoErr.message : String(zohoErr);
+            // eslint-disable-next-line no-console
+            console.warn("[event/verify-payment] Zoho sync failed:", message);
+            await EventRegistration.updateOne(
+              { _id: registrationIdStr },
+              { $set: { "zoho.lastError": message.slice(0, 500) } }
+            ).catch(() => {});
+          }
+        })(),
         (async () => {
           if (!confirmationPayload) return;
           try {

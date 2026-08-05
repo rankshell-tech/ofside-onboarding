@@ -70,6 +70,21 @@ const eventRegistrationSchema = new Schema(
     /** Admin notification email after paid registration. */
     adminNotifyEmailSentAt: { type: Date, default: null },
 
+    /** Zoho Books invoice sync after paid Razorpay checkout. */
+    zoho: {
+      type: new Schema(
+        {
+          contactId: { type: String, default: null },
+          invoiceId: { type: String, default: null },
+          paymentId: { type: String, default: null },
+          lastSyncedAt: { type: Date, default: null },
+          lastError: { type: String, default: null },
+        },
+        { _id: false }
+      ),
+      default: undefined,
+    },
+
     status: { type: String, enum: REGISTRATION_STATUSES, default: "pending" as RegistrationStatus },
   },
   { timestamps: true }

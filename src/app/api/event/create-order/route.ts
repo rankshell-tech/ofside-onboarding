@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
-import { EVENT, priceForCheckout } from "@/lib/eventConfig";
+import { EVENT, resolveEvent, priceForCheckout } from "@/lib/eventConfig";
 import { getRazorpay, razorpayConfigured, publicRazorpayKeyId } from "@/lib/razorpay";
 
 export async function POST(req: NextRequest) {
@@ -19,40 +19,43 @@ export async function POST(req: NextRequest) {
 
     await connectToDB();
 
+    const doc = await EventRegistration.findById(registrationId);
+    if (!doc) return NextResponse.json({ success: false, message: "Registration not found." }, { status: 404 });
+
+    const event = resolveEvent(String(doc.eventSlug || EVENT.slug));
+
     const paidCount = await EventRegistration.countDocuments({
-      eventSlug: EVENT.slug,
+      eventSlug: event.slug,
       paymentStatus: "paid",
     });
 
-    const doc = await EventRegistration.findById(registrationId);
-    if (!doc) return NextResponse.json({ success: false, message: "Registration not found." }, { status: 404 });
     if (!doc.emailVerified)
       return NextResponse.json({ success: false, message: "Please verify your email first." }, { status: 403 });
     if (doc.paymentStatus === "paid")
       return NextResponse.json({ success: false, message: "This entry is already paid." }, { status: 409 });
 
-    if (paidCount >= EVENT.maxRegistrations)
+    if (paidCount >= event.maxRegistrations)
       return NextResponse.json(
         {
           success: false,
-          message: `All slots booked — ${EVENT.maxRegistrations} doubles (${EVENT.maxPlayers} players) are full.`,
+          message: `All slots booked — ${event.maxRegistrations} doubles (${event.maxPlayers} players) are full.`,
           soldOut: true,
         },
         { status: 410 }
       );
 
     const bothFemale = Boolean(doc.bothFemale) || (doc.leadGender === "Female" && doc.partnerGender === "Female");
-    const amountInr = priceForCheckout(bothFemale);
+    const amountInr = priceForCheckout(bothFemale, event);
     const amountPaise = Math.round(amountInr * 100);
 
     const order = await getRazorpay().orders.create({
       amount: amountPaise,
-      currency: EVENT.currency,
+      currency: event.currency,
       receipt: `evt_${String(doc._id).slice(-10)}`,
       notes: {
-        eventSlug: EVENT.slug,
+        eventSlug: event.slug,
         registrationId: String(doc._id),
-        people: String(EVENT.playersPerCheckout),
+        people: String(event.playersPerCheckout),
         bothFemale: String(bothFemale),
       },
     });
@@ -71,10 +74,10 @@ export async function POST(req: NextRequest) {
       orderId: order.id,
       amount: amountPaise,
       amountInr,
-      currency: EVENT.currency,
+      currency: event.currency,
       keyId: publicRazorpayKeyId,
       prefill: { name: doc.leadName, email: doc.leadEmail, contact: doc.leadPhone },
-      eventName: EVENT.name,
+      eventName: event.name,
       bothFemale,
       includesPro: true,
     });
