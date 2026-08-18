@@ -461,8 +461,8 @@ export default function EventPage() {
               <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-[#4d4d4d]">
                 <p>{EVENT.shortDescription}</p>
                 <p>
-                  Bring a partner to {EVENT.venueName} for at least{" "}
-                  <span className="font-semibold text-[#1c1c1c]">2 doubles games</span>, plus
+                  Bring a partner to {EVENT.venueName} for{" "}
+                  <span className="font-semibold text-[#1c1c1c]">Flagship Level games</span>, plus
                   photos, giveaways, and{" "}
                   <span className="font-semibold text-[#1c1c1c]">FREE Ofside PRO</span>{" "}
                   (worth ₹399/year). Limited to {EVENT.maxRegistrations} doubles (
