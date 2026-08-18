@@ -34,7 +34,7 @@ const EVENT_BASE = {
   maxPlayers: 48,
 
   whatsIncluded: [
-    "Guaranteed 2 Doubles Matches",
+    "Flagship Level games",
     "FREE Ofside PRO Membership worth ₹399/year",
     "10% direct off for female doubles",
     "10% off at REPPP cafeteria",
@@ -46,8 +46,8 @@ const EVENT_BASE = {
 
   highlights: [
     {
-      title: "Guaranteed 2 doubles matches",
-      body: "Every pair gets at least 2 doubles games — structured rounds so you play, not wait.",
+      title: "Flagship Level games",
+      body: "Flagship-level badminton doubles on premium courts and structured play, not a casual drop-in.",
     },
     {
       title: "FREE Ofside PRO (worth ₹399/year)",
