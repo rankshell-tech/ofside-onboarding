@@ -54,8 +54,10 @@ const eventRegistrationSchema = new Schema(
     razorpaySignature: { type: String, default: null },
     paidAt: { type: Date, default: null },
 
-    // Check-in ticket (issued after successful payment).
-    ticketCode: { type: String, default: null, index: true, sparse: true, unique: true },
+    // Check-in ticket (issued after successful payment). No `default: null`: a sparse unique
+    // index only skips documents where the field is ABSENT, so an explicit null is indexed and
+    // the second unpaid registration would collide with the first (E11000 -> 500 on register).
+    ticketCode: { type: String },
 
     // Staff check-in (Ofside app event-admin).
     checkedInAt: { type: Date, default: null },
@@ -64,6 +66,9 @@ const eventRegistrationSchema = new Schema(
     // Free Ofside PRO grant after paid registration (app backend).
     proGrantedAt: { type: Date, default: null },
     proGrantResults: { type: Schema.Types.Mixed, default: null },
+    /** Last time the website asked the API to run the grant, and why it failed (null = ok). */
+    proGrantAttemptedAt: { type: Date, default: null },
+    proGrantLastError: { type: String, default: null },
 
     /** Confirmation email with ticket (lead + partner). */
     confirmationEmailSentAt: { type: Date, default: null },
@@ -91,6 +96,12 @@ const eventRegistrationSchema = new Schema(
 );
 
 eventRegistrationSchema.index({ eventSlug: 1, leadEmail: 1 }, { unique: true });
+
+// Unique only across real ticket codes — unpaid registrations simply have no ticketCode.
+eventRegistrationSchema.index(
+  { ticketCode: 1 },
+  { unique: true, partialFilterExpression: { ticketCode: { $type: "string" } } }
+);
 
 export default models.EventRegistration ||
   mongoose.model("EventRegistration", eventRegistrationSchema);
