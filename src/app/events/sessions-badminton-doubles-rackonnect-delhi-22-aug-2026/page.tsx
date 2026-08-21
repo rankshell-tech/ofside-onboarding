@@ -93,6 +93,44 @@ async function HeroDesktopCta() {
   );
 }
 
+/** Venue + reporting time. Shown in the desktop sidebar and above the mobile form. */
+function VenueCard({ withAddress = false }: { withAddress?: boolean }) {
+  return (
+    <div className="rounded-xl border border-[#e8e8e8] bg-white px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]">
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="grid grid-cols-[16px_1fr] items-start gap-x-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 text-[#888]">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <span className="min-w-0 leading-snug">{EVENT.venueName}</span>
+      </a>
+      {withAddress ? (
+        <p className="mt-1 grid grid-cols-[16px_1fr] gap-x-2 text-[11px] leading-snug text-[#888]">
+          <span aria-hidden />
+          <span className="min-w-0">{EVENT.venueAddress}</span>
+        </p>
+      ) : null}
+      <p className="mt-1.5 grid grid-cols-[16px_1fr] items-start gap-x-2 text-[11px] text-[#888]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+        <span className="min-w-0 leading-snug">
+          Report by 6:40 PM ·{" "}
+          <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
+            Schedule
+          </a>
+        </span>
+      </p>
+    </div>
+  );
+}
+
 function RegistrationSkeleton() {
   return (
     <div className="h-[420px] animate-pulse rounded-2xl border border-[#e8e8e8] bg-white shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]" />
@@ -103,32 +141,7 @@ async function DesktopRegistration() {
   const soldOut = await getSoldOut();
   return (
     <div className="space-y-3">
-      <div className="rounded-xl border border-[#e8e8e8] bg-white px-3 py-2.5 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)]">
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="grid grid-cols-[16px_1fr] items-start gap-x-2 text-[13px] font-semibold text-[#1c1c1c] hover:underline"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 text-[#888]">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <span className="min-w-0 leading-snug">{EVENT.venueName}</span>
-        </a>
-        <p className="mt-1.5 grid grid-cols-[16px_1fr] items-start gap-x-2 text-[11px] text-[#888]">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v5l3 2" />
-          </svg>
-          <span className="min-w-0 leading-snug">
-            Report by 6:40 PM ·{" "}
-            <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
-              Schedule
-            </a>
-          </span>
-        </p>
-      </div>
+      <VenueCard />
 
       <div id="register">
         <RegistrationForm soldOut={soldOut} />
@@ -155,7 +168,8 @@ async function MobileRegistration() {
           ? `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken.`
           : "One checkout = you + your partner. Email OTP to verify, then pay."}
       </p>
-      <div className="mx-auto mt-4 max-w-xl">
+      <div className="mx-auto mt-4 max-w-xl space-y-3">
+        <VenueCard withAddress />
         <RegistrationForm soldOut={soldOut} />
       </div>
     </>
@@ -644,7 +658,8 @@ export default function EventPage() {
                   <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
                     One checkout = you + your partner. Email OTP to verify, then pay.
                   </p>
-                  <div className="mx-auto mt-4 max-w-xl">
+                  <div className="mx-auto mt-4 max-w-xl space-y-3">
+                    <VenueCard withAddress />
                     <RegistrationSkeleton />
                   </div>
                 </>
