@@ -1,19 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { after } from "next/server";
 import { notFound } from "next/navigation";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
+import { needsProGrant, reconcileEventProForRegistration } from "@/lib/reconcileEventPro";
 import { EVENT, formatInr } from "@/lib/eventConfig";
 import { ticketAbsoluteUrl, ticketQrImageUrl } from "@/lib/ticket";
 
 type Props = { params: Promise<{ code: string }> };
 
 type TicketDoc = {
+  _id?: unknown;
   ticketCode?: string | null;
   leadName?: string;
   partnerName?: string;
   amountInr?: number;
   checkedInAt?: Date | string | null;
+  paymentStatus?: string | null;
+  proGrantedAt?: Date | null;
+  proGrantResults?: unknown;
+  proGrantAttemptedAt?: Date | null;
 };
 
 async function loadTicket(code: string): Promise<TicketDoc | null> {
@@ -45,6 +52,25 @@ export default async function SessionTicketPage({ params }: Props) {
   const { code } = await params;
   const doc = await loadTicket(code);
   if (!doc) notFound();
+
+  // Self-heal the free-PRO grant: if it never landed at checkout (API down, missing
+  // secret, browser closed mid-callback), retry it off the render path when the buyer
+  // opens their ticket. Cooldown + idempotent backend make repeat views cheap.
+  const registrationId = doc._id ? String(doc._id) : "";
+  if (registrationId && needsProGrant(doc)) {
+    after(async () => {
+      try {
+        const result = await reconcileEventProForRegistration(registrationId);
+        if (result.action !== "skipped") {
+          // eslint-disable-next-line no-console
+          console.log(`[ticket] pro reconcile ${result.action} for ${registrationId}`, result.error || "");
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn("[ticket] pro reconcile error:", err);
+      }
+    });
+  }
 
   const ticketCode = String(doc.ticketCode);
   const ticketUrl = ticketAbsoluteUrl(ticketCode);

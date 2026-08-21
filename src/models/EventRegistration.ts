@@ -66,6 +66,10 @@ const eventRegistrationSchema = new Schema(
     // Free Ofside PRO grant after paid registration (app backend).
     proGrantedAt: { type: Date, default: null },
     proGrantResults: { type: Schema.Types.Mixed, default: null },
+    /** Last time this site called the grant API (success or not) — drives retry cooldown. */
+    proGrantAttemptedAt: { type: Date, default: null },
+    /** Why the last grant call did not fully succeed. null = last call was clean. */
+    proGrantLastError: { type: String, default: null },
 
     /** Confirmation email with ticket (lead + partner). */
     confirmationEmailSentAt: { type: Date, default: null },
