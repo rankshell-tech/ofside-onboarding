@@ -1,6 +1,6 @@
 import { after, NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
-import EventRegistration from "@/models/EventRegistration";
+import EventRegistration, { ensureTicketCodeIndex } from "@/models/EventRegistration";
 import {
   EVENT,
   getEventBySlug,
@@ -114,6 +114,7 @@ export async function POST(req: NextRequest) {
       );
 
     await connectToDB();
+    await ensureTicketCodeIndex();
 
     const paidCount = await EventRegistration.countDocuments({
       eventSlug: event.slug,
@@ -184,6 +185,7 @@ export async function POST(req: NextRequest) {
       emailVerifiedAt: null,
       status: "pending",
     });
+    if (!doc.ticketCode) doc.set("ticketCode", undefined);
     await doc.save();
 
     // Don't block the response on Resend — UI moves to OTP while the email sends.

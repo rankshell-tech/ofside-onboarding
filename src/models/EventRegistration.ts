@@ -54,8 +54,10 @@ const eventRegistrationSchema = new Schema(
     razorpaySignature: { type: String, default: null },
     paidAt: { type: Date, default: null },
 
-    // Check-in ticket (issued after successful payment).
-    ticketCode: { type: String, default: null, index: true, sparse: true, unique: true },
+    // Check-in ticket (issued after successful payment). Omit until then —
+    // a unique sparse index still treats `null` as a value, so a second unpaid
+    // registration would fail with E11000 "ticketCode dup key".
+    ticketCode: { type: String },
 
     // Staff check-in (Ofside app event-admin).
     checkedInAt: { type: Date, default: null },
@@ -91,6 +93,55 @@ const eventRegistrationSchema = new Schema(
 );
 
 eventRegistrationSchema.index({ eventSlug: 1, leadEmail: 1 }, { unique: true });
+eventRegistrationSchema.index(
+  { ticketCode: 1 },
+  {
+    unique: true,
+    name: "ticketCode_1_partial",
+    partialFilterExpression: { ticketCode: { $type: "string" } },
+  }
+);
+
+let ticketCodeIndexReady: Promise<void> | null = null;
+
+/** Drop the old unique-sparse ticketCode index (it blocks unpaid rows that store null). */
+export async function ensureTicketCodeIndex(): Promise<void> {
+  if (!ticketCodeIndexReady) {
+    ticketCodeIndexReady = (async () => {
+      const col = mongoose.connection.collection("eventregistrations");
+      await col.updateMany(
+        { $or: [{ ticketCode: null }, { ticketCode: "" }] },
+        { $unset: { ticketCode: 1 } }
+      );
+      const indexes = await col.indexes();
+      const legacy = indexes.find(
+        (idx) => idx.key?.ticketCode === 1 && idx.unique && !idx.partialFilterExpression
+      );
+      if (legacy?.name) {
+        await col.dropIndex(legacy.name);
+      }
+      const latest = await col.indexes();
+      const hasPartial = latest.some(
+        (idx) => idx.key?.ticketCode === 1 && idx.unique && idx.partialFilterExpression
+      );
+      if (!hasPartial) {
+        await col.createIndex(
+          { ticketCode: 1 },
+          {
+            unique: true,
+            name: "ticketCode_1_partial",
+            partialFilterExpression: { ticketCode: { $type: "string" } },
+            background: true,
+          }
+        );
+      }
+    })().catch((err) => {
+      ticketCodeIndexReady = null;
+      throw err;
+    });
+  }
+  await ticketCodeIndexReady;
+}
 
 export default models.EventRegistration ||
   mongoose.model("EventRegistration", eventRegistrationSchema);
