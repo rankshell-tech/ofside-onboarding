@@ -15,7 +15,6 @@ export default function robots(): MetadataRoute.Robots {
           "/scoring/",
           "/live-score",
           "/score/",
-          "/overlay/",
           "/nearYou/",
           "/thank-you",
           "/community",

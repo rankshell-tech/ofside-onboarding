@@ -12,20 +12,9 @@ import { generateOtp, hashOtp, OTP_TTL_MS, OTP_RESEND_COOLDOWN_MS } from "@/lib/
 import { sendOtpEmail } from "@/lib/email";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 const PHONE_RE = /^[0-9]{10}$/;
 const GENDERS = new Set<string>(EVENT.genders);
 const LEVELS = new Set<string>(EVENT.playerLevels);
-
-type MongoWriteError = { code?: number; name?: string; keyPattern?: Record<string, unknown> };
-
-function isDuplicateKeyError(err: unknown): boolean {
-  return (err as MongoWriteError)?.code === 11000;
-}
-
-function duplicateKeyFields(err: unknown): string {
-  return Object.keys((err as MongoWriteError)?.keyPattern || {}).join(",") || "unknown";
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -136,8 +125,9 @@ export async function POST(req: NextRequest) {
     const bothFemale = leadGender === "Female" && partnerGender === "Female";
     const amountInr = priceForCheckout(bothFemale, event);
     const otp = generateOtp();
+    const doc = existing || new EventRegistration({ eventSlug: event.slug, leadEmail });
 
-    const update = {
+    doc.set({
       leadName,
       leadPhone,
       leadGender,
@@ -163,40 +153,15 @@ export async function POST(req: NextRequest) {
       emailVerified: false,
       emailVerifiedAt: null,
       status: "pending",
-    };
-
-    /**
-     * A returning registrant updates the row they already have. Validate only the fields we just
-     * set: rows written by an earlier version of this schema can hold a value that no longer
-     * passes validation in a field this request never touches (an old `paymentStatus`, say), and
-     * full-document validation would reject the save — surfacing as "Could not start
-     * registration" to someone whose only mistake was having registered before.
-     */
-    let doc = existing;
-    if (doc) {
-      doc.set(update);
-      await doc.save({ validateModifiedOnly: true });
-    } else {
-      doc = new EventRegistration({ eventSlug: event.slug, leadEmail, ...update });
-      try {
-        await doc.save();
-      } catch (saveErr) {
-        // Two tabs / a double tap racing on the same email: the row exists now, so reuse it
-        // rather than failing the person who is already halfway through the form.
-        if (!isDuplicateKeyError(saveErr)) throw saveErr;
-        const raced = await EventRegistration.findOne({ eventSlug: event.slug, leadEmail });
-        if (!raced) throw saveErr;
-        raced.set(update);
-        await raced.save({ validateModifiedOnly: true });
-        doc = raced;
-      }
-    }
+    });
+    await doc.save();
 
     // Don't block the response on Resend — UI moves to OTP while the email sends.
     after(async () => {
       try {
         await sendOtpEmail(leadEmail, otp, leadName);
       } catch (emailErr) {
+        // eslint-disable-next-line no-console
         console.warn("[event/register] OTP email failed:", emailErr);
       }
     });
@@ -211,40 +176,10 @@ export async function POST(req: NextRequest) {
       message: "Verification code sent to your email.",
     });
   } catch (err) {
-    console.error("[event/register] error:", {
-      name: (err as MongoWriteError)?.name,
-      code: (err as MongoWriteError)?.code,
-      message: err instanceof Error ? err.message : String(err),
-    });
+    // eslint-disable-next-line no-console
+    console.log("[event/register] error:", err);
     const msg = err instanceof Error ? err.message : "";
-
-    if (isDuplicateKeyError(err)) {
-      // A unique index we do not own rejected the write (e.g. a legacy index left on the
-      // collection). "Try again" would never work, so say something actionable instead.
-      console.error("[event/register] duplicate key on:", duplicateKeyFields(err));
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "This email is already used by another registration. Please use a different email or write to support@ofside.in.",
-        },
-        { status: 409 }
-      );
-    }
-
-    if ((err as MongoWriteError)?.name === "ValidationError") {
-      return NextResponse.json(
-        { success: false, message: "Some of your details could not be saved. Please check them and try again." },
-        { status: 400 }
-      );
-    }
-
-    if (
-      msg.includes("MONGODB_URI") ||
-      msg.includes("bad auth") ||
-      msg.includes("ECONNREFUSED") ||
-      (err as MongoWriteError)?.name === "MongooseServerSelectionError"
-    ) {
+    if (msg.includes("MONGODB_URI")) {
       return NextResponse.json(
         { success: false, message: "Registration is temporarily unavailable. Please try again shortly." },
         { status: 503 }
