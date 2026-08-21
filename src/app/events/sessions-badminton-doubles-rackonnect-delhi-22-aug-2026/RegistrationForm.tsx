@@ -358,7 +358,10 @@ export default function RegistrationForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload()),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
+      if (!data || typeof data !== "object") {
+        throw new Error(`Could not start registration (${res.status} ${res.statusText || "error"}).`);
+      }
       if (data?.soldOut) {
         setLiveSoldOut(true);
         throw new Error(data.message || "All slots booked.");

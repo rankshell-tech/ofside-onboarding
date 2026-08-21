@@ -16,6 +16,36 @@ const PHONE_RE = /^[0-9]{10}$/;
 const GENDERS = new Set<string>(EVENT.genders);
 const LEVELS = new Set<string>(EVENT.playerLevels);
 
+/** Surface the real failure instead of a generic 500 — mongoose, duplicate key, etc. */
+function publicRegisterError(err: unknown): string {
+  if (err && typeof err === "object") {
+    const e = err as {
+      name?: string;
+      code?: number | string;
+      message?: string;
+      errors?: Record<string, { message?: string }>;
+    };
+
+    if (e.code === 11000 || e.code === "E11000") {
+      const raw = String(e.message || "");
+      if (raw.includes("ticketCode"))
+        return "Could not create registration (ticket conflict). Please try again.";
+      return "This email is already registered for this event.";
+    }
+
+    if (e.name === "ValidationError" && e.errors) {
+      const parts = Object.values(e.errors)
+        .map((v) => v?.message?.trim())
+        .filter(Boolean);
+      if (parts.length) return parts.join(" ");
+    }
+
+    if (typeof e.message === "string" && e.message.trim()) return e.message.trim();
+  }
+  if (typeof err === "string" && err.trim()) return err.trim();
+  return "Could not start registration. Please try again.";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -177,7 +207,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log("[event/register] error:", err);
+    console.error("[event/register] error:", err);
     const msg = err instanceof Error ? err.message : "";
     if (msg.includes("MONGODB_URI")) {
       return NextResponse.json(
@@ -185,6 +215,6 @@ export async function POST(req: NextRequest) {
         { status: 503 }
       );
     }
-    return NextResponse.json({ success: false, message: "Could not start registration. Please try again." }, { status: 500 });
+    return NextResponse.json({ success: false, message: publicRegisterError(err) }, { status: 500 });
   }
 }
