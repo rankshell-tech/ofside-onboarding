@@ -11,6 +11,7 @@ import {
 } from "@/lib/eventConfig";
 import { ticketAbsoluteUrl, ticketPath, ticketQrImageUrl } from "@/lib/ticket";
 import FutureEventInterestForm from "./FutureEventInterestForm";
+import SlotsFullStamp from "./SlotsFullStamp";
 
 type Step = "you" | "partner" | "waiver" | "otp" | "pay" | "done";
 
@@ -486,18 +487,24 @@ export default function RegistrationForm({
   if (event.completed || liveSoldOut) {
     return (
       <div className="space-y-3">
-        <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-lg text-red-500">
-            ✕
-          </div>
-          <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">
-            {event.completed ? "Event completed" : "All slots booked"}
-          </h3>
-          <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">
-            {event.completed
-              ? `This session is over. All ${event.maxRegistrations} doubles spots (${event.maxPlayers} players) were full.`
-              : `All ${event.maxRegistrations} doubles spots (${event.maxPlayers} players) are taken.`}
+        <div className="relative overflow-hidden rounded-2xl border border-[#eadfce] bg-[#fffaf2] px-5 pb-6 pt-5 shadow-[0_12px_40px_-16px_rgba(15,118,110,0.12)]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-3 left-[11px] w-px border-l border-dashed border-[#d7cbb8]"
+          />
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#9a8b74]">
+            {event.seriesName}
           </p>
+          <h3 className="mt-1 text-lg font-bold tracking-tight text-[#1c1c1c]">
+            {event.completed ? "Event completed" : "Registration closed"}
+          </h3>
+          <p className="mt-0.5 text-[12px] text-[#8a7d68]">
+            {event.date} · {event.timeWindow}
+          </p>
+
+          <div className="relative mt-5 flex min-h-[7.5rem] items-center justify-center">
+            <SlotsFullStamp spots={event.maxRegistrations} />
+          </div>
         </div>
         <FutureEventInterestForm event={event} />
       </div>

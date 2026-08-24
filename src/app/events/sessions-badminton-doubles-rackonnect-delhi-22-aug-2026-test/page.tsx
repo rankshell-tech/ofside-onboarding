@@ -10,6 +10,7 @@ import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
 import RegistrationForm from "../sessions-badminton-doubles-rackonnect-delhi-22-aug-2026/RegistrationForm";
 import SessionsBrand from "../sessions-badminton-doubles-rackonnect-delhi-22-aug-2026/SessionsBrand";
+import SlotsFullStamp from "../sessions-badminton-doubles-rackonnect-delhi-22-aug-2026/SlotsFullStamp";
 
 /** Hidden unless ENABLE_EVENT_TEST_PAGE=true (local payment / Zoho dry-runs). */
 function isTestEventPageEnabled(): boolean {
@@ -74,21 +75,6 @@ async function registrationsClosed(): Promise<boolean> {
   return EVENT.completed || (await getSoldOut());
 }
 
-function ClosedCta({
-  className,
-  labelClassName,
-}: {
-  className: string;
-  labelClassName: string;
-}) {
-  return (
-    <span className={className}>
-      Event completed
-      <span className={labelClassName}>All slots full</span>
-    </span>
-  );
-}
-
 async function HeroDesktopCta() {
   const closed = await registrationsClosed();
   return (
@@ -100,10 +86,11 @@ async function HeroDesktopCta() {
         </p>
       </div>
       {closed ? (
-        <div className="flex flex-col items-end gap-2">
-          <ClosedCta
-            className="inline-flex flex-col items-end rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white"
-            labelClassName="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/55"
+        <div className="flex flex-col items-end gap-3">
+          <SlotsFullStamp
+            variant="light"
+            spots={EVENT.maxRegistrations}
+            className="slots-full-stamp--sm"
           />
           <a
             href="#register"
@@ -445,12 +432,19 @@ export default function EventPage() {
                         ₹{EVENT.displayPriceInr}
                       </p>
                     </div>
-                    <span className="inline-flex flex-col items-end rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white opacity-90">
-                      Event completed
-                      <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/55">
-                        All slots full
-                      </span>
-                    </span>
+                    <div className="flex flex-col items-end gap-3">
+                      <SlotsFullStamp
+                        variant="light"
+                        spots={EVENT.maxRegistrations}
+                        className="slots-full-stamp--sm"
+                      />
+                      <a
+                        href="#register"
+                        className="text-[12px] font-semibold text-[#FFF201] underline-offset-2 hover:underline"
+                      >
+                        Get updates for the next session
+                      </a>
+                    </div>
                   </div>
                 }
               >
