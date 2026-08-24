@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { unstable_cache } from "next/cache";
-import { TEST_EVENT as EVENT, formatInr, isEventHidden, priceForCheckout } from "@/lib/eventConfig";
+import { TEST_EVENT as EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
@@ -19,7 +19,7 @@ function isTestEventPageEnabled(): boolean {
 export const metadata: Metadata = {
   title: "SESSIONS Badminton Doubles at Rackonnect Delhi | 22 Aug 2026 | Ofside",
   description:
-    "Join SESSIONS by Ofside on 22 August 2026 — community badminton doubles at Rackonnect Badminton Arena, Mehrauli, New Delhi. Guaranteed matches and free Ofside PRO.",
+    "SESSIONS by Ofside on 22 August 2026 is completed — community badminton doubles at Rackonnect Badminton Arena, Mehrauli, New Delhi. All slots were full.",
   robots: {
     index: false,
     follow: false,
@@ -70,8 +70,27 @@ const getSoldOut = unstable_cache(
   { revalidate: 30 }
 );
 
+async function registrationsClosed(): Promise<boolean> {
+  return EVENT.completed || (await getSoldOut());
+}
+
+function ClosedCta({
+  className,
+  labelClassName,
+}: {
+  className: string;
+  labelClassName: string;
+}) {
+  return (
+    <span className={className}>
+      Event completed
+      <span className={labelClassName}>All slots full</span>
+    </span>
+  );
+}
+
 async function HeroDesktopCta() {
-  const soldOut = await getSoldOut();
+  const closed = await registrationsClosed();
   return (
     <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
       <div className="text-right text-white">
@@ -80,10 +99,19 @@ async function HeroDesktopCta() {
           ₹{EVENT.displayPriceInr}
         </p>
       </div>
-      {soldOut ? (
-        <span className="rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white/70">
-          All slots booked
-        </span>
+      {closed ? (
+        <div className="flex flex-col items-end gap-2">
+          <ClosedCta
+            className="inline-flex flex-col items-end rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white"
+            labelClassName="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/55"
+          />
+          <a
+            href="#register"
+            className="text-[12px] font-semibold text-[#FFF201] underline-offset-2 hover:underline"
+          >
+            Get updates for the next session
+          </a>
+        </div>
       ) : (
         <a
           href="#register"
@@ -127,7 +155,7 @@ function VenueCard({ withAddress = false }: { withAddress?: boolean }) {
           <path d="M12 7v5l3 2" />
         </svg>
         <span className="min-w-0 leading-snug">
-          Report by 6:40 PM ·{" "}
+          {EVENT.completed ? "Event completed" : "Report by 6:40 PM"} ·{" "}
           <a href="#schedule" className="font-semibold text-[#1c1c1c] underline underline-offset-2">
             Schedule
           </a>
@@ -144,16 +172,16 @@ function RegistrationSkeleton() {
 }
 
 async function DesktopRegistration() {
-  const soldOut = await getSoldOut();
+  const closed = await registrationsClosed();
   return (
     <div className="space-y-3">
       <VenueCard />
 
       <div id="register">
-        <RegistrationForm soldOut={soldOut} event={EVENT} />
+        <RegistrationForm soldOut={closed} event={EVENT} />
       </div>
 
-      {!soldOut ? (
+      {!closed ? (
         <p className="px-1 text-center text-xs text-[#888]">
           {EVENT.maxRegistrations} doubles spots · female doubles get 10% off
         </p>
@@ -163,27 +191,29 @@ async function DesktopRegistration() {
 }
 
 async function MobileRegistration() {
-  const soldOut = await getSoldOut();
+  const closed = await registrationsClosed();
   return (
     <>
       <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
-        {soldOut ? "All slots booked" : "Book your spot"}
+        {closed ? (EVENT.completed ? "Event completed" : "All slots booked") : "Book your spot"}
       </h2>
       <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
-        {soldOut
-          ? `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken.`
+        {closed
+          ? EVENT.completed
+            ? `This session is over. All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) were full. Leave your details below for the next one.`
+            : `All ${EVENT.maxRegistrations} doubles spots (${EVENT.maxPlayers} players) are taken. Leave your details below for the next one.`
           : "One checkout = you + your partner. Email OTP to verify, then pay."}
       </p>
       <div className="mx-auto mt-4 max-w-xl space-y-3">
         <VenueCard withAddress />
-        <RegistrationForm soldOut={soldOut} event={EVENT} />
+        <RegistrationForm soldOut={closed} event={EVENT} />
       </div>
     </>
   );
 }
 
 async function MobileStickyCta() {
-  const soldOut = await getSoldOut();
+  const closed = await registrationsClosed();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e8e8e8] bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
@@ -194,10 +224,13 @@ async function MobileStickyCta() {
           </p>
           <p className="text-[11px] text-[#888]">₹{formatInr(baseTotal)} - Doubles</p>
         </div>
-        {soldOut ? (
-          <span className="rounded-xl bg-[#f0f0f0] px-6 py-3 text-sm font-bold text-[#888]">
-            All slots booked
-          </span>
+        {closed ? (
+          <a
+            href="#register-mobile"
+            className="rounded-xl bg-[#FFF201] px-5 py-2.5 text-center text-sm font-bold text-[#1c1c1c]"
+          >
+            Get updates
+          </a>
         ) : (
           <a
             href="#register-mobile"
@@ -286,7 +319,7 @@ function ThingIcon({ name }: { name: string }) {
 }
 
 export default function EventPage() {
-  if (isEventHidden(EVENT) || !isTestEventPageEnabled()) notFound();
+  if (!isTestEventPageEnabled()) notFound();
 
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#1c1c1c]">
@@ -386,7 +419,7 @@ export default function EventPage() {
             <div className="relative z-10 flex flex-col gap-2 p-3 pt-0 sm:gap-6 sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:gap-8 lg:p-9">
               <div className="min-w-0 max-w-2xl">
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FFF201] sm:text-[11px]">
-                  {EVENT.edition}
+                  {EVENT.completed ? "Event completed · All slots full" : EVENT.edition}
                 </p>
                 <h1 className="mt-1 text-[1.45rem] font-bold leading-[1.12] tracking-tight text-white sm:mt-2 sm:text-[2.75rem] sm:leading-[1.08] lg:text-[3.15rem]">
                   Badminton doubles
@@ -412,8 +445,11 @@ export default function EventPage() {
                         ₹{EVENT.displayPriceInr}
                       </p>
                     </div>
-                    <span className="rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] opacity-70">
-                      Register Now
+                    <span className="inline-flex flex-col items-end rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white opacity-90">
+                      Event completed
+                      <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/55">
+                        All slots full
+                      </span>
                     </span>
                   </div>
                 }
@@ -661,10 +697,10 @@ export default function EventPage() {
               fallback={
                 <>
                   <h2 className="text-center text-xl font-bold tracking-tight text-[#1c1c1c] sm:text-2xl">
-                    Book your spot
+                    Event completed
                   </h2>
                   <p className="mx-auto mt-1.5 max-w-md px-1 text-center text-[14px] text-[#666] sm:text-[15px]">
-                    One checkout = you + your partner. Email OTP to verify, then pay.
+                    This session is over. All slots were full.
                   </p>
                   <div className="mx-auto mt-4 max-w-xl space-y-3">
                     <VenueCard withAddress />
@@ -693,9 +729,9 @@ export default function EventPage() {
               </div>
               <a
                 href="#register-mobile"
-                className="rounded-xl bg-[#FFF201] px-6 py-3 text-sm font-bold text-[#1c1c1c]"
+                className="rounded-xl bg-[#FFF201] px-5 py-2.5 text-center text-sm font-bold text-[#1c1c1c]"
               >
-                Register now
+                Get updates
               </a>
             </div>
           </div>

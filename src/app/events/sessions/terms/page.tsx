@@ -31,10 +31,10 @@ export default function SessionsTermsPage() {
     <main className="min-h-screen bg-[#f5f5f5] text-[#1c1c1c]">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
         <Link
-          href="/"
+          href="/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026"
           className="text-sm font-medium text-[#666] underline-offset-2 hover:text-[#1c1c1c] hover:underline"
         >
-          ← Back to home
+          ← Back to event
         </Link>
 
         <header className="mt-6 rounded-2xl border border-[#e8e8e8] bg-white px-5 py-7 sm:px-8 sm:py-9">

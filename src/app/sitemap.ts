@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { EVENT } from "@/lib/eventConfig";
 
 const SITE_URL = "https://ofside.in";
 
@@ -12,6 +13,11 @@ const staticRoutes: {
   { path: "/players", changeFrequency: "weekly", priority: 0.9 },
   { path: "/about-us", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact-us", changeFrequency: "monthly", priority: 0.8 },
+  {
+    path: `/events/${EVENT.path}`,
+    changeFrequency: "weekly",
+    priority: 0.9,
+  },
   {
     path: "/events/sessions/terms",
     changeFrequency: "monthly",

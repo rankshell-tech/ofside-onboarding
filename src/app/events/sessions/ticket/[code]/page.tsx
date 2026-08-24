@@ -149,10 +149,10 @@ export default async function SessionTicketPage({ params }: Props) {
                 Venue map
               </a>
               <Link
-                href="/"
+                href="/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026"
                 className="flex-1 rounded-xl bg-[#0f766e] py-2.5 text-center text-[13px] font-semibold text-white"
               >
-                Ofside home
+                Event page
               </Link>
             </div>
 

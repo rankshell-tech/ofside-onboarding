@@ -137,7 +137,7 @@ const EVENT_BASE = {
     "Registrations, payments and live scores are powered by Ofside. Spots are capped. Once full, the page shows sold out.",
 } as const;
 
-/** Public event — do not change slug once registrations exist. Hidden now that the night is over. */
+/** Public indexable event — do not change slug once registrations exist. */
 export const EVENT = {
   ...EVENT_BASE,
   /** Mongo / API event id — do not change once registrations exist. */
@@ -147,9 +147,9 @@ export const EVENT = {
   // Pricing — ₹290 per player → ₹580 doubles checkout (10% off if both female).
   pricePerPersonInr: 290,
   displayPriceInr: 290,
-  noindex: true,
-  /** Landing page, nav, and sitemap stay unpublished after the event. */
-  hidden: true,
+  noindex: false,
+  /** Night is over — landing page stays up, registrations stay closed. */
+  completed: true,
 } as const;
 
 /**
@@ -163,7 +163,7 @@ export const TEST_EVENT = {
   pricePerPersonInr: 2,
   displayPriceInr: 2,
   noindex: true,
-  hidden: true,
+  completed: true,
 } as const;
 
 export type EventConfig = typeof EVENT | typeof TEST_EVENT;
@@ -180,8 +180,8 @@ export function getEventBySlug(slug: string | null | undefined): EventConfig | n
   return BY_SLUG[slug] ?? null;
 }
 
-export function isEventHidden(event: EventConfig = EVENT): boolean {
-  return event.hidden;
+export function isEventCompleted(event: EventConfig = EVENT): boolean {
+  return event.completed;
 }
 
 export function resolveEvent(slug?: string | null): EventConfig {

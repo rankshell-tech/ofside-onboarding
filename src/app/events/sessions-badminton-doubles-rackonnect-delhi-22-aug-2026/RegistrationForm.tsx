@@ -10,6 +10,7 @@ import {
   type EventPlayerLevel,
 } from "@/lib/eventConfig";
 import { ticketAbsoluteUrl, ticketPath, ticketQrImageUrl } from "@/lib/ticket";
+import FutureEventInterestForm from "./FutureEventInterestForm";
 
 type Step = "you" | "partner" | "waiver" | "otp" | "pay" | "done";
 
@@ -482,17 +483,23 @@ export default function RegistrationForm({
     void pay();
   }, [step, registrationId, pay]);
 
-  if (liveSoldOut) {
+  if (event.completed || liveSoldOut) {
     return (
-      <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-lg text-red-500">
-          ✕
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-lg text-red-500">
+            ✕
+          </div>
+          <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">
+            {event.completed ? "Event completed" : "All slots booked"}
+          </h3>
+          <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">
+            {event.completed
+              ? `This session is over. All ${event.maxRegistrations} doubles spots (${event.maxPlayers} players) were full.`
+              : `All ${event.maxRegistrations} doubles spots (${event.maxPlayers} players) are taken.`}
+          </p>
         </div>
-        <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">All slots booked</h3>
-        <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">
-          All {event.maxRegistrations} doubles spots ({event.maxPlayers} players) are taken.
-          Follow Ofside for the next session.
-        </p>
+        <FutureEventInterestForm event={event} />
       </div>
     );
   }

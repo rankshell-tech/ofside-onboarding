@@ -218,6 +218,57 @@ export async function sendAdminRegistrationNotificationEmail(
   });
 }
 
+export async function sendInterestConfirmationEmail(to: string, name: string): Promise<void> {
+  const subject = `You're on the ${EVENT.seriesName} updates list`;
+  const html = `
+  <div style="font-family:Inter,Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0a0a0a;color:#fff;border-radius:16px">
+    <p style="text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:#FFF201;margin:0 0 8px">${EVENT.seriesName}</p>
+    <h1 style="font-size:22px;margin:0 0 8px">We'll keep you posted</h1>
+    <p style="color:#cfcfcf;font-size:14px;margin:0 0 12px">Hi ${escapeHtml(name || "there")}, thanks for your interest in upcoming ${EVENT.seriesName} nights.</p>
+    <p style="color:#cfcfcf;font-size:14px;margin:0">We'll share the latest dates, venues, and when registration opens. See you on court.</p>
+  </div>`;
+
+  await sendHtmlEmail({
+    to,
+    subject,
+    html,
+    context: "event-interest-confirm",
+  });
+}
+
+export async function sendAdminInterestNotificationEmail(input: {
+  name: string;
+  email: string;
+  phone: string;
+  city: string | null;
+  eventName: string;
+}): Promise<void> {
+  const subject = `New ${EVENT.seriesName} interest · ${input.name}`;
+  const html = `
+  <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#f5f5f5;color:#1c1c1c">
+    <div style="background:#111;color:#fff;border-radius:14px 14px 0 0;padding:18px 20px">
+      <p style="margin:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#FFF201">Admin alert</p>
+      <h1 style="margin:8px 0 0;font-size:20px">Future event interest</h1>
+      <p style="margin:8px 0 0;font-size:13px;opacity:.85">${escapeHtml(input.eventName)}</p>
+    </div>
+    <div style="background:#fff;border:1px solid #e5e5e5;border-top:0;border-radius:0 0 14px 14px;padding:20px">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.45">
+        <tr><td style="padding:6px 0;color:#888;width:140px">Name</td><td style="padding:6px 0">${escapeHtml(input.name)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Email</td><td style="padding:6px 0">${escapeHtml(input.email)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">Phone</td><td style="padding:6px 0">${escapeHtml(input.phone)}</td></tr>
+        <tr><td style="padding:6px 0;color:#888">City</td><td style="padding:6px 0">${escapeHtml(input.city || "—")}</td></tr>
+      </table>
+    </div>
+  </div>`;
+
+  await sendHtmlEmail({
+    to: ADMIN_NOTIFY_EMAIL,
+    subject,
+    html,
+    context: "event-interest-admin",
+  });
+}
+
 function escapeHtml(value: string): string {
   return String(value || "")
     .replace(/&/g, "&amp;")

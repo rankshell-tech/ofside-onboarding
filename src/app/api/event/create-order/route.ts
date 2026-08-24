@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
-import { EVENT, isEventHidden, resolveEvent, priceForCheckout } from "@/lib/eventConfig";
+import { EVENT, isEventCompleted, resolveEvent, priceForCheckout } from "@/lib/eventConfig";
 import { getRazorpay, razorpayConfigured, publicRazorpayKeyId } from "@/lib/razorpay";
 
 export async function POST(req: NextRequest) {
@@ -23,9 +23,9 @@ export async function POST(req: NextRequest) {
     if (!doc) return NextResponse.json({ success: false, message: "Registration not found." }, { status: 404 });
 
     const event = resolveEvent(String(doc.eventSlug || EVENT.slug));
-    if (isEventHidden(event))
+    if (isEventCompleted(event))
       return NextResponse.json(
-        { success: false, message: "This event has ended. Registrations are closed." },
+        { success: false, message: "This event is completed. All slots are full." },
         { status: 410 }
       );
 
