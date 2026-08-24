@@ -6,7 +6,13 @@ import { EVENT, type EventConfig } from "@/lib/eventConfig";
 const fieldCls =
   "w-full rounded-xl border-2 border-[#7ec4bc] bg-white px-3.5 py-3 text-[15px] font-medium text-[#1c1c1c] shadow-[0_2px_0_rgba(15,118,110,0.12)] outline-none transition placeholder:font-normal placeholder:text-[#6b7f7c] focus:border-[#0f766e] focus:shadow-[0_0_0_3px_rgba(15,118,110,0.18)]";
 
-export default function FutureEventInterestForm({ event = EVENT }: { event?: EventConfig }) {
+export default function FutureEventInterestForm({
+  event = EVENT,
+  embedded = false,
+}: {
+  event?: EventConfig;
+  embedded?: boolean;
+}) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -55,19 +61,23 @@ export default function FutureEventInterestForm({ event = EVENT }: { event?: Eve
 
   if (doneMessage) {
     return (
-      <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0f766e] text-lg text-white">
+      <div className={embedded ? "pt-1 text-center" : "rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-6 text-center shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)]"}>
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#0f766e] text-sm text-white">
           ✓
         </div>
-        <h3 className="mt-3 text-lg font-bold text-[#1c1c1c]">You&apos;re on the list</h3>
-        <p className="mx-auto mt-2 text-sm leading-relaxed text-[#666]">{doneMessage}</p>
+        <h3 className="mt-3 text-base font-bold text-[#1c1c1c]">You&apos;re on the list</h3>
+        <p className="mx-auto mt-1.5 text-sm leading-relaxed text-[#5f8f88]">{doneMessage}</p>
       </div>
     );
   }
 
   return (
     <form
-      className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-4 text-[#1c1c1c] shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)] sm:p-5"
+      className={
+        embedded
+          ? "border-t border-[#8fcfc6] pt-4 text-[#1c1c1c]"
+          : "rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-4 text-[#1c1c1c] shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)] sm:p-5"
+      }
       onSubmit={(e) => {
         e.preventDefault();
         void submit();

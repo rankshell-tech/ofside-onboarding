@@ -486,27 +486,19 @@ export default function RegistrationForm({
 
   if (event.completed || liveSoldOut) {
     return (
-      <div className="space-y-3">
-        <div className="relative overflow-hidden rounded-2xl border border-[#eadfce] bg-[#fffaf2] px-5 pb-6 pt-5 shadow-[0_12px_40px_-16px_rgba(15,118,110,0.12)]">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-3 left-[11px] w-px border-l border-dashed border-[#d7cbb8]"
-          />
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#9a8b74]">
-            {event.seriesName}
-          </p>
-          <h3 className="mt-1 text-lg font-bold tracking-tight text-[#1c1c1c]">
-            {event.completed ? "Event completed" : "Registration closed"}
-          </h3>
-          <p className="mt-0.5 text-[12px] text-[#8a7d68]">
-            {event.date} · {event.timeWindow}
-          </p>
-
-          <div className="relative mt-5 flex min-h-[7.5rem] items-center justify-center">
-            <SlotsFullStamp spots={event.maxRegistrations} />
+      <div className="rounded-2xl border border-[#8fcfc6] bg-[#c5ebe6] p-4 text-[#1c1c1c] shadow-[0_12px_40px_-16px_rgba(15,118,110,0.18)] sm:p-5">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-base font-bold tracking-tight text-[#1c1c1c]">
+              {event.completed ? "Event completed" : "Registration closed"}
+            </h3>
+            <p className="mt-0.5 text-xs text-[#5f8f88]">
+              {event.date} · {event.timeWindow}
+            </p>
           </div>
+          <SlotsFullStamp spots={event.maxRegistrations} size="sm" />
         </div>
-        <FutureEventInterestForm event={event} />
+        <FutureEventInterestForm event={event} embedded />
       </div>
     );
   }

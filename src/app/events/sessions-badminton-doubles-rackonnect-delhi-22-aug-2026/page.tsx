@@ -73,36 +73,40 @@ async function HeroDesktopCta() {
   const closed = await registrationsClosed();
   return (
     <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
-      <div className="text-right text-white">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
-        <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
-          ₹{EVENT.displayPriceInr}
-        </p>
-      </div>
       {closed ? (
         <div className="flex flex-col items-end gap-3">
-          <SlotsFullStamp
-            variant="light"
-            spots={EVENT.maxRegistrations}
-            className="slots-full-stamp--sm"
-          />
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">
+            Event completed
+          </p>
+          <SlotsFullStamp size="sm" spots={EVENT.maxRegistrations} />
           <a
             href="#register"
-            className="text-[12px] font-semibold text-[#FFF201] underline-offset-2 hover:underline"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
           >
-            Get updates for the next session
+            Get updates
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </a>
         </div>
       ) : (
-        <a
-          href="#register"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
-        >
-          Register Now
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
-        </a>
+        <>
+          <div className="text-right text-white">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
+            <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
+              ₹{EVENT.displayPriceInr}
+            </p>
+          </div>
+          <a
+            href="#register"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] transition hover:brightness-95"
+          >
+            Register Now
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+        </>
       )}
     </div>
   );
@@ -418,25 +422,13 @@ export default function EventPage() {
               <Suspense
                 fallback={
                   <div className="hidden shrink-0 lg:flex lg:flex-col lg:items-end lg:gap-3">
-                    <div className="text-right text-white">
-                      <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Per player</p>
-                      <p className="mt-0.5 text-4xl font-bold leading-none tracking-tight">
-                        ₹{EVENT.displayPriceInr}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-3">
-                      <SlotsFullStamp
-                        variant="light"
-                        spots={EVENT.maxRegistrations}
-                        className="slots-full-stamp--sm"
-                      />
-                      <a
-                        href="#register"
-                        className="text-[12px] font-semibold text-[#FFF201] underline-offset-2 hover:underline"
-                      >
-                        Get updates for the next session
-                      </a>
-                    </div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">
+                      Event completed
+                    </p>
+                    <SlotsFullStamp size="sm" spots={EVENT.maxRegistrations} />
+                    <span className="inline-flex items-center gap-2 rounded-xl bg-[#FFF201] px-7 py-3.5 text-sm font-bold text-[#1c1c1c] opacity-90">
+                      Get updates
+                    </span>
                   </div>
                 }
               >
