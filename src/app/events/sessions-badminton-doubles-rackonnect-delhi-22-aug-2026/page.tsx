@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { unstable_cache } from "next/cache";
-import { EVENT, formatInr, priceForCheckout } from "@/lib/eventConfig";
+import { EVENT, formatInr, isEventHidden, priceForCheckout } from "@/lib/eventConfig";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/mobileAppLinks";
 import { connectToDB } from "@/lib/mongo";
 import EventRegistration from "@/models/EventRegistration";
@@ -15,9 +16,9 @@ export const metadata: Metadata = {
   description:
     "Join SESSIONS by Ofside on 22 August 2026 — community badminton doubles at Rackonnect Badminton Arena, Mehrauli, New Delhi. Guaranteed matches and free Ofside PRO.",
   robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
   },
   openGraph: {
     title: "SESSIONS Badminton Doubles · Rackonnect Delhi · 22 Aug 2026",
@@ -280,6 +281,8 @@ function ThingIcon({ name }: { name: string }) {
 }
 
 export default function EventPage() {
+  if (isEventHidden(EVENT)) notFound();
+
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#1c1c1c]">
       <div className="mx-auto max-w-7xl px-3 pb-28 pt-4 sm:px-4 sm:pb-16 sm:pt-8 lg:px-6">

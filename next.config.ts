@@ -9,19 +9,29 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
+        source: '/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026-test',
+        destination: '/',
+        permanent: false,
+      },
+      {
         source: '/events/ofside-open-2',
-        destination: '/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026',
-        permanent: true,
+        destination: '/',
+        permanent: false,
       },
       {
         source: '/events/ofside-open-2/:path*',
-        destination: '/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026',
-        permanent: true,
+        destination: '/',
+        permanent: false,
       },
       {
         source: '/events/sessions-badminton-doubles-delhi',
-        destination: '/events/sessions-badminton-doubles-rackonnect-delhi-22-aug-2026',
-        permanent: true,
+        destination: '/',
+        permanent: false,
       },
       // VENUE PARTNER — disabled
       // {

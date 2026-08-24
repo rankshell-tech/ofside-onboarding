@@ -4,6 +4,7 @@ import EventRegistration, { ensureTicketCodeIndex } from "@/models/EventRegistra
 import {
   EVENT,
   getEventBySlug,
+  isEventHidden,
   priceForCheckout,
   type EventGender,
   type EventPlayerLevel,
@@ -53,6 +54,11 @@ export async function POST(req: NextRequest) {
     const event = getEventBySlug(eventSlug);
     if (!event)
       return NextResponse.json({ success: false, message: "Unknown event." }, { status: 400 });
+    if (isEventHidden(event))
+      return NextResponse.json(
+        { success: false, message: "This event has ended. Registrations are closed." },
+        { status: 410 }
+      );
 
     const leadName = String(body?.leadName || "").trim();
     const leadEmail = String(body?.leadEmail || "").trim().toLowerCase();
